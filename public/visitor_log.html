@@ -495,6 +495,7 @@ var EVOLVE_CHAT_DRAFT = '';
 var EVOLVE_CHAT_DOMAIN = 'general';
 var EVOLVE_POLL_TIMER = null;
 var EVOLVE_GENES_OPEN = false;
+var EVOLVE_FORCE_SCROLL = true;
 var ARK = { adsPanels: [], adsPanelCatalog: [], adsImports: [], adsRows: [], semrushImports: [], semrushKeywords: [], semrushFilters: {}, cursorCloudReady: false };
 var STATS = { todayCount: 0, weekCount: 0, totalClients: 0, totalRevenue: 0, pendingCount: 0 };
 
@@ -1076,9 +1077,11 @@ function scrollEvolveChat(force) {
   if (force || nearBottom) box.scrollTop = box.scrollHeight;
 }
 
-function bindEvolveComposer() {
+function bindEvolveComposer(opts) {
+  var forceScroll = !!(opts && opts.forceScroll);
   var ta = document.getElementById('evolveIdeaBody');
   var sel = document.getElementById('evolveDomain');
+  var hadFocus = !!(ta && document.activeElement === ta);
   if (sel) {
     sel.value = EVOLVE_CHAT_DOMAIN || 'general';
     sel.onchange = function() { EVOLVE_CHAT_DOMAIN = sel.value || 'general'; };
@@ -1093,9 +1096,12 @@ function bindEvolveComposer() {
         else addEvolveIdea();
       }
     };
-    try { ta.focus(); } catch (e) {}
+    if (hadFocus || forceScroll) {
+      try { ta.focus(); } catch (e) {}
+    }
   }
-  scrollEvolveChat(true);
+  scrollEvolveChat(forceScroll || EVOLVE_FORCE_SCROLL);
+  EVOLVE_FORCE_SCROLL = false;
 }
 
 function renderEvolve() {
@@ -1205,7 +1211,7 @@ function renderEvolve() {
   tab.innerHTML = html;
   var main = document.querySelector('.main');
   if (main && tab.classList.contains('active')) main.classList.add('evolve-mode');
-  bindEvolveComposer();
+  bindEvolveComposer({ forceScroll: EVOLVE_FORCE_SCROLL });
   syncEvolvePoll();
 }
 
@@ -1225,6 +1231,7 @@ function readEvolveComposer() {
 
 function clearEvolveComposer() {
   EVOLVE_CHAT_DRAFT = '';
+  EVOLVE_FORCE_SCROLL = true;
   var bodyEl = document.getElementById('evolveIdeaBody');
   if (bodyEl) bodyEl.value = '';
 }
@@ -3686,8 +3693,8 @@ function switchTab(tab, el) {
   if (tab === 'semrush') renderSemrush();
   if (tab === 'ads') renderAds();
   if (tab === 'evolve') {
+    EVOLVE_FORCE_SCROLL = true;
     renderEvolve();
-    bindEvolveComposer();
   } else if (EVOLVE_POLL_TIMER) {
     clearInterval(EVOLVE_POLL_TIMER);
     EVOLVE_POLL_TIMER = null;
