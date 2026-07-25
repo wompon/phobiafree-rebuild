@@ -1,0 +1,17 @@
+{
+  "slug": "fear-of-flying",
+  "title": "Fear of Flying — Fly Calm in One Session | PhobiaFree.life",
+  "description": "Overcome fear of flying in one peaceful Zoom session. No trance, no exposure, no long-term therapy. Certified clinical hypnotherapist.",
+  "cssHref": "/fear-of-flying/styles.css",
+  "photoUrl": "/fear-of-flying/img/flying.png",
+  "pfCurrentSlug": "fear-of-flying",
+  "pfSamePageSlugs": {
+    "fear-of-flying": true,
+    "aerophobia": true
+  },
+  "selectedPhobiaSlug": "fear-of-flying",
+  "assetDir": "fear-of-flying",
+  "latinSlug": "aerophobia",
+  "label": "Fear of Flying",
+  "image": "flying.png"
+}

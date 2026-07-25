@@ -1,0 +1,13 @@
+{
+  "name": "phobiafree-rebuild",
+  "version": "1.0.0",
+  "private": true,
+  "description": "PhobiaFree.life Cloudflare Worker site + build/deploy scripts",
+  "scripts": {
+    "deploy": "powershell -NoProfile -ExecutionPolicy Bypass -File ./deploy.ps1",
+    "optimize-images": "node scripts/optimize-hero-images.js"
+  },
+  "devDependencies": {
+    "sharp": "^0.33.5"
+  }
+}

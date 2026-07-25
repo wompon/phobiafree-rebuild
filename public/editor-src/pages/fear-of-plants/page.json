@@ -1,0 +1,17 @@
+{
+  "slug": "fear-of-plants",
+  "title": "Fear of Plants — Relief in One Session | PhobiaFree.life",
+  "description": "Overcome fear of plants in one peaceful Zoom session. No trance, no exposure, no long-term therapy.",
+  "cssHref": "/fear-of-plants/styles.css",
+  "photoUrl": "/fear-of-plants/img/plants.png",
+  "pfCurrentSlug": "fear-of-plants",
+  "pfSamePageSlugs": {
+    "fear-of-plants": true,
+    "botanophobia": true
+  },
+  "selectedPhobiaSlug": "fear-of-plants",
+  "assetDir": "fear-of-plants",
+  "latinSlug": "botanophobia",
+  "label": "Fear of Plants",
+  "image": "plants.png"
+}

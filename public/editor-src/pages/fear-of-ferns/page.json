@@ -1,0 +1,17 @@
+{
+  "slug": "fear-of-ferns",
+  "title": "Fear of Ferns — Relief in One Session | PhobiaFree.life",
+  "description": "Overcome fear of ferns in one peaceful Zoom session. No trance, no exposure, no long-term therapy.",
+  "cssHref": "/fear-of-ferns/styles.css",
+  "photoUrl": "/fear-of-ferns/img/ferns.png",
+  "pfCurrentSlug": "fear-of-ferns",
+  "pfSamePageSlugs": {
+    "fear-of-ferns": true,
+    "pteridophobia": true
+  },
+  "selectedPhobiaSlug": "fear-of-ferns",
+  "assetDir": "fear-of-ferns",
+  "latinSlug": "pteridophobia",
+  "label": "Fear of Ferns",
+  "image": "ferns.png"
+}

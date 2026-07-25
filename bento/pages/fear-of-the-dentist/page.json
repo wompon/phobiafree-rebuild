@@ -1,0 +1,17 @@
+{
+  "slug": "fear-of-the-dentist",
+  "title": "Fear of the Dentist — Relief in One Session | PhobiaFree.life",
+  "description": "Overcome fear of the dentist in one peaceful Zoom session. No trance, no exposure, no long-term therapy.",
+  "cssHref": "/fear-of-the-dentist/styles.css",
+  "photoUrl": "/fear-of-the-dentist/img/the-dentist.png",
+  "pfCurrentSlug": "fear-of-the-dentist",
+  "pfSamePageSlugs": {
+    "fear-of-the-dentist": true,
+    "dentophobia": true
+  },
+  "selectedPhobiaSlug": "fear-of-the-dentist",
+  "assetDir": "fear-of-the-dentist",
+  "latinSlug": "dentophobia",
+  "label": "Fear of the Dentist",
+  "image": "the-dentist.png"
+}

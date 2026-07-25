@@ -1,0 +1,17 @@
+{
+  "slug": "fear-of-rejection-sensitivity",
+  "title": "Rejection Sensitive Dysphoria — Relief in One Session | PhobiaFree.life",
+  "description": "Overcome rejection sensitive dysphoria in one peaceful Zoom session. No trance, no exposure, no long-term therapy.",
+  "cssHref": "/fear-of-rejection-sensitivity/styles.css",
+  "photoUrl": "/fear-of-rejection-sensitivity/img/rejection-sensitivity.png",
+  "pfCurrentSlug": "fear-of-rejection-sensitivity",
+  "pfSamePageSlugs": {
+    "fear-of-rejection-sensitivity": true,
+    "rejection-sensitive-dysphoria": true
+  },
+  "selectedPhobiaSlug": "fear-of-rejection-sensitivity",
+  "assetDir": "fear-of-rejection-sensitivity",
+  "latinSlug": "rejection-sensitive-dysphoria",
+  "label": "Rejection Sensitive Dysphoria",
+  "image": "rejection-sensitivity.png"
+}

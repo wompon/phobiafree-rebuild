@@ -1,0 +1,17 @@
+{
+  "slug": "fear-of-driving",
+  "title": "Fear of Driving — Take the Wheel in One Session | PhobiaFree.life",
+  "description": "Overcome fear of driving in one peaceful Zoom session.",
+  "cssHref": "/fear-of-driving/styles.css",
+  "photoUrl": "/fear-of-driving/img/driving.png",
+  "pfCurrentSlug": "fear-of-driving",
+  "pfSamePageSlugs": {
+    "fear-of-driving": true,
+    "amaxophobia": true
+  },
+  "selectedPhobiaSlug": "fear-of-driving",
+  "assetDir": "fear-of-driving",
+  "latinSlug": "amaxophobia",
+  "label": "Fear of Driving",
+  "image": "driving.png"
+}

@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Thank You — PhobiaFree.life</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&family=Cinzel:wght@400;600&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --teal: #1a6b72;
+    --teal-dark: #124d52;
+    --gold: #c9a84c;
+    --warm-white: #fdfaf5;
+    --charcoal: #2c2c2c;
+    --mid-gray: #6b6b6b;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--warm-white);
+    color: var(--charcoal);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+  }
+  .logo {
+    font-family: 'Cinzel', serif;
+    font-size: 1.4rem;
+    color: var(--teal);
+    text-decoration: none;
+    margin-bottom: 2rem;
+    letter-spacing: 0.04em;
+  }
+  .logo span { color: var(--gold); }
+  .card {
+    background: #fff;
+    border-radius: 4px;
+    border-top: 4px solid var(--teal);
+    padding: 2.75rem 2.25rem;
+    width: 100%;
+    max-width: 520px;
+    box-shadow: 0 8px 40px rgba(26,107,114,0.12);
+    text-align: center;
+  }
+  .icon {
+    width: 56px; height: 56px; border-radius: 50%;
+    background: rgba(26,107,114,0.1); color: var(--teal);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.6rem; margin: 0 auto 1.25rem;
+  }
+  h1 {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2rem;
+    font-weight: 400;
+    color: var(--teal-dark);
+    line-height: 1.25;
+    margin-bottom: 1rem;
+  }
+  .body {
+    font-size: 0.95rem;
+    color: var(--mid-gray);
+    line-height: 1.7;
+    margin-bottom: 1.5rem;
+  }
+  .follow-up {
+    font-size: 0.9rem;
+    color: var(--teal-dark);
+    background: rgba(26,107,114,0.06);
+    border: 1px solid rgba(26,107,114,0.15);
+    border-radius: 3px;
+    padding: 1rem 1.1rem;
+    line-height: 1.6;
+    margin-bottom: 1.75rem;
+    text-align: left;
+  }
+  .home {
+    display: inline-block;
+    padding: 0.85rem 1.4rem;
+    background: var(--teal);
+    color: #fff;
+    text-decoration: none;
+    border-radius: 2px;
+    font-family: 'Cinzel', serif;
+    font-size: 0.85rem;
+    letter-spacing: 0.06em;
+  }
+  .home:hover { background: var(--teal-dark); }
+</style>
+</head>
+<body>
+<a href="https://phobiafree.life" class="logo">Phobia<span>Free</span>.life</a>
+<div class="card">
+  <div class="icon">✓</div>
+  <h1 id="headline">Thank you</h1>
+  <p class="body" id="bodyText"></p>
+  <div class="follow-up">
+    I’ll send a follow-up email shortly. I’m available anytime for follow-up sessions or questions — at no charge.
+  </div>
+  <a class="home" href="https://phobiafree.life">Return home</a>
+</div>
+<script>
+(function () {
+  var params = new URLSearchParams(window.location.search);
+  var type = (params.get('type') || 'standard').toLowerCase();
+  var name = (params.get('name') || '').trim();
+  var hello = name ? (', ' + name) : '';
+  var headline = document.getElementById('headline');
+  var body = document.getElementById('bodyText');
+
+  if (type === 'veteran') {
+    headline.textContent = 'Thank you for your service' + hello;
+    body.textContent = 'Your donation has been received with deep gratitude.';
+  } else if (type === 'review') {
+    headline.textContent = 'Thank you for your review. You are so appreciated!';
+    body.textContent = 'Your donation has been received' + (name ? (', ' + name) : '') + '.';
+  } else if (type === 'senior') {
+    headline.textContent = 'Thank you for your kind donation' + hello;
+    body.textContent = 'Your generosity means a great deal.';
+  } else {
+    headline.textContent = 'Payment received' + hello;
+    body.textContent = 'Thank you. Your session payment has been confirmed.';
+  }
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+{
+  "slug": "fear-of-rejection",
+  "title": "Fear of Rejection — Relief in One Session | PhobiaFree.life",
+  "description": "Overcome fear of rejection in one peaceful Zoom session. No trance, no exposure, no long-term therapy.",
+  "cssHref": "/fear-of-rejection/styles.css",
+  "photoUrl": "/fear-of-rejection/img/rejection.png",
+  "pfCurrentSlug": "fear-of-rejection",
+  "pfSamePageSlugs": {
+    "fear-of-rejection": true,
+    "rejection-sensitivity": true
+  },
+  "selectedPhobiaSlug": "fear-of-rejection",
+  "assetDir": "fear-of-rejection",
+  "latinSlug": "rejection-sensitivity",
+  "label": "Fear of Rejection",
+  "image": "rejection.png"
+}

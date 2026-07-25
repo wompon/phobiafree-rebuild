@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="PhobiaFree.life services — one-session relief for fear of flying, heights, driving, and more.">
+  <title>Services — PhobiaFree.life</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&family=Sora:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/fear-of-flying/styles.css">
+</head>
+<body class="is-legal">
+
+<div class="page-photo" aria-hidden="true"></div>
+
+<header class="nav is-scrolled" id="nav">
+  <a class="brand" href="/my_fear">Phobia<span>Free</span>.life</a>
+  <button type="button" class="nav-toggle" id="navToggle" aria-expanded="false" aria-controls="navLinks" aria-label="Open menu">
+    <span class="nav-toggle-bar" aria-hidden="true"></span>
+    <span class="nav-toggle-bar" aria-hidden="true"></span>
+    <span class="nav-toggle-bar" aria-hidden="true"></span>
+  </button>
+  <nav class="nav-links" id="navLinks" aria-label="Primary">
+    <a href="/my_fear#problem">The problem</a>
+    <a href="/my_fear#how">How it works</a>
+    <a href="/my_fear#faq">FAQ</a>
+    <a href="/my_fear#investment">Investment</a>
+    <a href="/services" aria-current="page">Services</a>
+  </nav>
+  <a class="nav-cta btn-book" href="/my_fear?modal=1">Book Consultation</a>
+</header>
+
+<main class="legal-main" id="legalMain">
+  <article class="legal-card" onclick="event.stopPropagation()">
+    <a class="legal-close" href="/my_fear" aria-label="Close">&times;</a>
+    <span class="eyebrow">PhobiaFree.life</span>
+    <h1>Services</h1>
+    <p class="legal-lead">One peaceful Zoom session for the fear that’s been running the show. Pick yours to learn more — or book a complimentary consultation.</p>
+    <div class="services-grid" id="servicesGrid">
+      <a class="service-link" href="/fear-of-flying"><span>Fear of Flying</span></a>
+      <a class="service-link" href="/fear-of-heights"><span>Fear of Heights</span></a>
+      <a class="service-link" href="/fear-of-water"><span>Fear of Water</span></a>
+      <a class="service-link" href="/fear-of-driving"><span>Fear of Driving</span></a>
+      <a class="service-link" href="/fear-of-enclosed-spaces"><span>Fear of Enclosed Spaces</span></a>
+      <a class="service-link" href="/fear-of-public-speaking"><span>Fear of Public Speaking</span></a>
+      <a class="service-link" href="/fear-of-open-spaces"><span>Fear of Open Spaces</span></a>
+      <a class="service-link" href="/fear-of-spiders"><span>Fear of Spiders</span></a>
+      <a class="service-link" href="/fear-of-snakes"><span>Fear of Snakes</span></a>
+      <a class="service-link" href="/fear-of-dogs"><span>Fear of Dogs</span></a>
+      <a class="service-link" href="/fear-of-storms"><span>Fear of Storms</span></a>
+      <a class="service-link" href="/fear-of-the-dark"><span>Fear of the Dark</span></a>
+      <a class="service-link" href="/fear-of-clowns"><span>Fear of Clowns</span></a>
+      <a class="service-link" href="/fear-of-hospitals"><span>Fear of Hospitals</span></a>
+      <a class="service-link" href="/fear-of-doctors"><span>Fear of Doctors</span></a>
+      <a class="service-link" href="/fear-of-ferns"><span>Fear of Ferns</span></a>
+      <a class="service-link" href="/fear-of-plants"><span>Fear of Plants</span></a>
+      <a class="service-link" href="/fear-of-needles"><span>Fear of Needles</span></a>
+      <a class="service-link" href="/fear-of-blood"><span>Fear of Blood</span></a>
+      <a class="service-link" href="/fear-of-being-sick"><span>Fear of Being Sick</span></a>
+      <a class="service-link" href="/fear-of-germs"><span>Fear of Germs</span></a>
+      <a class="service-link" href="/fear-of-phone-calls"><span>Fear of Phone Calls</span></a>
+      <a class="service-link" href="/fear-of-sales-calls"><span>Sales Call Anxiety</span></a>
+      <a class="service-link" href="/fear-of-rejection"><span>Fear of Rejection</span></a>
+      <a class="service-link" href="/fear-of-rejection-sensitivity"><span>Rejection Sensitive Dysphoria</span></a>
+      <a class="service-link" href="/fear-of-the-dentist"><span>Fear of the Dentist</span></a>
+      <a class="service-link" href="/fear-of-crowds"><span>Fear of Crowds</span></a>
+      <a class="service-link" href="/fear-of-aging"><span>Fear of Aging</span></a>
+      <a class="service-link" href="/fear-of-mirrors"><span>Fear of Mirrors</span></a>
+      <a class="service-link" href="/fear-of-being-stared-at"><span>Fear of Being Stared At</span></a>
+      <a class="service-link" href="/fear-of-making-decisions"><span>Fear of Making Decisions</span></a>
+      <a class="service-link" href="/fear-of-eating-in-public"><span>Fear of Eating in Public</span></a>
+    </div>
+  </article>
+</main>
+
+<footer class="footer">
+  <p>© 2026 PhobiaFree.life</p>
+  <div class="footer-links">
+    <a href="/pfl-privacy">Privacy Policy</a>
+    <a href="/pfl-terms">Terms of Service</a>
+    <a href="/pfl-contact">Contact</a>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var BACK = '/my_fear';
+    var main = document.getElementById('legalMain');
+    var nav = document.getElementById('nav');
+    var navToggle = document.getElementById('navToggle');
+    var navLinks = document.getElementById('navLinks');
+    function setNavOpen(open) {
+      if (!nav) return;
+      nav.classList.toggle('is-open', open);
+      if (navToggle) {
+        navToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+        navToggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+      }
+    }
+    if (navToggle) {
+      navToggle.addEventListener('click', function () {
+        setNavOpen(!nav.classList.contains('is-open'));
+      });
+    }
+    if (navLinks) {
+      navLinks.querySelectorAll('a').forEach(function (a) {
+        a.addEventListener('click', function () { setNavOpen(false); });
+      });
+    }
+    if (main) {
+      main.addEventListener('click', function (e) {
+        if (e.target === main) window.location.href = BACK;
+      });
+    }
+    document.addEventListener('keydown', function (e) {
+      if (e.key !== 'Escape') return;
+      if (nav && nav.classList.contains('is-open')) {
+        setNavOpen(false);
+        return;
+      }
+      window.location.href = BACK;
+    });
+  })();
+</script>
+<style>
+  .services-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
+    gap: 0.75rem;
+    margin-top: 0.75rem;
+  }
+  .service-link {
+    display: block;
+    padding: 1rem 1.1rem;
+    border-radius: 14px;
+    background: #fff;
+    border: 1px solid rgba(12, 27, 36, 0.12);
+    color: var(--ink);
+    text-decoration: none;
+    font-size: 0.92rem;
+    font-weight: 600;
+    box-shadow: 0 6px 18px rgba(8, 24, 36, 0.06);
+    transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+  }
+  .service-link:hover {
+    transform: translateY(-2px);
+    border-color: rgba(13, 92, 99, 0.35);
+    box-shadow: 0 10px 24px rgba(8, 24, 36, 0.1);
+  }
+</style>
+
+</body>
+</html>

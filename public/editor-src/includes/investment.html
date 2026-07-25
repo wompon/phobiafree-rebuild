@@ -1,0 +1,58 @@
+<div class="modal-overlay" id="investmentModal" onclick="handleInvestmentOverlayClick(event)">
+  <div class="modal-box investment-box" onclick="event.stopPropagation()">
+    <button type="button" class="modal-close" onclick="closeInvestment()" aria-label="Close">&times;</button>
+    <span class="eyebrow">PhobiaFree.life</span>
+    <h2 class="investment-title">Pricing</h2>
+    <p class="investment-lead">Clear options. No surprise fees. Pay after complete satisfaction.</p>
+
+    <div class="price-promise">
+      <strong>Pay after Complete Satisfaction</strong>
+      <span>You pay when you’re fully satisfied with your session — not before.</span>
+    </div>
+
+    <div class="price-list">
+      <div class="price-card price-card--urgent">
+        <div class="price-card-top">
+          <span class="eyebrow">Urgent</span>
+          <div class="price-amount">$479</div>
+        </div>
+        <h3>Emergency consultation with immediate session</h3>
+        <p>Call ahead — book within 4 hours when you need help now.</p>
+        <a class="price-phone" href="tel:+18637120312">Call 863-712-0312</a>
+        <div class="meta">Tap to call for emergency consultation &amp; same-day session</div>
+      </div>
+
+      <div class="price-card">
+        <div class="price-card-top">
+          <span class="eyebrow">Standard</span>
+          <div class="price-amount">$279</div>
+        </div>
+        <h3>Book Consultation with future session</h3>
+        <p>Schedule a consultation, then book an available session for a time that works for you.</p>
+        <button type="button" class="btn btn-solid" onclick="closeInvestment(); openModal(event);">Book Consultation</button>
+      </div>
+
+      <div class="price-card">
+        <div class="price-card-top">
+          <span class="eyebrow">Special</span>
+          <div class="price-amount-stack">
+            <span class="price-was">$279</span>
+            <span class="price-amount price-amount--soft">Donation</span>
+          </div>
+        </div>
+        <h3>Book Consultation with future session and leave an honest review</h3>
+        <p>Schedule a consultation, then book an available session for a time that works for you.</p>
+        <button type="button" class="btn btn-solid" onclick="closeInvestment(); openModal(event);">Book Consultation</button>
+      </div>
+
+      <div class="price-card">
+        <div class="price-card-top">
+          <span class="eyebrow">Community</span>
+          <div class="price-amount price-amount--soft">Donation</div>
+        </div>
+        <h3>Seniors and Veterans</h3>
+        <p>Donation accepted.</p>
+      </div>
+    </div>
+  </div>
+</div>

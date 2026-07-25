@@ -1,0 +1,17 @@
+{
+  "slug": "fear-of-roaches",
+  "title": "Fear of Roaches — Relief in One Session | PhobiaFree.life",
+  "description": "Overcome fear of roaches in one peaceful Zoom session. No trance, no exposure, no long-term therapy.",
+  "cssHref": "/fear-of-roaches/styles.css",
+  "photoUrl": "/fear-of-roaches/img/roaches.png",
+  "pfCurrentSlug": "fear-of-roaches",
+  "pfSamePageSlugs": {
+    "fear-of-roaches": true,
+    "katsaridaphobia": true
+  },
+  "selectedPhobiaSlug": "fear-of-roaches",
+  "assetDir": "fear-of-roaches",
+  "latinSlug": "katsaridaphobia",
+  "label": "Fear of Roaches",
+  "image": "roaches.png"
+}

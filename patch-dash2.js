@@ -1,0 +1,13 @@
+﻿const fs = require('fs');
+const F = 'C:\\Users\\steve\\phobia-pages\\visitors.html';
+const CHAT = 'https://phobiafree-chat.soyuzlaunch.workers.dev';
+let c = fs.readFileSync(F, 'utf8');
+const guards = (c.match(/if\(isIndex\)return;/g) || []).length;
+c = c.split('if(isIndex)return;').join('');
+const oldS = "function setStatus(s){var d=new FormData();d.append('action',s);Promise.resolve().catch(function(){});}";
+const newS = "function setStatus(s){fetch('" + CHAT + "/status',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({status:s})}).catch(function(){});}";
+const wired = c.includes(oldS);
+if (wired) c = c.replace(oldS, newS);
+fs.writeFileSync(F, c, 'utf8');
+console.log('home-skip guards removed: ' + guards + '  (want 2)');
+console.log('online/offline button wired: ' + (wired ? 'yes' : 'NO — stop, tell me'));

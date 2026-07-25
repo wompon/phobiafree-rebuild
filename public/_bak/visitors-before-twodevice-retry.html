@@ -1,0 +1,1587 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="Phobia Free Life" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Visitors — PhobiaFree.life</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=Cinzel&display=swap" rel="stylesheet"/>
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:#0d1117;color:#fff;min-height:100vh;}
+
+#loginScreen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:2rem;background:#0d1117;}
+#loginScreen .card{background:#161b22;border:1px solid #30363d;border-radius:6px;padding:2.5rem;width:100%;max-width:360px;}
+#loginScreen .logo{font-family:'Cinzel',serif;color:#1a6b72;text-align:center;margin-bottom:2rem;font-size:1.1rem;}
+#loginScreen .logo span{color:#c9a84c;}
+#loginScreen label{display:block;font-size:0.78rem;color:#8b949e;margin-bottom:0.4rem;}
+#loginScreen input{width:100%;padding:0.65rem 0.85rem;background:#0d1117;border:1px solid #30363d;border-radius:3px;color:#fff;font-family:'DM Sans',sans-serif;font-size:0.88rem;outline:none;margin-bottom:1rem;}
+#loginScreen input:focus{border-color:#1a6b72;}
+#loginScreen button[type="submit"]{width:100%;padding:0.85rem;background:#1a6b72;color:#fff;border:none;border-radius:3px;font-family:'DM Sans',sans-serif;font-size:0.88rem;cursor:pointer;}
+#loginScreen .err{color:#f87171;font-size:0.78rem;margin-bottom:1rem;text-align:center;}
+#appShell{display:none;flex-direction:column;min-height:100vh;background:#0d1117;color:#fff;}
+
+:root{--teal:#1a6b72;--gold:#c9a84c;}
+*{box-sizing:border-box;margin:0;padding:0;}
+
+.topbar{display:flex;align-items:center;justify-content:space-between;padding:0.75rem 1.5rem;background:#161b22;border-bottom:1px solid #30363d;flex-shrink:0;}
+.logo{font-family:'Cinzel',serif;color:var(--teal);font-size:0.95rem;}
+.logo span{color:var(--gold);}
+.live-dot{width:8px;height:8px;border-radius:50%;background:#4caf50;animation:blink 2s infinite;display:inline-block;margin-right:4px;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0.3;}}
+.btn-logout{background:none;color:#6b6b6b;border:none;font-size:0.72rem;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.mode-toggle{display:flex;background:#0d1117;border:1px solid #30363d;border-radius:20px;overflow:hidden;}
+.mode-btn{padding:0.35rem 1.1rem;border:none;background:none;color:#6b6b6b;font-family:'DM Sans',sans-serif;font-size:0.78rem;font-weight:500;cursor:pointer;border-radius:20px;transition:all 0.2s;letter-spacing:0.03em;}
+.mode-btn.active{background:var(--teal);color:#fff;}
+.grid{flex:1;padding:1.5rem;display:flex;flex-wrap:wrap;gap:1.5rem;align-items:flex-start;overflow-y:auto;}
+.visitor-card{background:#161b22;border:1px solid #30363d;border-radius:6px;overflow:visible;display:flex;flex-direction:column;transition:opacity 0.2s;}
+.visitor-card.new{border-color:var(--teal);animation:glow 1.5s ease forwards;}
+.visitor-card.replay-card{border-color:#555;}
+.visitor-card.dragging{opacity:0.35;border-style:dashed;}
+.visitor-card.drag-over{border-color:var(--teal);box-shadow:0 0 12px rgba(26,107,114,0.4);}
+@keyframes glow{0%{box-shadow:0 0 20px rgba(26,107,114,0.6);}100%{box-shadow:none;}}
+.card-header{padding:0.4rem 0.5rem 0.4rem 0.75rem;background:#0d1117;border-bottom:1px solid #21262d;display:flex;align-items:center;gap:0.4rem;flex-shrink:0;}
+.card-section{font-size:0.65rem;color:var(--gold);flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.delete-btn{background:none;border:none;color:#444;cursor:pointer;font-size:1rem;line-height:1;padding:2px 4px;border-radius:2px;flex-shrink:0;}
+.delete-btn:hover{color:#f87171;}
+.cdot{width:11px;height:11px;border-radius:50%;flex-shrink:0;margin-left:3px;cursor:pointer;display:none;}
+.cdot.red{display:inline-block;background:#f87171;animation:blink 1.2s infinite;}
+.cdot.green{display:inline-block;background:#4caf50;animation:blink 1.2s infinite;}
+.screen-wrap{position:relative;overflow:hidden;flex-shrink:0;}
+.screen-iframe{border:none;transform-origin:top left;display:block;pointer-events:none;backface-visibility:hidden;-webkit-font-smoothing:antialiased;}
+.replay-card .screen-iframe{/* same CSS scale as live cards */}
+.replay-card.expanded{position:relative;z-index:5;box-shadow:0 12px 48px rgba(0,0,0,0.55);}
+.rpbtn.active{background:var(--teal);color:#fff;}
+.cursor-dot{position:absolute;width:14px;height:14px;border:2.5px solid var(--gold);border-radius:50%;transform:translate(-50%,-50%);pointer-events:none;z-index:10;box-shadow:0 0 10px rgba(201,168,76,0.7);transition:left 0.12s ease,top 0.12s ease;}
+.cursor-dot::after{content:'';position:absolute;width:4px;height:4px;background:var(--gold);border-radius:50%;top:50%;left:50%;transform:translate(-50%,-50%);}
+.click-ripple{position:absolute;border:2px solid rgba(201,168,76,0.8);border-radius:50%;transform:translate(-50%,-50%);pointer-events:none;z-index:11;animation:ripple 0.6s ease-out forwards;}
+@keyframes ripple{0%{width:10px;height:10px;opacity:1;}100%{width:40px;height:40px;opacity:0;}}
+.modal-alert{position:absolute;inset:0;background:rgba(201,168,76,0.12);border:2px solid var(--gold);pointer-events:none;z-index:20;animation:mflash 1s ease forwards;}
+@keyframes mflash{0%{opacity:1;}100%{opacity:0;}}
+.card-footer{padding:0.4rem 0.75rem;background:#0d1117;border-top:1px solid #21262d;display:flex;align-items:center;justify-content:space-between;font-size:0.65rem;color:#6b6b6b;}
+.msg-btn{background:var(--teal);color:#fff;border:none;border-radius:3px;padding:2px 8px;font-size:0.65rem;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.replay-controls{padding:0.5rem 0.75rem;background:#0d1117;border-top:1px solid #21262d;display:flex;flex-direction:column;gap:0.4rem;}
+.replay-scrubber{width:100%;height:4px;-webkit-appearance:none;appearance:none;background:#30363d;border-radius:2px;outline:none;cursor:pointer;}
+.replay-scrubber::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:var(--gold);cursor:pointer;}
+.replay-btns{display:flex;align-items:center;gap:0.4rem;}
+.rpbtn{background:#21262d;border:none;color:#ccc;border-radius:3px;padding:2px 8px;font-size:0.65rem;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.rpbtn:hover{background:#30363d;color:#fff;}
+.replay-time{font-size:0.65rem;color:#6b6b6b;margin-left:auto;}
+.empty{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;color:#6b6b6b;gap:0.75rem;text-align:center;padding:4rem;}
+.empty-icon{font-size:3rem;opacity:0.2;}
+.session-row{display:flex;align-items:center;gap:0.6rem;padding:0.65rem 1rem;border-bottom:1px solid #21262d;cursor:pointer;transition:background 0.15s;}
+.session-row:hover{background:#1a1f27;}
+.session-row.active{background:rgba(26,107,114,0.15);border-left:2px solid var(--teal);padding-left:calc(1rem - 2px);}
+.session-info{flex:1;min-width:0;}
+.session-loc{font-size:0.8rem;font-weight:500;color:#ccc;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.session-meta{font-size:0.68rem;color:#6b6b6b;margin-top:1px;}
+.session-del{background:none;border:none;color:#333;cursor:pointer;font-size:0.9rem;padding:2px 4px;border-radius:2px;flex-shrink:0;}
+.session-del:hover{color:#f87171;background:rgba(248,113,113,0.08);}
+.cpop{position:fixed;z-index:2000;width:210px;max-width:210px;max-height:min(420px,80vh);background:#161b22;border:1px solid #30363d;border-radius:8px;box-shadow:0 8px 40px rgba(0,0,0,0.5);flex-direction:column;overflow:hidden;display:none;box-sizing:border-box;}
+.cpop.show{display:flex;}
+.cpop-hdr{padding:0.35rem 0.5rem;background:#0d1117;border-bottom:1px solid #21262d;display:flex;align-items:center;gap:0.25rem;flex-shrink:0;cursor:move;user-select:none;-webkit-user-select:none;}
+.cpop-title{font-size:0.68rem;color:#ccc;font-weight:500;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.cpop-btn{background:none;border:none;color:#6b6b6b;cursor:pointer;font-size:0.85rem;padding:0 3px;line-height:1;flex-shrink:0;}
+.cpop-btn:hover{color:#ccc;}
+.cpop-links{padding:0.3rem 0.4rem;border-bottom:1px solid #21262d;display:flex;flex-wrap:wrap;gap:0.25rem;background:#0d1117;flex-shrink:0;}
+.cpop-msgs{height:140px;max-height:140px;min-height:0;flex:0 0 140px;overflow-x:hidden;overflow-y:auto;padding:0.5rem;display:flex;flex-direction:column;gap:0.35rem;background:#0d1117;box-sizing:border-box;}
+.cpop-input{padding:0.4rem;border-top:1px solid #21262d;display:flex;gap:0.3rem;flex-shrink:0;}
+.cpop-sendmode{display:none;padding:0.35rem 0.4rem;background:#0d1117;border-top:1px solid #30363d;gap:0.25rem;flex-wrap:wrap;align-items:center;flex-shrink:0;}
+.cpop-sendmode.open{display:flex;}
+.ql-btn{padding:2px 6px;background:#21262d;color:#ccc;border:1px solid #30363d;border-radius:3px;font-size:0.6rem;cursor:pointer;font-family:'DM Sans',sans-serif;}
+.cmsg{max-width:85%;padding:0.3rem 0.55rem;border-radius:10px;font-size:0.73rem;line-height:1.5;word-break:break-word;}
+.cmsg.me{background:var(--teal);color:#fff;border-radius:10px 10px 2px 10px;align-self:flex-end;margin-left:auto;}
+.cmsg.them{background:#21262d;color:#ccc;border-radius:10px 10px 10px 2px;align-self:flex-start;}
+.cmsg img{max-width:100%;max-height:90px;width:auto;height:auto;display:block;border-radius:6px;}
+.ctxt{flex:1;min-width:0;padding:0.32rem 0.5rem;background:#0d1117;border:1px solid #30363d;border-radius:15px;color:#fff;font-family:'DM Sans',sans-serif;font-size:0.72rem;outline:none;}
+.csnd{background:var(--teal);color:#fff;border:none;border-radius:50%;width:26px;height:26px;cursor:pointer;font-size:0.8rem;flex-shrink:0;}
+.welcome-badge{font-size:0.6rem;color:#4caf50;background:rgba(76,175,80,0.1);border:1px solid rgba(76,175,80,0.3);border-radius:3px;padding:1px 5px;margin-left:4px;white-space:nowrap;}
+@media(max-width:600px){
+  .cpop{width:min(280px,92vw) !important;max-width:min(280px,92vw) !important;left:50% !important;right:auto !important;bottom:1rem !important;top:auto !important;transform:translateX(-50%);}
+  .cpop-msgs{height:160px;max-height:160px;flex-basis:160px;}
+}
+</style>
+</head>
+<body>
+<div id="loginScreen">
+  <div class="card">
+    <div class="logo">Phobia<span>Free</span>.life</div>
+    <div id="loginErr" class="err" style="display:none"></div>
+    <form id="loginForm" onsubmit="return doLogin(event)">
+      <label>Username</label><input type="text" id="loginUser" autofocus/>
+      <label>Password</label><input type="password" id="loginPass"/>
+      <button type="submit">Sign In</button>
+    </form>
+    <p style="text-align:center;margin-top:0.8rem;"><button type="button" onclick="showForgot()" style="background:none;border:none;color:#9ecbd0;cursor:pointer;text-decoration:underline;font-size:0.8rem;">Forgot password?</button></p>
+    <form id="forgotForm" style="display:none;margin-top:0.8rem;" onsubmit="return doForgot(event)">
+      <button type="submit">Send reset link (SMS)</button>
+      <p style="text-align:center;margin-top:0.6rem;"><button type="button" onclick="showLoginFormOnly()" style="background:none;border:none;color:#9ecbd0;cursor:pointer;text-decoration:underline;font-size:0.8rem;">Back</button></p>
+    </form>
+    <form id="resetForm" style="display:none;margin-top:0.8rem;" onsubmit="return doReset(event)">
+      <label>New password</label><input type="password" id="resetPass" minlength="8" required/>
+      <label>Confirm</label><input type="password" id="resetPass2" minlength="8" required/>
+      <button type="submit">Update password</button>
+    </form>
+  </div>
+</div>
+<div id="appShell">
+
+<div class="topbar">
+  <div style="display:flex;align-items:center;gap:1rem;">
+    <div class="logo">Phobia<span>Free</span>.life</div>
+    <div class="mode-toggle">
+      <button class="mode-btn active" id="btnLive" onclick="setMode('live')">🟢 Live</button>
+      <button class="mode-btn" id="btnReplay" onclick="setMode('replay')">📼 Replay</button>
+    </div>
+  </div>
+  <div style="display:flex;align-items:center;gap:1rem;">
+    <button id="onlineBtn" onclick="toggleOnline()" style="padding:0.4rem 1.1rem;border:none;border-radius:20px;font-family:'DM Sans',sans-serif;font-size:0.78rem;font-weight:500;cursor:pointer;background:#8b2020;color:#fff;letter-spacing:0.03em;">Offline</button>
+    <span id="liveCounter" style="font-size:0.78rem;color:#8b949e;"><span class="live-dot"></span>On site: <strong id="countDisplay" style="color:#4caf50;">0</strong></span>
+    <button type="button" class="btn-logout" onclick="showChangePassword()">Password</button>
+    <button type="button" class="btn-logout" onclick="doLogout()">Sign Out</button>
+  </div>
+</div>
+<div id="changePasswordPanel" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:3000;align-items:center;justify-content:center;">
+  <div style="background:#161b22;border:1px solid #30363d;padding:1.2rem;border-radius:6px;width:min(92vw,340px);color:#ccc;">
+    <div style="margin-bottom:0.8rem;font-weight:600;">Change password</div>
+    <div id="changePassErr" class="err" style="display:none"></div>
+    <label>Current</label><input type="password" id="changeCurrent" style="width:100%;margin:0.3rem 0 0.6rem;padding:0.5rem;background:#0d1117;border:1px solid #30363d;color:#fff;"/>
+    <label>New</label><input type="password" id="changeNew" minlength="8" style="width:100%;margin:0.3rem 0 0.6rem;padding:0.5rem;background:#0d1117;border:1px solid #30363d;color:#fff;"/>
+    <label>Confirm</label><input type="password" id="changeNew2" minlength="8" style="width:100%;margin:0.3rem 0 0.8rem;padding:0.5rem;background:#0d1117;border:1px solid #30363d;color:#fff;"/>
+    <div style="display:flex;gap:0.5rem;">
+      <button type="button" onclick="doChangePassword()" style="padding:0.5rem 0.8rem;background:#1a6b72;color:#fff;border:none;border-radius:4px;cursor:pointer;">Save</button>
+      <button type="button" onclick="hideChangePassword()" style="padding:0.5rem 0.8rem;background:#30363d;color:#fff;border:none;border-radius:4px;cursor:pointer;">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- LIVE MODE -->
+<div id="liveGrid" class="grid">
+  <div class="empty" id="emptyState">
+    <div class="empty-icon">👁</div>
+    <div style="font-size:0.88rem;">No visitors on site right now</div>
+    <div style="font-size:0.75rem;color:#444;">Screens appear here when visitors arrive</div>
+  </div>
+</div>
+
+<!-- REPLAY MODE -->
+<div id="replayGrid" style="display:none;flex:1;flex-direction:row;min-height:0;">
+  <div id="sessionList" style="width:260px;flex-shrink:0;background:#161b22;border-right:1px solid #30363d;overflow-y:auto;display:flex;flex-direction:column;">
+    <div style="padding:0.75rem 1rem;border-bottom:1px solid #30363d;font-size:0.72rem;color:#6b6b6b;letter-spacing:0.08em;text-transform:uppercase;">Recorded Sessions</div>
+    <div id="sessionListBody"><div style="padding:2rem;text-align:center;color:#444;font-size:0.82rem;">Loading...</div></div>
+  </div>
+  <div id="replayCards" style="flex:1;padding:1.5rem;display:flex;flex-wrap:wrap;gap:1.5rem;align-items:flex-start;overflow-y:auto;">
+    <div class="empty"><div class="empty-icon">📼</div><div style="font-size:0.88rem;">Select a session to replay</div><div style="font-size:0.75rem;color:#444;">Click any session on the left</div></div>
+  </div>
+</div>
+
+<div id="popContainer"></div>
+
+<script>
+var PAGE_URLS = {
+  'home':            '/index.html?notrack=1&nowelcome=1',
+  'welcome':         '/index.html?notrack=1',
+  'welcome-home':             '/welcome-home.html?notrack=1',
+  'welcome-fear':             '/welcome-fear.html?notrack=1',
+  'welcome-fear-selected':    '/welcome-fear-selected.html?notrack=1',
+  'welcome-curious':          '/welcome-curious.html?notrack=1',
+  'welcome-curious-selected': '/welcome-curious-selected.html?notrack=1',
+  'welcome-why':              '/welcome-why.html?notrack=1',
+  'welcome-why-selected':     '/welcome-why-selected.html?notrack=1',
+  'welcome-friend':           '/welcome-friend.html?notrack=1',
+  'fear-of-flying': '/fear-of-flying?notrack=1',
+  'aerophobia': '/fear-of-flying?notrack=1',
+  'fear-of-heights': '/fear-of-heights?notrack=1',
+  'acrophobia': '/fear-of-heights?notrack=1',
+  'fear-of-water': '/fear-of-water?notrack=1',
+  'aquaphobia': '/fear-of-water?notrack=1',
+  'fear-of-driving': '/fear-of-driving?notrack=1',
+  'amaxophobia': '/fear-of-driving?notrack=1',
+  'fear-of-enclosed-spaces': '/fear-of-enclosed-spaces?notrack=1',
+  'claustrophobia': '/fear-of-enclosed-spaces?notrack=1',
+  'fear-of-public-speaking': '/fear-of-public-speaking?notrack=1',
+  'glossophobia': '/fear-of-public-speaking?notrack=1',
+  'fear-of-open-spaces': '/fear-of-open-spaces?notrack=1',
+  'agoraphobia': '/fear-of-open-spaces?notrack=1',
+  'fear-of-spiders': '/fear-of-spiders?notrack=1',
+  'arachnophobia': '/fear-of-spiders?notrack=1',
+  'fear-of-snakes': '/fear-of-snakes?notrack=1',
+  'ophidiophobia': '/fear-of-snakes?notrack=1',
+  'fear-of-dogs': '/fear-of-dogs?notrack=1',
+  'cynophobia': '/fear-of-dogs?notrack=1',
+  'fear-of-storms': '/fear-of-storms?notrack=1',
+  'astraphobia': '/fear-of-storms?notrack=1',
+  'fear-of-the-dark': '/fear-of-the-dark?notrack=1',
+  'nyctophobia': '/fear-of-the-dark?notrack=1',
+  'fear-of-clowns': '/fear-of-clowns?notrack=1',
+  'coulrophobia': '/fear-of-clowns?notrack=1',
+  'fear-of-hospitals': '/fear-of-hospitals?notrack=1',
+  'nosocomephobia': '/fear-of-hospitals?notrack=1',
+  'fear-of-doctors': '/fear-of-doctors?notrack=1',
+  'iatrophobia': '/fear-of-doctors?notrack=1',
+  'fear-of-ferns': '/fear-of-ferns?notrack=1',
+  'pteridophobia': '/fear-of-ferns?notrack=1',
+  'fear-of-plants': '/fear-of-plants?notrack=1',
+  'botanophobia': '/fear-of-plants?notrack=1',
+  'fear-of-needles': '/fear-of-needles?notrack=1',
+  'trypanophobia': '/fear-of-needles?notrack=1',
+  'fear-of-blood': '/fear-of-blood?notrack=1',
+  'hemophobia': '/fear-of-blood?notrack=1',
+  'fear-of-being-sick': '/fear-of-being-sick?notrack=1',
+  'emetophobia': '/fear-of-being-sick?notrack=1',
+  'fear-of-germs': '/fear-of-germs?notrack=1',
+  'mysophobia': '/fear-of-germs?notrack=1',
+  'fear-of-phone-calls': '/fear-of-phone-calls?notrack=1',
+  'telephobia': '/fear-of-phone-calls?notrack=1',
+  'fear-of-sales-calls': '/fear-of-sales-calls?notrack=1',
+  'sales-call-anxiety': '/fear-of-sales-calls?notrack=1',
+  'fear-of-rejection': '/fear-of-rejection?notrack=1',
+  'rejection-sensitivity': '/fear-of-rejection?notrack=1',
+  'fear-of-rejection-sensitivity': '/fear-of-rejection-sensitivity?notrack=1',
+  'rejection-sensitive-dysphoria': '/fear-of-rejection-sensitivity?notrack=1',
+  'fear-of-the-dentist': '/fear-of-the-dentist?notrack=1',
+  'dentophobia': '/fear-of-the-dentist?notrack=1',
+  'fear-of-crowds': '/fear-of-crowds?notrack=1',
+  'enochlophobia': '/fear-of-crowds?notrack=1',
+  'fear-of-aging': '/fear-of-aging?notrack=1',
+  'gerascophobia': '/fear-of-aging?notrack=1',
+  'fear-of-mirrors': '/fear-of-mirrors?notrack=1',
+  'eisoptrophobia': '/fear-of-mirrors?notrack=1',
+  'fear-of-being-stared-at': '/fear-of-being-stared-at?notrack=1',
+  'scopophobia': '/fear-of-being-stared-at?notrack=1',
+  'fear-of-making-decisions': '/fear-of-making-decisions?notrack=1',
+  'decidophobia': '/fear-of-making-decisions?notrack=1',
+  'fear-of-eating-in-public': '/fear-of-eating-in-public?notrack=1',
+  'deipnophobia': '/fear-of-eating-in-public?notrack=1',
+  'my_fear': '/my_fear?notrack=1',
+  'my-fear': '/my_fear?notrack=1',
+  'pfl-privacy': '/pfl-privacy?notrack=1',
+  'pfl-terms': '/pfl-terms?notrack=1',
+  'pfl-contact': '/pfl-contact?notrack=1',
+  'privacy': '/pfl-privacy?notrack=1',
+  'terms': '/pfl-terms?notrack=1',
+  'contact': '/pfl-contact?notrack=1'
+};
+function getPageUrl(slug){
+  if (PAGE_URLS[slug]) return PAGE_URLS[slug];
+  if (slug && /^fear-of-/.test(slug)) return '/'+slug+'?notrack=1';
+  if (slug && /^pfl-/.test(slug)) return '/'+slug+'?notrack=1';
+  if (slug === 'my_fear' || slug === 'my-fear') return '/my_fear?notrack=1';
+  return PAGE_URLS['home'];
+}
+
+var welcomeLabels = {
+  'home':'🚪 Welcome','fear':'🌿 Fear Cloud','fear-selected':'🎯 Fear',
+  'curious':'✨ Curious','curious-selected':'🧠 Topic',
+  'why':'🌀 Why I\'m Here','why-selected':'💫 Why','friend':'💛 For Someone I Love',
+};
+function parseWelcomeSection(section) {
+  if (!section || section.indexOf('welcome-') !== 0) return null;
+  var raw = section.replace('welcome-', '').replace(/&amp;/g,'&').replace(/&#0?39;/g,"'").replace(/&quot;/g,'"').replace(/&lt;/g,'<').replace(/&gt;/g,'>');
+  var parts = raw.split(':');
+  return { scene: parts[0], item: parts[1] || '' };
+}
+function welcomeSceneLabel(section) {
+  var p = parseWelcomeSection(section);
+  if (!p) return section;
+  var base = welcomeLabels[p.scene] || p.scene;
+  return p.item ? base + ': ' + p.item : base;
+}
+
+var CARD_W = 280;
+var replayExpanded = {}; // vid -> bool (optional wider thumbnail)
+
+function replayW(vid) {
+  return replayExpanded[vid] ? Math.min(520, Math.max(320, window.innerWidth - 48)) : CARD_W;
+}
+
+function applyReplayIframeScale(ifr, vw, vh, cardW) {
+  if (!ifr || !vw) return;
+  var scale = cardW / vw;
+  ifr.style.width = vw + 'px';
+  ifr.style.height = (vh || 800) + 'px';
+  ifr.style.transformOrigin = 'top left';
+  ifr.style.transform = 'scale(' + scale + ')';
+  ifr.style.zoom = '';
+}
+var vdata = {}, vcards = {}, vpopups = {}, vstate = {};
+var viframePage = {}, viframeScene = {}, viframeReady = {};
+var viframeFirstLoad = {};
+var dragCard = null;
+var hiddenVids = new Set();
+var currentMode = 'live';
+
+var sectionLabels = {
+  'hero':'Hero','aspirational':'Aspirational','problem':'Problem',
+  'guide':'About','process':'Process','differentiator':'Differentiator',
+  'testimonials':'Testimonials','faq':'FAQ','failure':'Cost of Fear',
+  'success':'Success','final-cta':'Final CTA',
+  'consult-modal':'Booking modal'
+};
+var pageLabels = {
+  'fear-of-flying':'Fear of Flying',
+  'aerophobia':'Fear of Flying',
+  'fear-of-heights':'Fear of Heights',
+  'acrophobia':'Fear of Heights',
+  'fear-of-water':'Fear of Water',
+  'aquaphobia':'Fear of Water',
+  'fear-of-driving':'Fear of Driving',
+  'amaxophobia':'Fear of Driving',
+  'fear-of-enclosed-spaces':'Fear of Enclosed Spaces',
+  'claustrophobia':'Fear of Enclosed Spaces',
+  'fear-of-public-speaking':'Fear of Public Speaking',
+  'glossophobia':'Fear of Public Speaking',
+  'fear-of-open-spaces':'Fear of Open Spaces',
+  'agoraphobia':'Fear of Open Spaces',
+  'fear-of-spiders':'Fear of Spiders',
+  'arachnophobia':'Fear of Spiders',
+  'fear-of-snakes':'Fear of Snakes',
+  'ophidiophobia':'Fear of Snakes',
+  'fear-of-dogs':'Fear of Dogs',
+  'cynophobia':'Fear of Dogs',
+  'fear-of-storms':'Fear of Storms',
+  'astraphobia':'Fear of Storms',
+  'fear-of-the-dark':'Fear of the Dark',
+  'nyctophobia':'Fear of the Dark',
+  'fear-of-clowns':'Fear of Clowns',
+  'coulrophobia':'Fear of Clowns',
+  'fear-of-hospitals':'Fear of Hospitals',
+  'nosocomephobia':'Fear of Hospitals',
+  'fear-of-doctors':'Fear of Doctors',
+  'iatrophobia':'Fear of Doctors',
+  'fear-of-ferns':'Fear of Ferns',
+  'pteridophobia':'Fear of Ferns',
+  'fear-of-plants':'Fear of Plants',
+  'botanophobia':'Fear of Plants',
+  'fear-of-needles':'Fear of Needles',
+  'trypanophobia':'Fear of Needles',
+  'fear-of-blood':'Fear of Blood',
+  'hemophobia':'Fear of Blood',
+  'fear-of-being-sick':'Fear of Being Sick',
+  'emetophobia':'Fear of Being Sick',
+  'fear-of-germs':'Fear of Germs',
+  'mysophobia':'Fear of Germs',
+  'fear-of-phone-calls':'Fear of Phone Calls',
+  'telephobia':'Fear of Phone Calls',
+  'fear-of-sales-calls':'Sales Call Anxiety',
+  'sales-call-anxiety':'Sales Call Anxiety',
+  'fear-of-rejection':'Fear of Rejection',
+  'rejection-sensitivity':'Fear of Rejection',
+  'fear-of-rejection-sensitivity':'Rejection Sensitive Dysphoria',
+  'rejection-sensitive-dysphoria':'Rejection Sensitive Dysphoria',
+  'fear-of-the-dentist':'Fear of the Dentist',
+  'dentophobia':'Fear of the Dentist',
+  'fear-of-crowds':'Fear of Crowds',
+  'enochlophobia':'Fear of Crowds',
+  'fear-of-aging':'Fear of Aging',
+  'gerascophobia':'Fear of Aging',
+  'fear-of-mirrors':'Fear of Mirrors',
+  'eisoptrophobia':'Fear of Mirrors',
+  'fear-of-being-stared-at':'Fear of Being Stared At',
+  'scopophobia':'Fear of Being Stared At',
+  'fear-of-making-decisions':'Fear of Making Decisions',
+  'decidophobia':'Fear of Making Decisions',
+  'fear-of-eating-in-public':'Fear of Eating in Public',
+  'deipnophobia':'Fear of Eating in Public',
+  'my_fear':'My Fear',
+  'my-fear':'My Fear',
+  'pfl-privacy':'Privacy Policy',
+  'pfl-terms':'Terms of Service',
+  'pfl-contact':'Contact',
+  'privacy':'Privacy Policy',
+  'terms':'Terms of Service',
+  'contact':'Contact',
+  'home':'Home','welcome':'Welcome'
+};
+
+// ═══════════════════════════════════════════════════
+// MODE SWITCHING
+// ═══════════════════════════════════════════════════
+function setMode(mode) {
+  currentMode = mode;
+  document.getElementById('btnLive').classList.toggle('active', mode==='live');
+  document.getElementById('btnReplay').classList.toggle('active', mode==='replay');
+  document.getElementById('liveGrid').style.display = mode==='live' ? 'flex' : 'none';
+  document.getElementById('replayGrid').style.display = mode==='replay' ? 'flex' : 'none';
+  document.getElementById('liveCounter').style.display = mode==='live' ? 'flex' : 'none';
+  if (mode==='replay') loadSessionList();
+  // Live polling keeps running in either mode — watching a replay must never
+  // pause live updates or make it look like recording stopped.
+}
+
+// ═══════════════════════════════════════════════════
+// REPLAY — SESSION LIST
+// ═══════════════════════════════════════════════════
+function loadSessionList() {
+  fetch('/api/sessions',{credentials:'include'}).then(function(r){return r.json();})
+  .then(function(rows){
+    var body = document.getElementById('sessionListBody');
+    if (!rows.length) {
+      body.innerHTML = '<div style="padding:2rem;text-align:center;color:#444;font-size:0.82rem;">No recordings yet.<br><span style="font-size:0.72rem;color:#333;">Sessions record as visitors browse.</span></div>';
+      return;
+    }
+    var html = '';
+    rows.forEach(function(s) {
+      var mins = Math.floor(s.total_seconds/60), secs = s.total_seconds%60;
+      var timeStr = mins>0 ? mins+'m '+secs+'s' : secs+'s';
+      var loc = (s.location||'Unknown').replace(/,\s*[A-Z]{2},.*$/,'').replace(/,\s*[A-Z]{2}$/,'');
+      var when = s.last_seen ? new Date(s.last_seen.replace(' ','T')).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}) : '—';
+      html += '<div class="session-row" id="srow_'+s.vid+'" data-vid="'+s.vid+'" onclick="loadReplay(\''+s.vid+'\',this)">'
+        +'<div style="font-size:1rem;">'+devIcon(s.device)+'</div>'
+        +'<div class="session-info">'
+        +'<div class="session-loc">'+loc+'</div>'
+        +'<div class="session-meta">'+when+' · '+timeStr+' · '+s.snap_count+' frames</div>'
+        +'</div>'
+        +'<button class="session-del" title="Delete" onclick="deleteRecording(event,\''+s.vid+'\')">&times;</button>'
+        +'</div>';
+    });
+    body.innerHTML = html;
+  }).catch(function(){});
+}
+
+function deleteRecording(e, vid) {
+  e.stopPropagation();
+  if (!confirm('Delete this recording?')) return;
+  fetch('/api/delete',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({vid:vid})}).then(function(){
+    var row = document.getElementById('srow_'+vid);
+    if (row) row.remove();
+    closeReplayCard(vid);
+  });
+}
+
+// ═══════════════════════════════════════════════════
+// REPLAY — LOAD & PLAY
+// Uses same updateCard logic as live view
+// ═══════════════════════════════════════════════════
+var replayState = {};
+var rviframePage = {}, rviframeScene = {}, rviframeReady = {}, rviframeFirstLoad = {};
+
+// Force all scroll-reveal content visible in a replay phobia-page iframe.
+// The live pages start sections at opacity:0 and reveal them via an
+// IntersectionObserver on real scroll — which never fires when we scroll
+// the iframe programmatically, leaving everything below the header white.
+function rForceVisibleOnce(vid) {
+  try {
+    var ifr = document.getElementById('rif_'+vid);
+    if (!ifr) return;
+    var d = ifr.contentDocument;
+    if (!d) return;
+    d.querySelectorAll('.problem-card, .step, .credential, .faq-item, .success-stat, .failure-card, .hero-btns, .hero-content > *')
+      .forEach(function(el){ el.style.opacity = '1'; el.style.transform = 'none'; el.style.animation = 'none'; });
+  } catch(e){}
+}
+function rForceVisible(vid) {
+  // On-load version: apply now plus a few retries while images/fonts settle.
+  rForceVisibleOnce(vid);
+  setTimeout(function(){ rForceVisibleOnce(vid); }, 150);
+  setTimeout(function(){ rForceVisibleOnce(vid); }, 500);
+  setTimeout(function(){ rForceVisibleOnce(vid); }, 1000);
+}
+
+// ═══════════════════════════════════════════════════
+// REPLAY MAP POOL — one iframe per page, built ONCE, kept forever.
+// This mirrors how LIVE mode works (load once, move the dot) instead of
+// reloading the iframe on every page change (which caused white screens).
+// ═══════════════════════════════════════════════════
+var replayMaps = {};   // replayMaps[vid][slug] = iframe element (a "map")
+
+// Get the map (iframe) for a given page slug, building it once if needed.
+function getReplayMap(vid, slug, vw, vh) {
+  if (!replayMaps[vid]) replayMaps[vid] = {};
+  var pool = replayMaps[vid];
+  var cardW = replayW(vid);
+  if (pool[slug]) {
+    applyReplayIframeScale(pool[slug], vw, vh, cardW);
+    return pool[slug];
+  }
+
+  var sw = document.getElementById('rsw_'+vid);
+  if (!sw) return null;
+
+  var ifr = document.createElement('iframe');
+  ifr.className = 'screen-iframe';
+  ifr.id = 'rmap_'+vid+'_'+slug.replace(/[^a-z0-9_-]/gi,'');
+  ifr.style.position = 'absolute';
+  ifr.style.top = '0';
+  ifr.style.left = '0';
+  ifr.style.display = 'none';
+  ifr.setAttribute('data-ready','0');
+  ifr.setAttribute('data-slug', slug);
+  applyReplayIframeScale(ifr, vw, vh, cardW);
+  ifr.src = getPageUrl(slug);
+
+  ifr.addEventListener('load', function(){
+    ifr.setAttribute('data-ready','1');
+    try {
+      var doc = ifr.contentDocument;
+      if (doc && doc.head && !doc.getElementById('pf-replay-sharp')) {
+        var st = doc.createElement('style');
+        st.id = 'pf-replay-sharp';
+        st.textContent = 'html,body{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;}';
+        doc.head.appendChild(st);
+      }
+    } catch(e){}
+    if (slug === 'welcome') {
+      rShowWelcomeEl(ifr);
+    } else {
+      rForceVisibleEl(ifr);
+      setTimeout(function(){ rForceVisibleEl(ifr); }, 200);
+      setTimeout(function(){ rForceVisibleEl(ifr); }, 600);
+    }
+  }, {once:true});
+
+  var dot = document.getElementById('rcu_'+vid);
+  if (dot) sw.insertBefore(ifr, dot); else sw.appendChild(ifr);
+  pool[slug] = ifr;
+  return ifr;
+}
+
+// Show one map, hide the others for this card.
+function showReplayMap(vid, slug) {
+  var pool = replayMaps[vid]; if (!pool) return null;
+  var active = null;
+  Object.keys(pool).forEach(function(s){
+    if (s === slug) { pool[s].style.display = 'block'; active = pool[s]; }
+    else pool[s].style.display = 'none';
+  });
+  return active;
+}
+
+function rForceVisibleEl(ifr) {
+  try {
+    var d = ifr.contentDocument; if (!d) return;
+    d.querySelectorAll('.problem-card, .step, .credential, .faq-item, .success-stat, .failure-card, .hero-btns, .hero-content > *')
+      .forEach(function(el){ el.style.opacity='1'; el.style.transform='none'; el.style.animation='none'; });
+  } catch(e){}
+}
+function rShowWelcomeEl(ifr) {
+  try {
+    var win = ifr.contentWindow; if (!win || !win.document) return;
+    var ws = win.document.getElementById('welcome-screen');
+    if (ws) ws.style.display = 'flex';
+    ['hero','aspirational','problem','guide','process','differentiator',
+     'testimonials','faq','failure','success','final-cta','footer','nav'].forEach(function(id){
+      var el = win.document.getElementById(id); if (el) el.style.display='none';
+    });
+  } catch(e){}
+}
+function rMirrorWelcomeEl(ifr, section) {
+  var parsed = parseWelcomeSection(section); if (!parsed) return;
+  try {
+    var win = ifr.contentWindow; if (!win) return;
+    rShowWelcomeEl(ifr);
+    if (typeof win.go === 'function') win.go(parsed.scene);
+    if (parsed.item) {
+      if (parsed.scene==='fear-selected'&&win.fears&&typeof win.selectFear==='function'){for(var i=0;i<win.fears.length;i++){if(win.fears[i].label===parsed.item){win.selectFear(win.fears[i]);break;}}}
+      if (parsed.scene==='curious-selected'&&win.curiosities&&typeof win.selectCurio==='function'){for(var j=0;j<win.curiosities.length;j++){if(win.curiosities[j].label===parsed.item){win.selectCurio(win.curiosities[j]);break;}}}
+      if (parsed.scene==='why-selected'&&win.whys&&typeof win.selectWhy==='function'){for(var k=0;k<win.whys.length;k++){if(win.whys[k].label===parsed.item){win.selectWhy(win.whys[k]);break;}}}
+    }
+  } catch(e){}
+}
+
+function loadReplay(vid, rowEl) {
+  document.querySelectorAll('.session-row').forEach(function(r){r.classList.remove('active');});
+  rowEl.classList.add('active');
+  // Only one replay open at a time.
+  Object.keys(replayState).forEach(function(other) {
+    if (other !== vid) closeReplayCard(other);
+  });
+  if (replayState[vid]) {
+    var existing = document.getElementById('rvc_'+vid);
+    if (existing) {
+      existing.scrollIntoView({behavior:'smooth',block:'start'});
+      startReplayTail(vid);
+      return;
+    }
+  }
+  fetch('/api/replay?vid='+encodeURIComponent(vid),{credentials:'include'}).then(function(r){return r.json();})
+  .then(function(snaps){
+    if (!snaps.length) { alert('No replay data for this session yet.'); return; }
+
+    var first = snaps[0];
+    var vw = first.vw || 1200;
+    var vh = first.vh || 800;
+    var cardW = replayW(vid);
+    var scale = cardW / vw;
+    var dh = Math.round(vh * scale);
+
+    var t0   = new Date(first._ts.replace(' ','T')).getTime();
+    var tEnd = new Date(snaps[snaps.length-1]._ts.replace(' ','T')).getTime();
+    var duration = Math.max(1000, tEnd - t0);
+
+    // Init replay iframe tracking vars (separate from live)
+    rviframePage[vid]      = first.page || 'home';
+    rviframeScene[vid]     = '';
+    rviframeReady[vid]     = false;
+    rviframeFirstLoad[vid] = first.first_load || 0;
+
+    var durationSec = Math.round(duration/1000);
+    var dm = Math.floor(durationSec/60), ds = durationSec%60;
+    var durStr = dm>0 ? dm+'m '+ds+'s' : ds+'s';
+    var loc = (first.location||'Unknown').replace(/,\s*[A-Z]{2},.*$/,'').replace(/,\s*[A-Z]{2}$/,'');
+
+    var el = document.createElement('div');
+    el.className = 'visitor-card replay-card';
+    el.id = 'rvc_'+vid;
+    el.style.width = cardW+'px';
+    el.innerHTML =
+      '<div class="card-header">'
+      +'<span class="card-section" id="rcs_'+vid+'">📼 '+loc+'</span>'
+      +'<button class="delete-btn" onclick="closeReplayCard(\''+vid+'\')">&times;</button>'
+      +'</div>'
+      +'<div class="screen-wrap" id="rsw_'+vid+'" style="width:'+cardW+'px;height:'+dh+'px;">'
+      +'<div class="cursor-dot" id="rcu_'+vid+'" style="display:none;left:'+Math.round(cardW/2)+'px;top:'+Math.round(dh/2)+'px;"></div>'
+      +'</div>'
+      +'<div class="card-footer">'
+      +'<span id="rfl_'+vid+'">'+devIcon(first.device||'')+'</span>'
+      +'<span id="rtm_'+vid+'">0s / '+durStr+'</span>'
+      +'</div>'
+      +'<div class="replay-controls">'
+      +'<input type="range" class="replay-scrubber" id="rsc_'+vid+'" min="0" max="10000" value="0" oninput="scrubReplay(\''+vid+'\',this.value)">'
+      +'<div class="replay-btns">'
+      +'<button class="rpbtn" onclick="replayPlay(\''+vid+'\')">▶</button>'
+      +'<button class="rpbtn" onclick="replayPause(\''+vid+'\')">⏸</button>'
+      +'<button class="rpbtn" onclick="replayRestart(\''+vid+'\')">⏮</button>'
+      +'<button class="rpbtn" id="rspd_'+vid+'" onclick="toggleSpeed(\''+vid+'\')">1×</button>'
+      +'<button class="rpbtn" id="rxp_'+vid+'" onclick="toggleReplayExpand(\''+vid+'\')" title="Larger preview">⤢</button>'
+      +'<span class="replay-time" id="rts_'+vid+'">'+durStr+'</span>'
+      +'</div>'
+      +'</div>';
+
+    var rc = document.getElementById('replayCards');
+    var empty = rc.querySelector('.empty');
+    if (empty) empty.remove();
+    rc.appendChild(el);
+
+    replayState[vid] = {
+      snaps: snaps, t0: t0, duration: duration,
+      pos: 0, playing: false, speed: 1, timer: null,
+      lastSnapIdx: -1, tailTimer: null, stillLive: false,
+      lastVw: vw, lastVh: vh
+    };
+
+    // Build the first map (page) via the pool, show it, then start.
+    var firstSlug = first.page || 'home';
+    getReplayMap(vid, firstSlug, vw, vh);
+    showReplayMap(vid, firstSlug);
+    document.getElementById('rcu_'+vid).style.display = 'block';
+    setTimeout(function(){ replayPlay(vid); }, 600);
+    // Keep pulling new frames while this visitor is still browsing — dashboard
+    // Replay must not freeze/stop the session recording.
+    startReplayTail(vid);
+  }).catch(function(){});
+}
+
+function closeReplayCard(vid) {
+  stopReplayTail(vid);
+  replayPause(vid);
+  delete replayState[vid];
+  delete replayMaps[vid];
+  delete replayExpanded[vid];
+  delete rviframePage[vid]; delete rviframeScene[vid];
+  delete rviframeReady[vid]; delete rviframeFirstLoad[vid];
+  var el = document.getElementById('rvc_'+vid);
+  if (el) el.remove();
+  document.querySelectorAll('.session-row').forEach(function(r){
+    if (r.dataset.vid===vid) r.classList.remove('active');
+  });
+  var rc = document.getElementById('replayCards');
+  if (!rc.querySelector('.visitor-card')) {
+    rc.innerHTML = '<div class="empty"><div class="empty-icon">📼</div><div style="font-size:0.88rem;">Select a session to replay</div><div style="font-size:0.75rem;color:#444;">Click any session on the left</div></div>';
+  }
+}
+
+// While a replay card is open, keep appending frames written by a still-live
+// visitor. Watching Replay on /visitors must never freeze or stop recording.
+function startReplayTail(vid) {
+  stopReplayTail(vid);
+  var rs = replayState[vid];
+  if (!rs) return;
+  rs.tailTimer = setInterval(function () { tailReplay(vid); }, 2000);
+  tailReplay(vid);
+}
+function stopReplayTail(vid) {
+  var rs = replayState[vid];
+  if (!rs || !rs.tailTimer) return;
+  clearInterval(rs.tailTimer);
+  rs.tailTimer = null;
+}
+function appendReplaySnaps(vid, newSnaps) {
+  var rs = replayState[vid];
+  if (!rs || !newSnaps || !newSnaps.length) return 0;
+  var lastTs = rs.snaps.length ? rs.snaps[rs.snaps.length - 1]._ts : '';
+  var added = 0;
+  for (var i = 0; i < newSnaps.length; i++) {
+    var s = newSnaps[i];
+    if (!s || !s._ts || (lastTs && s._ts <= lastTs)) continue;
+    rs.snaps.push(s);
+    lastTs = s._ts;
+    added++;
+  }
+  if (!added) return 0;
+  var tEnd = new Date(rs.snaps[rs.snaps.length - 1]._ts.replace(' ', 'T')).getTime();
+  var wasAtEnd = rs.pos >= rs.duration - 80;
+  rs.duration = Math.max(1000, tEnd - rs.t0);
+  var durationSec = Math.round(rs.duration / 1000);
+  var dm = Math.floor(durationSec / 60), ds = durationSec % 60;
+  var durStr = dm > 0 ? dm + 'm ' + ds + 's' : ds + 's';
+  var rts = document.getElementById('rts_' + vid);
+  if (rts) rts.textContent = durStr + (rs.stillLive ? ' · REC' : '');
+  // If playback had reached the old end, keep rolling into the new frames.
+  if (wasAtEnd && rs.playing) rs.pos = Math.min(rs.pos, rs.duration);
+  return added;
+}
+function updateReplayLiveBadge(vid, live) {
+  var rs = replayState[vid];
+  if (!rs) return;
+  rs.stillLive = !!live;
+  var hdr = document.getElementById('rcs_' + vid);
+  if (!hdr) return;
+  var base = hdr.getAttribute('data-base') || hdr.textContent.replace(/\s*●\s*LIVE$/, '').replace(/\s*·\s*REC$/, '');
+  hdr.setAttribute('data-base', base);
+  hdr.textContent = live ? base + ' ● LIVE' : base;
+  var rts = document.getElementById('rts_' + vid);
+  if (rts) {
+    var durationSec = Math.round(rs.duration / 1000);
+    var dm = Math.floor(durationSec / 60), ds = durationSec % 60;
+    var durStr = dm > 0 ? dm + 'm ' + ds + 's' : ds + 's';
+    rts.textContent = live ? durStr + ' · REC' : durStr;
+  }
+}
+function tailReplay(vid) {
+  var rs = replayState[vid];
+  if (!rs) return;
+  var after = rs.snaps.length ? rs.snaps[rs.snaps.length - 1]._ts : '';
+  var url = '/api/replay?vid=' + encodeURIComponent(vid);
+  if (after) url += '&after=' + encodeURIComponent(after);
+  fetch(url, { credentials: 'include' })
+    .then(function (r) { return r.json(); })
+    .then(function (snaps) {
+      if (Array.isArray(snaps) && snaps.length) appendReplaySnaps(vid, snaps);
+    })
+    .catch(function () {});
+  fetch('/track')
+    .then(function (r) { return r.json(); })
+    .then(function (data) {
+      updateReplayLiveBadge(vid, !!(data && data[vid]));
+    })
+    .catch(function () {});
+}
+
+function replayPlay(vid) {
+  var rs = replayState[vid]; if (!rs || rs.playing) return;
+  rs.playing = true;
+  var TICK = 50;
+  rs.timer = setInterval(function(){
+    if (!rs.playing) { clearInterval(rs.timer); return; }
+    rs.pos += TICK * rs.speed;
+    if (rs.pos >= rs.duration) { rs.pos = rs.duration; rs.playing = false; clearInterval(rs.timer); }
+    renderReplayFrame(vid);
+  }, TICK);
+}
+
+function replayPause(vid) {
+  var rs = replayState[vid]; if (!rs) return;
+  rs.playing = false;
+  if (rs.timer) { clearInterval(rs.timer); rs.timer = null; }
+}
+
+function replayRestart(vid) {
+  replayPause(vid);
+  var rs = replayState[vid]; if (!rs) return;
+  rs.pos = 0; rs.lastSnapIdx = -1;
+  var snap = rs.snaps[0];
+  var firstPage = snap ? (snap.page || 'home') : 'home';
+  rviframePage[vid] = firstPage;
+  rviframeScene[vid] = '';
+  // Pool handles the map — just show the first page's map again. No reload.
+  var vw = snap ? (snap.vw || 1200) : 1200;
+  var vh = snap ? (snap.vh || 800) : 800;
+  getReplayMap(vid, firstPage, vw, vh);
+  showReplayMap(vid, firstPage);
+  document.getElementById('rcu_'+vid).style.display = 'block';
+  renderReplayFrame(vid);
+  replayPlay(vid);
+}
+
+function scrubReplay(vid, val) {
+  var rs = replayState[vid]; if (!rs) return;
+  rs.pos = (val / 10000) * rs.duration;
+  renderReplayFrame(vid);
+}
+
+function toggleSpeed(vid) {
+  var rs = replayState[vid]; if (!rs) return;
+  var speeds = [1,2,4,8];
+  rs.speed = speeds[(speeds.indexOf(rs.speed)+1) % speeds.length];
+  var btn = document.getElementById('rspd_'+vid);
+  if (btn) btn.textContent = rs.speed+'×';
+}
+
+function toggleReplayExpand(vid) {
+  replayExpanded[vid] = !replayExpanded[vid];
+  var btn = document.getElementById('rxp_'+vid);
+  if (btn) btn.classList.toggle('active', !!replayExpanded[vid]);
+  var card = document.getElementById('rvc_'+vid);
+  if (card) card.classList.toggle('expanded', !!replayExpanded[vid]);
+  var rs = replayState[vid];
+  if (rs) {
+    rs.lastCardW = null;
+    renderReplayFrame(vid);
+  }
+}
+
+function renderReplayFrame(vid) {
+  var rs = replayState[vid]; if (!rs || !rs.snaps.length) return;
+
+  // Find current snapshot
+  var currentT = rs.t0 + rs.pos;
+  var snapIdx = 0;
+  for (var i = 0; i < rs.snaps.length; i++) {
+    var st = new Date(rs.snaps[i]._ts.replace(' ','T')).getTime();
+    if (st <= currentT) snapIdx = i;
+    else break;
+  }
+  var snap = rs.snaps[snapIdx];
+  var vw = snap.vw || 1200;
+  var vh = snap.vh || 800;
+  var cardW = replayW(vid);
+  var scale = cardW / vw;
+  var dh = Math.round(vh * scale);
+  var pageSlug = snap.page || 'home';
+
+  // Apply recorded viewport changes (e.g. phone rotate).
+  if (Math.abs((rs.lastVw || 0) - vw) > 30 || Math.abs((rs.lastVh || 0) - vh) > 30 || rs.lastCardW !== cardW) {
+    updateReplayCardDims(vid, vw, vh);
+    rs.lastVw = vw;
+    rs.lastVh = vh;
+    rs.lastCardW = cardW;
+  }
+
+  // ── Map (page) selection — the friend-on-the-map model ──
+  // Get this page's map (built once, kept forever), show it, hide the others.
+  // Building a not-yet-seen map loads it in the background; the visible map is
+  // never reloaded, so the view never goes white on a page change.
+  var iframe = getReplayMap(vid, pageSlug, vw, vh);
+  if (pageSlug !== rviframePage[vid]) {
+    rviframePage[vid] = pageSlug;
+    rviframeScene[vid] = '';
+  }
+  showReplayMap(vid, pageSlug);
+  var mapReady = iframe && iframe.getAttribute('data-ready') === '1';
+
+  // ── Welcome scene mirroring (on the welcome map) ──
+  if (pageSlug === 'welcome' && snap.section && mapReady) {
+    if (rviframeScene[vid] !== snap.section) {
+      rviframeScene[vid] = snap.section;
+      rMirrorWelcomeEl(iframe, snap.section);
+    }
+    rShowWelcomeEl(iframe);
+  }
+
+  // ── Phobia page: keep scroll-reveal sections visible (cheap, every frame) ──
+  if (pageSlug !== 'welcome' && mapReady) {
+    rForceVisibleEl(iframe);
+  }
+
+  // ── Scroll the visible map to the recorded position ──
+  if (mapReady && pageSlug !== 'welcome' && iframe.contentWindow) {
+    try {
+      var rdoc = iframe.contentDocument;
+      var rModal = rdoc && rdoc.getElementById('consultModal');
+      // Mirror FAQ accordion state from the snapshot (same as live view).
+      mirrorFaqState(rdoc, snap.openFaqs);
+      var rBox = (snap.modalScroll || snap.section === 'consult-modal' || (rModal && rModal.classList.contains('active')))
+        ? rdoc.querySelector('#consultModal .modal-box')
+        : null;
+      if (rBox) {
+        var msh = rBox.scrollHeight - rBox.clientHeight;
+        if (msh > 10) {
+          rBox.scrollTop = snap.scrollPct != null ? Math.round(snap.scrollPct * msh) : (snap.scrollY || 0);
+        }
+      } else {
+        var sh = rdoc.documentElement.scrollHeight;
+        if (sh > 100) {
+          var scrollableH = sh - iframe.clientHeight;
+          var target = snap.scrollPct != null ? Math.round(snap.scrollPct * scrollableH) : (snap.scrollY || 0);
+          iframe.contentWindow.scrollTo(0, target);
+        }
+      }
+    } catch(e){}
+  }
+
+  // ── Mirror visitor chat on every page (including welcome) ──
+  if (mapReady && iframe && iframe.contentDocument) {
+    try { mirrorChatState(iframe.contentDocument, snap); } catch(e){}
+  }
+
+  // ── Cursor ──
+  var cu = document.getElementById('rcu_'+vid);
+  if (cu) {
+    cu.style.display = 'block';
+    cu.style.left = Math.round(snap.x * cardW) + 'px';
+    cu.style.top  = Math.round(snap.y * dh) + 'px';
+  }
+
+  // ── Click events — only fire on new snapshots ──
+  if (snapIdx !== rs.lastSnapIdx && snap.events && snap.events.length) {
+    snap.events.forEach(function(ev){
+      if (ev.type === 'click') {
+        // Ripple
+        var sw = document.getElementById('rsw_'+vid);
+        if (sw) {
+          var rip = document.createElement('div');
+          rip.className = 'click-ripple';
+          rip.style.left = Math.round(ev.x * cardW) + 'px';
+          rip.style.top  = Math.round(ev.y * dh) + 'px';
+          if (ev.modal) {
+            rip.style.border = '3px solid #fff';
+            rip.style.boxShadow = '0 0 20px rgba(201,168,76,0.9)';
+            var fl = document.createElement('div');
+            fl.className = 'modal-alert';
+            sw.appendChild(fl);
+            setTimeout(function(){ if(fl.parentNode) fl.parentNode.removeChild(fl); }, 1000);
+          }
+          sw.appendChild(rip);
+          setTimeout(function(){ if(rip.parentNode) rip.parentNode.removeChild(rip); }, 800);
+        }
+        // ── Open modal in iframe if it was a modal click ──
+        if (ev.modal && rviframeReady[vid] && iframe && iframe.contentWindow) {
+          (function(iframeRef){
+            setTimeout(function(){
+              try {
+                if (typeof iframeRef.contentWindow.openModal === 'function') {
+                  iframeRef.contentWindow.openModal();
+                }
+              } catch(e){}
+            }, 400);
+          })(iframe);
+        }
+      }
+    });
+  }
+  rs.lastSnapIdx = snapIdx;
+
+  // ── Scrubber ──
+  var scrub = document.getElementById('rsc_'+vid);
+  if (scrub) scrub.value = Math.round((rs.pos / rs.duration) * 10000);
+
+  // ── Time ──
+  var tm = document.getElementById('rtm_'+vid);
+  if (tm) {
+    var cur = Math.round(rs.pos/1000), tot = Math.round(rs.duration/1000);
+    var cm=Math.floor(cur/60),cs=cur%60,tm2=Math.floor(tot/60),ts2=tot%60;
+    tm.textContent = (cm>0?cm+'m ':'')+cs+'s / '+(tm2>0?tm2+'m ':'')+ts2+'s';
+  }
+
+  // ── Section label ──
+  var lbl = document.getElementById('rcs_'+vid);
+  if (lbl && snap.section) {
+    var sl = pageSlug==='welcome' ? welcomeSceneLabel(snap.section) : (sectionLabels[snap.section]||snap.section);
+    lbl.textContent = '📼 '+devIcon(snap.device||'')+' '+sl;
+  }
+}
+
+// ── Replay welcome helpers ──
+function rShowWelcome(vid) {
+  try {
+    var win = document.getElementById('rif_'+vid).contentWindow;
+    if (!win) return;
+    setTimeout(function(){
+      try {
+        var ws = win.document.getElementById('welcome-screen');
+        if (ws) ws.style.display = 'flex';
+        ['hero','aspirational','problem','guide','process','differentiator',
+         'testimonials','faq','failure','success','final-cta','footer','nav'].forEach(function(id){
+          var el = win.document.getElementById(id); if (el) el.style.display = 'none';
+        });
+      } catch(e){}
+    }, 600);
+  } catch(e){}
+}
+
+function rMirrorWelcome(vid, section) {
+  var parsed = parseWelcomeSection(section);
+  if (!parsed) return;
+  setTimeout(function(){
+    try {
+      var win = document.getElementById('rif_'+vid).contentWindow;
+      if (!win) return;
+      rShowWelcome(vid);
+      setTimeout(function(){
+        try {
+          if (typeof win.go === 'function') win.go(parsed.scene);
+          if (parsed.item) {
+            if (parsed.scene==='fear-selected'&&win.fears&&typeof win.selectFear==='function'){for(var i=0;i<win.fears.length;i++){if(win.fears[i].label===parsed.item){win.selectFear(win.fears[i]);break;}}}
+            if (parsed.scene==='curious-selected'&&win.curiosities&&typeof win.selectCurio==='function'){for(var i=0;i<win.curiosities.length;i++){if(win.curiosities[i].label===parsed.item){win.selectCurio(win.curiosities[i]);break;}}}
+            if (parsed.scene==='why-selected'&&win.whys&&typeof win.selectWhy==='function'){for(var i=0;i<win.whys.length;i++){if(win.whys[i].label===parsed.item){win.selectWhy(win.whys[i]);break;}}}
+          }
+        } catch(e){}
+      }, 200);
+    } catch(e){}
+  }, 300);
+}
+
+// ═══════════════════════════════════════════════════
+// LIVE — all original functions
+// ═══════════════════════════════════════════════════
+function devIcon(d){if(/iPhone|Android Phone/.test(d))return '📱';if(/iPad|Tablet/.test(d))return '📟';return '🖥️';}
+function elapsed(first){var s=Math.round(Date.now()/1000-first);return s<60?s+'s':Math.floor(s/60)+'m '+(s%60)+'s';}
+var audioReady=false;
+document.addEventListener('click',function(){if(audioReady)return;audioReady=true;try{var c=new(window.AudioContext||window.webkitAudioContext)();var b=c.createBuffer(1,1,22050),s=c.createBufferSource();s.buffer=b;s.connect(c.destination);s.start(0);c.resume();}catch(e){}},true);
+function chime(){try{var c=new(window.AudioContext||window.webkitAudioContext)();var o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.type='sine';o.frequency.setValueAtTime(1046,c.currentTime);o.frequency.setValueAtTime(1318,c.currentTime+0.1);g.gain.setValueAtTime(0.2,c.currentTime);g.gain.exponentialRampToValueAtTime(0.001,c.currentTime+0.6);o.start(c.currentTime);o.stop(c.currentTime+0.6);}catch(e){}}
+function getVS(vid){if(!vstate[vid])vstate[vid]={state:'closed',unread:0,lastTs:0,bgTs:0,dragged:false,shownIds:{}};if(!vstate[vid].shownIds)vstate[vid].shownIds={};return vstate[vid];}
+function setDot(vid,color){var dot=document.getElementById('cdot_'+vid);if(!dot)return;dot.className='cdot';if(color)dot.classList.add(color);}
+function showWelcomeInIframe(vid){try{var win=document.getElementById('if_'+vid).contentWindow;if(!win)return;var ws=win.document.getElementById('welcome-screen');if(ws)ws.style.display='flex';['hero','aspirational','problem','guide','process','differentiator','testimonials','faq','failure','success','final-cta','footer','nav'].forEach(function(id){var el=win.document.getElementById(id);if(el)el.style.display='none';});}catch(e){}}
+function reloadWelcomeIframe(vid,section){var iframe=document.getElementById('if_'+vid);if(!iframe)return;viframeScene[vid]='';viframeReady[vid]=false;iframe.src=getPageUrl('welcome');iframe.addEventListener('load',function(){viframeReady[vid]=true;viframeScene[vid]='';showWelcomeInIframe(vid);mirrorWelcomeScene(vid,section);},{once:true});}
+function mirrorWelcomeScene(vid,section){
+  var parsed=parseWelcomeSection(section);if(!parsed)return;
+  var sceneKey=parsed.scene+(parsed.item?':'+parsed.item:'');
+  if(viframeScene[vid]===sceneKey)return;
+  viframeScene[vid]=sceneKey;
+  var tries=0;
+  function drive(){
+    try{
+      var iframe=document.getElementById('if_'+vid);if(!iframe)return;
+      var win=iframe.contentWindow;
+      if(!win||typeof win.loadScene!=='function'){if(tries++<30)setTimeout(drive,120);return;}
+      if(viframeScene[vid]!==sceneKey)return;
+      showWelcomeInIframe(vid);
+      var qs=parsed.item?'item='+encodeURIComponent(parsed.item):'';
+      win.loadScene('welcome-'+parsed.scene,qs);
+    }catch(e){if(tries++<30)setTimeout(drive,120);}
+  }
+  if(viframeReady[vid]){drive();}
+  else{var iframe=document.getElementById('if_'+vid);if(iframe)iframe.addEventListener('load',function(){viframeReady[vid]=true;drive();},{once:true});}
+}
+function placePopup(vid){if(window.innerWidth<=600)return;var p=vpopups[vid];if(!p)return;var vs=getVS(vid);if(vs.dragged)return;var card=document.getElementById('vc_'+vid);if(!card)return;var r=card.getBoundingClientRect();var scrollY=window.pageYOffset||document.documentElement.scrollTop||0;var pw=210,ph=p.offsetHeight||260;var top=r.top+scrollY+(r.height/2)-(ph/2);var left=r.left+(r.width/2)-(pw/2);top=Math.max(10,top);left=Math.max(10,Math.min(window.innerWidth-pw-10,left));p.style.top=top+'px';p.style.left=left+'px';p.style.right='auto';p.style.bottom='auto';}
+function createPopup(vid){
+  if(vpopups[vid])return vpopups[vid];
+  var p=document.createElement('div');
+  p.className='cpop';
+  var h='<div class="cpop-hdr" id="chdr_'+vid+'">';
+  h+='<span class="cpop-title" id="ctitle_'+vid+'">💬 Visitor</span>';
+  h+='<button class="cpop-btn" onclick="chatMini(\''+vid+'\')">&#8211;</button>';
+  h+='<button class="cpop-btn" onclick="chatClose(\''+vid+'\')">&#10005;</button></div>';
+  h+='<div class="cpop-links">';
+  h+='<button class="ql-btn" onclick="chatPickLink(\''+vid+'\',\'/consultation.html\',\'Book Free Consultation\')">📅 Book</button>';
+  h+='<button class="ql-btn" onclick="chatPickLink(\''+vid+'\',\'/coupon.html\',\'50% Off Coupon\')">🎟 Coupon</button>';
+  h+='<button class="ql-btn" onclick="chatPickLink(\''+vid+'\',\'https://phobiafree.life#testimonials\',\'Testimonials\')">⭐ Reviews</button>';
+  h+='<button class="ql-btn" onclick="chatPickLink(\''+vid+'\',\'https://phobiafree.life#process\',\'How It Works\')">❓ Process</button>';
+  h+='</div>';
+  h+='<div class="cpop-msgs" id="cmsgs_'+vid+'"></div>';
+  h+='<div class="cpop-input">';
+  h+='<label class="csnd" style="cursor:pointer;background:#30363d;display:flex;align-items:center;justify-content:center;" title="Attach file or photo">';
+  h+='<input type="file" id="cfile_'+vid+'" style="display:none" onchange="chatPickFile(\''+vid+'\')">';
+  h+='📎</label>';
+  h+='<input class="ctxt" id="ctxt_'+vid+'" type="text" placeholder="Type a message..."/>';
+  h+='<button class="csnd" onclick="chatSend(\''+vid+'\')">&#10148;</button>';
+  h+='</div>';
+  h+='<div id="csendmode_'+vid+'" class="cpop-sendmode">';
+  h+='<span id="csendname_'+vid+'" style="flex:1;min-width:0;font-size:0.62rem;color:#9ecbd0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;"></span>';
+  h+='<button type="button" class="ql-btn" onclick="chatConfirmSend(\''+vid+'\',\'chat\')">💬 Chat</button>';
+  h+='<button type="button" class="ql-btn" onclick="chatConfirmSend(\''+vid+'\',\'page\')">🖥️ Page</button>';
+  h+='<button type="button" class="ql-btn" onclick="chatCancelSend(\''+vid+'\')" style="opacity:0.75;">✕</button>';
+  h+='</div>';
+  p.innerHTML=h;
+  document.getElementById('popContainer').appendChild(p);vpopups[vid]=p;
+  var hdr=document.getElementById('chdr_'+vid);var mx=0,my=0;hdr.onmousedown=function(e){if(e.target.tagName==='BUTTON')return;mx=e.clientX;my=e.clientY;document.onmousemove=function(e){getVS(vid).dragged=true;var r=p.getBoundingClientRect();var nl=Math.max(0,Math.min(window.innerWidth-p.offsetWidth,r.left+(e.clientX-mx)));var nt=Math.max(0,Math.min(window.innerHeight-p.offsetHeight,r.top+(e.clientY-my)));p.style.left=nl+'px';p.style.top=nt+'px';p.style.right='auto';p.style.bottom='auto';mx=e.clientX;my=e.clientY;};document.onmouseup=function(){document.onmousemove=null;document.onmouseup=null;};e.preventDefault();};
+  document.getElementById('ctxt_'+vid).onkeydown=function(e){if(e.key==='Enter')chatSend(vid);};return p;}
+function chatOpen(vid){var vs=getVS(vid);var p=createPopup(vid);var title=document.getElementById('ctitle_'+vid);if(title&&vdata[vid])title.textContent='💬 '+devIcon(vdata[vid].device)+' '+(vdata[vid].location||vdata[vid].device);vs.state='open';vs.unread=0;vs.dragged=false;p.classList.add('show');placePopup(vid);setDot(vid,'');if(vs.lastTs===0){fetch('/api/chat?vid='+vid+'&since=0').then(function(r){return r.json();}).then(function(data){if(data.messages)data.messages.forEach(function(m){if(m.id)vs.shownIds[m.id]=true;chatAppendMsg(vid,m);});vs.lastTs=data.ts||0;vs.bgTs=data.ts||0;}).catch(function(){});}var inp=document.getElementById('ctxt_'+vid);if(inp)inp.focus();refreshBadge(vid);}
+function chatMini(vid){getVS(vid).state='mini';chatCancelSend(vid);var p=vpopups[vid];if(p)p.classList.remove('show');setDot(vid,'green');}
+// Visitor dropped off live (common on iPhone mid-chat) — keep the popup + history.
+function chatSoftOffline(vid){
+  var vs=getVS(vid);
+  if(!vs||vs.state==='closed')return;
+  vs.offline=true;
+  var title=document.getElementById('ctitle_'+vid);
+  if(title&&title.textContent.indexOf('offline')===-1){
+    title.textContent=title.textContent.replace(/\s·\s*$/,'')+' · offline';
+  }
+}
+function chatSoftOnline(vid,d){
+  var vs=getVS(vid);
+  if(!vs||!vs.offline)return;
+  vs.offline=false;
+  var title=document.getElementById('ctitle_'+vid);
+  if(title){
+    title.textContent='💬 '+devIcon((d&&d.device)||'')+' '+((d&&(d.location||d.device))||'Visitor');
+  }
+}
+function chatClose(vid){
+  var vs=getVS(vid);
+  vs.state='closed';
+  vs.unread=0;
+  vs.dragged=false;
+  vs.lastTs=0;
+  vs.offline=false;
+  chatCancelSend(vid);
+  var p=vpopups[vid];
+  if(p){
+    p.classList.remove('show');
+    if(p.parentNode)p.parentNode.removeChild(p);
+  }
+  delete vpopups[vid];
+  setDot(vid,'');
+  refreshBadge(vid);
+}
+function chatSend(vid){var inp=document.getElementById('ctxt_'+vid);if(!inp)return;var txt=inp.value.trim();if(!txt)return;inp.value='';chatAppend(vid,'steven',txt);fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({vid:vid,from:'steven',source:'dashboard',text:txt})}).then(function(r){return r.json();}).then(function(data){var vs=getVS(vid);if(data.ts)vs.lastTs=data.ts;if(data.id)vs.shownIds[data.id]=true;}).catch(function(){});}
+var pendingSend={};
+function isImageName(name){var n=(name||'').toLowerCase();return /\.(png|jpe?g|gif|webp)(\?|#|$)/i.test(n);}
+function showSendBar(vid,label){
+  var bar=document.getElementById('csendmode_'+vid);
+  var nameEl=document.getElementById('csendname_'+vid);
+  if(nameEl)nameEl.textContent=label||'';
+  if(bar)bar.classList.add('open');
+}
+function chatPickFile(vid){
+  var input=document.getElementById('cfile_'+vid);
+  if(!input||!input.files.length)return;
+  pendingSend[vid]={kind:'file',file:input.files[0]};
+  input.value='';
+  showSendBar(vid,pendingSend[vid].file.name);
+}
+function chatPickLink(vid,url,label){
+  pendingSend[vid]={kind:'link',url:url,label:label||'Link'};
+  showSendBar(vid,label||'Link');
+}
+function chatCancelSend(vid){
+  delete pendingSend[vid];
+  var bar=document.getElementById('csendmode_'+vid);
+  if(bar)bar.classList.remove('open');
+}
+function chatConfirmSend(vid,mode){
+  var pending=pendingSend[vid];
+  if(!pending)return;
+  chatCancelSend(vid);
+  if(pending.kind==='file')chatSendFile(vid,pending.file,mode==='page'?'page':'chat');
+  else chatSendLink(vid,pending.url,pending.label,mode==='page'?'page':'chat');
+}
+function chatSendFile(vid,file,mode){
+  if(!file)return;
+  var fd=new FormData();
+  fd.append('file',file);
+  chatAppend(vid,'steven','📎 Uploading '+file.name+'...');
+  fetch('/api/chat',{method:'POST',body:fd})
+    .then(function(r){return r.json();})
+    .then(function(data){
+      if(!data.ok){chatAppend(vid,'steven','Upload failed: '+(data.error||'unknown'));return;}
+      var isImg=isImageName(data.name||file.name||data.url||'');
+      // page = pop on visitor screen; chat = only in their chatbox
+      var type=mode==='page'?'link':(isImg?'image':'file');
+      var msg={from:'steven',type:type,text:data.name,url:data.url};
+      chatAppendMsg(vid,msg);
+      fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify({vid:vid,from:'steven',source:'dashboard',type:type,text:data.name,url:data.url})
+      }).then(function(r){return r.json();}).then(function(d){
+        var vs=getVS(vid);if(d.ts){vs.lastTs=d.ts;}if(d.id)vs.shownIds[d.id]=true;
+      }).catch(function(){});
+    }).catch(function(){chatAppend(vid,'steven','Upload failed.');});
+}
+function chatSendLink(vid,url,label,mode){
+  // page = open panel on their screen; chat = link bubble in chatbox only
+  var type=mode==='page'?'link':'chat_link';
+  var msg={from:'steven',type:type,text:label,url:url};
+  chatAppendMsg(vid,msg);
+  fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({vid:vid,from:'steven',source:'dashboard',type:type,text:label,url:url})
+  }).then(function(r){return r.json();}).then(function(d){
+    var vs=getVS(vid);if(d.ts){vs.lastTs=d.ts;}if(d.id)vs.shownIds[d.id]=true;
+  }).catch(function(){});
+}
+function chatLink(vid,url,label){chatPickLink(vid,url,label);}
+function chatAppend(vid,from,text){var box=document.getElementById('cmsgs_'+vid);if(!box)return;var d=document.createElement('div');d.className='cmsg '+(from==='steven'?'me':'them');d.textContent=text;box.appendChild(d);box.scrollTop=box.scrollHeight;}
+function chatAppendPhone(vid,text){var box=document.getElementById('cmsgs_'+vid);if(!box)return;var d=document.createElement('div');d.className='cmsg me';var lbl=document.createElement('div');lbl.textContent='📱 Steven';lbl.style.cssText='font-size:0.6rem;opacity:0.7;margin-bottom:2px;';var t=document.createElement('div');t.textContent=text;d.appendChild(lbl);d.appendChild(t);box.appendChild(d);box.scrollTop=box.scrollHeight;}
+function chatAppendMsg(vid,m){
+  if(!m||!m.url){chatAppend(vid,m&&m.from?m.from:'visitor',m&&m.text?m.text:'');return;}
+  var box=document.getElementById('cmsgs_'+vid);if(!box)return;
+  var me=(m.from==='steven');
+  var div=document.createElement('div');
+  div.className='cmsg '+(me?'me':'them');
+  var u=(m.url||'').toLowerCase();
+  var isImg=(m.type==='image')||((m.type==='link')&&(isImageName(u)||isImageName(m.text||'')));
+  var where=m.type==='link'?'On their page':'In their chat';
+  if(isImg||m.type==='image'){
+    div.innerHTML='<a href="'+m.url+'" target="_blank" rel="noopener"><img src="'+m.url+'" alt="" style="background:#0d1117;"></a><div style="font-size:0.65rem;opacity:0.8;margin-top:4px;">'+where+'</div>';
+  }else if(m.type==='link'||m.type==='chat_link'){
+    div.innerHTML='<a href="'+m.url+'" target="_blank" rel="noopener" style="color:#9ecbd0;">🔗 '+(m.text||'link')+'</a><div style="font-size:0.65rem;opacity:0.8;margin-top:4px;">'+where+'</div>';
+  }else{
+    div.innerHTML='<a href="'+m.url+'" target="_blank" rel="noopener" style="color:#9ecbd0;">📎 '+(m.text||'file')+'</a><div style="font-size:0.65rem;opacity:0.8;margin-top:4px;">In their chat</div>';
+  }
+  box.appendChild(div);box.scrollTop=box.scrollHeight;
+}
+function refreshBadge(vid){var btn=document.querySelector('.msg-btn[data-vid="'+vid+'"]');if(!btn)return;var n=getVS(vid).unread;btn.textContent=n>0?'💬 '+n:'💬';btn.style.background=n>0?'#f5a623':'var(--teal)';}
+function makeCard(vid,d){
+  var scale=CARD_W/d.vw,dh=Math.round(d.vh*scale);var pageSlug=d.page||'home';
+  viframePage[vid]=pageSlug;viframeScene[vid]='';viframeReady[vid]=false;viframeFirstLoad[vid]=d.first_load||0;
+  var isWelcome=(pageSlug==='welcome');var sectionText=isWelcome?welcomeSceneLabel(d.section):(sectionLabels[d.section]||d.section||'—');
+  var el=document.createElement('div');el.className='visitor-card new';el.draggable=true;el.id='vc_'+vid;el.style.width=CARD_W+'px';el.style.overflow='visible';
+  el.innerHTML='<div class="card-header"><span class="card-section" id="cs_'+vid+'">'+(d.location?'📍 '+d.location.replace(/,\s*[A-Z]{2}$/,'')+' · ':'')+(isWelcome?'<span class="welcome-badge" id="wb_'+vid+'">'+sectionText+'</span>':(sectionLabels[d.section]||d.section||'—'))+'</span><span id="cpg_'+vid+'" style="display:none;"></span><button class="delete-btn" data-vid="'+vid+'">&times;</button><div class="cdot" id="cdot_'+vid+'"></div></div><div class="screen-wrap" id="sw_'+vid+'" style="width:'+CARD_W+'px;height:'+dh+'px;"><iframe id="if_'+vid+'" src="'+getPageUrl(pageSlug)+'" class="screen-iframe" style="width:'+d.vw+'px;height:'+d.vh+'px;transform:scale('+scale+');transform-origin:top left;"></iframe><div class="cursor-dot" id="cu_'+vid+'" style="left:'+Math.round(d.x*CARD_W)+'px;top:'+Math.round(d.y*dh)+'px;"></div></div><div class="card-footer"><span>'+d.vw+'×'+d.vh+'</span><span id="csc_'+vid+'">—</span><span id="ct_'+vid+'">0s</span><button class="msg-btn" data-vid="'+vid+'">💬</button></div>';
+  setTimeout(function(){el.classList.remove('new');},1500);
+  var iframeEl=el.querySelector('#if_'+vid);
+  if(iframeEl){iframeEl.addEventListener('load',function(){viframeReady[vid]=true;viframeScene[vid]='';if(viframePage[vid]==='welcome'){showWelcomeInIframe(vid);var sec=vdata[vid]?vdata[vid].section:'welcome-home';mirrorWelcomeScene(vid,sec);}});}
+  var dot=el.querySelector('#cdot_'+vid);dot.addEventListener('click',function(e){e.stopPropagation();e.preventDefault();if(getVS(vid).state==='open')chatMini(vid);else chatOpen(vid);});
+  return el;
+}
+function updateCard(vid,d){
+  var scale=CARD_W/d.vw,dh=Math.round(d.vh*scale);var newSlug=d.page||'home';
+  var incomingFirstLoad=d.first_load||0;
+  if(incomingFirstLoad>0&&incomingFirstLoad!==viframeFirstLoad[vid]){viframeFirstLoad[vid]=incomingFirstLoad;if(newSlug==='welcome'){reloadWelcomeIframe(vid,d.section);return;}}
+  if(newSlug!==viframePage[vid]){var iframe=document.getElementById('if_'+vid);if(iframe){
+    var iframeSrc=getPageUrl(newSlug);
+    if(newSlug.indexOf('-selected')!==-1&&d.section){var sp=d.section.split(':');if(sp[1])iframeSrc+='&item='+encodeURIComponent(sp[1]);}
+    iframe.src=iframeSrc;viframePage[vid]=newSlug;viframeScene[vid]='';viframeReady[vid]=false;
+    iframe.addEventListener('load',function(){viframeReady[vid]=true;viframeScene[vid]='';},{once:true});}
+    var cpg=document.getElementById('cpg_'+vid);if(cpg)cpg.textContent=(pageLabels[newSlug]||newSlug)+' ';}
+  if(newSlug==='welcome'&&vdata[vid]&&vdata[vid].section!==d.section)viframeScene[vid]='';
+  if(newSlug==='welcome'&&d.section){mirrorWelcomeScene(vid,d.section);var wb=document.getElementById('wb_'+vid);if(wb)wb.textContent=welcomeSceneLabel(d.section);}
+  var iframe=document.getElementById('if_'+vid);
+  if(iframe&&iframe.contentWindow){try{
+    var scrollEl=null;
+    var doc=iframe.contentDocument;
+    var modal=doc&&doc.getElementById('consultModal');
+    var modalOpen=modal&&modal.classList.contains('active');
+    // Mirror the modal from persistent STATE, not the one-shot click event:
+    // the tracker stamps section='consult-modal' on every ping while it's open,
+    // so this stays in sync even if the opening click was missed between polls.
+    var wantModal=(d.section==='consult-modal')||d.modalScroll;
+    if(wantModal&&!modalOpen&&typeof iframe.contentWindow.openModal==='function'){iframe.contentWindow.openModal();modalOpen=true;}
+    else if(!wantModal&&modalOpen&&typeof iframe.contentWindow.closeModal==='function'){iframe.contentWindow.closeModal();modalOpen=false;}
+    // Mirror FAQ accordion open/close from persistent openFaqs indices.
+    mirrorFaqState(doc, d.openFaqs);
+    // Mirror visitor's on-site chat window (open, drag position, messages).
+    mirrorChatState(doc, d);
+    if(d.modalScroll||modalOpen||d.section==='consult-modal'){
+      scrollEl=doc&&doc.querySelector('#consultModal .modal-box');
+    }
+    if(!scrollEl&&newSlug.indexOf('welcome')===0){scrollEl=doc&&doc.getElementById('welcome-stage');}
+    if(!scrollEl)scrollEl=doc&&doc.documentElement;
+    if(scrollEl){var sh=scrollEl.scrollHeight-scrollEl.clientHeight;if(sh>10){var target=d.scrollPct!=null?Math.round(d.scrollPct*sh):0;scrollEl.scrollTop=target;}}
+  }catch(e){}}
+  var cu=document.getElementById('cu_'+vid);if(cu){cu.style.left=Math.round(d.x*CARD_W)+'px';cu.style.top=Math.round(d.y*dh)+'px';}
+  if(d.events&&d.events.length)d.events.forEach(function(ev){if(ev.type==='click')doClickRipple(vid,ev,dh);});
+  var cs=document.getElementById('cs_'+vid);if(cs){var cpg=document.getElementById('cpg_'+vid);var pageHtml=cpg?cpg.outerHTML:'';if(newSlug==='welcome'){cs.innerHTML=pageHtml+(d.location?'📍 '+d.location+' · ':'')+' <span class="welcome-badge" id="wb_'+vid+'">'+welcomeSceneLabel(d.section)+'</span>';}else{cs.innerHTML=pageHtml+(d.location?'📍 '+d.location+' · ':'' )+(sectionLabels[d.section]||d.section||'—');}}
+  var csc=document.getElementById('csc_'+vid);if(csc){csc.textContent=newSlug==='welcome'?welcomeSceneLabel(d.section):(sectionLabels[d.section]||d.section||'—')+' · ↕'+d.scrollY+'px';}
+}
+function updateCardDims(vid,d){var scale=CARD_W/d.vw,dh=Math.round(d.vh*scale);var sw=document.getElementById('sw_'+vid);if(sw){sw.style.width=CARD_W+'px';sw.style.height=dh+'px';}var iframe=document.getElementById('if_'+vid);if(iframe){iframe.style.width=d.vw+'px';iframe.style.height=d.vh+'px';iframe.style.transform='scale('+scale+')';iframe.style.zoom='';}}
+// Replay twin of updateCardDims — resize wrap + every pooled page iframe.
+function updateReplayCardDims(vid, vw, vh) {
+  var cardW = replayW(vid);
+  var scale = cardW / vw;
+  var dh = Math.round(vh * scale);
+  var card = document.getElementById('rvc_'+vid);
+  if (card) card.style.width = cardW+'px';
+  var sw = document.getElementById('rsw_'+vid);
+  if (sw) { sw.style.width = cardW+'px'; sw.style.height = dh+'px'; }
+  var pool = replayMaps[vid];
+  if (pool) {
+    Object.keys(pool).forEach(function(slug) {
+      applyReplayIframeScale(pool[slug], vw, vh, cardW);
+    });
+  }
+  var fl = document.getElementById('rfl_'+vid);
+  if (fl) {
+    var icon = fl.textContent.replace(/\s*\d+\s*[×x]\s*\d+\s*$/,'').trim();
+    fl.textContent = (icon ? icon+' ' : '') + vw+'×'+vh;
+  }
+}
+function doClickRipple(vid,ev,dh){
+  if((viframePage[vid]||'').indexOf('welcome')===0)return; // don't click into welcome pages
+  var sw=document.getElementById('sw_'+vid);
+  if(sw){var rip=document.createElement('div');rip.className='click-ripple';rip.style.left=Math.round(ev.x*CARD_W)+'px';rip.style.top=Math.round(ev.y*dh)+'px';if(ev.modal){rip.style.border='3px solid #fff';rip.style.boxShadow='0 0 20px rgba(201,168,76,0.9)';var fl=document.createElement('div');fl.className='modal-alert';sw.appendChild(fl);setTimeout(function(){if(fl.parentNode)fl.parentNode.removeChild(fl);},1000);}sw.appendChild(rip);setTimeout(function(){if(rip.parentNode)rip.parentNode.removeChild(rip);},800);}
+  var iframe=document.getElementById('if_'+vid);if(!iframe||!iframe.contentDocument||!iframe.contentWindow)return;
+  try{var doc=iframe.contentDocument,win=iframe.contentWindow;if(ev.modal&&typeof win.openModal==='function'){win.openModal();return;}var el=null;if(ev.selector){try{el=doc.querySelector(ev.selector);}catch(e){}}if(!el)el=doc.elementFromPoint(ev.x*(doc.documentElement.clientWidth||390),ev.y*(win.innerHeight||800));if(el){var oc=el.getAttribute('onclick')||'';if(oc.indexOf('openModal')!==-1&&typeof win.openModal==='function')win.openModal();else if(isFaqClickTarget(el)){/* FAQ open state is mirrored from openFaqs — don't toggle twice */}else{el.click();el.dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true,view:win}));}}}catch(e){}
+}
+function isFaqClickTarget(el){
+  var t=el;
+  while(t&&t!==document&&t!==document.body){
+    try{
+      if(t.tagName==='DETAILS'&&t.classList&&t.classList.contains('faq'))return true;
+      if(t.tagName==='SUMMARY'){
+        var p=t.parentElement;
+        if(p&&p.tagName==='DETAILS'&&p.classList&&p.classList.contains('faq'))return true;
+      }
+    }catch(e){}
+    t=t.parentElement;
+  }
+  return false;
+}
+function mirrorFaqState(doc, openFaqs){
+  if(!doc)return;
+  var faqs=doc.querySelectorAll('details.faq');
+  if(!faqs||!faqs.length)return;
+  var want={};
+  if(Array.isArray(openFaqs)){
+    for(var i=0;i<openFaqs.length;i++){
+      var n=parseInt(openFaqs[i],10);
+      if(isFinite(n)&&n>=0)want[n]=true;
+    }
+  }
+  for(var j=0;j<faqs.length;j++){
+    var shouldOpen=!!want[j];
+    if(shouldOpen!==!!faqs[j].open)faqs[j].open=shouldOpen;
+  }
+}
+// Rebuild visitor's #textChatWin inside the card iframe (open + drag + messages).
+// Whole iframe is CSS-scaled, so fixed chat size stays proportional to the page.
+function mirrorChatState(doc, d){
+  if(!doc||!d)return;
+  var win=doc.getElementById('textChatWin');
+  if(!win)return;
+  var btn=doc.getElementById('liveBtn');
+  var open=!!d.chatOpen;
+  win.style.display=open?'flex':'none';
+  if(btn)btn.style.display=open?'none':'block';
+  if(!open)return;
+  var iw=(doc.defaultView&&doc.defaultView.innerWidth)||390;
+  var ih=(doc.defaultView&&doc.defaultView.innerHeight)||800;
+  if(d.chatLeftPct!=null&&d.chatTopPct!=null&&isFinite(d.chatLeftPct)&&isFinite(d.chatTopPct)){
+    win.style.left=Math.round(d.chatLeftPct*iw)+'px';
+    win.style.top=Math.round(d.chatTopPct*ih)+'px';
+    win.style.right='auto';
+    win.style.bottom='auto';
+  }else{
+    win.style.left='';
+    win.style.top='';
+    win.style.right='1.75rem';
+    win.style.bottom='1.75rem';
+  }
+  var input=doc.getElementById('textChatInput');
+  if(input){input.disabled=true;input.placeholder='(visitor chat)';}
+  var box=doc.getElementById('textChatMessages');
+  if(!box)return;
+  var msgs=Array.isArray(d.chatMsgs)?d.chatMsgs:[];
+  var sig='';
+  try{sig=JSON.stringify(msgs);}catch(e){sig=String(msgs.length);}
+  if(box.getAttribute('data-mirror-sig')===sig)return;
+  box.setAttribute('data-mirror-sig',sig);
+  box.innerHTML='';
+  for(var i=0;i<msgs.length;i++){
+    var m=msgs[i]||{};
+    var from=m.from==='visitor'?'visitor':'steven';
+    var type=m.type||'text';
+    var isSteven=from==='steven';
+    var div=doc.createElement('div');
+    if(type==='image'&&m.url){
+      div.style.cssText='max-width:80%;padding:4px;border-radius:10px;'+(isSteven?'background:#e8f4f5;align-self:flex-start;border-radius:12px 12px 12px 2px;':'background:#124d52;align-self:flex-end;margin-left:auto;border-radius:12px 12px 2px 12px;');
+      div.innerHTML=(isSteven?'<div style="font-size:0.72rem;color:#6b6b6b;margin:2px 6px 4px;">Steven sent a photo</div>':'')
+        +'<img src="'+String(m.url).replace(/"/g,'&quot;')+'" alt="" style="max-width:160px;border-radius:7px;display:block;">';
+    }else if((type==='file'||type==='link'||type==='chat_link')&&m.url){
+      div.style.cssText='max-width:90%;padding:0.5rem 0.75rem;border-radius:12px;font-size:0.82rem;'+(isSteven?'background:#e8f4f5;color:#124d52;align-self:flex-start;':'background:#124d52;color:#fff;align-self:flex-end;margin-left:auto;');
+      div.innerHTML=(isSteven?'<div style="font-size:0.72rem;color:#6b6b6b;margin-bottom:4px;">Steven shared:</div>':'')
+        +'<a href="'+String(m.url).replace(/"/g,'&quot;')+'" target="_blank" rel="noopener" style="color:inherit;">'+(m.text||'link')+'</a>';
+    }else{
+      div.style.cssText='max-width:85%;padding:0.5rem 0.75rem;border-radius:12px;font-size:0.82rem;line-height:1.5;word-break:break-word;'
+        +(isSteven?'background:#e8f4f5;color:#124d52;border-radius:12px 12px 12px 2px;align-self:flex-start;':'background:#124d52;color:#fff;border-radius:12px 12px 2px 12px;align-self:flex-end;margin-left:auto;');
+      div.textContent=m.text||'';
+    }
+    box.appendChild(div);
+  }
+  box.scrollTop=box.scrollHeight;
+}
+function poll(){
+  // Always poll live visitors — even while the Replay tab is showing.
+  // Recording itself is server-side; this just keeps the live view current so
+  // switching back from Replay never looks like the session died.
+  fetch('/track').then(function(r){return r.json();}).then(function(data){
+    var grid=document.getElementById('liveGrid');var vids=Object.keys(data);
+    var countEl=document.getElementById('countDisplay');
+    if(countEl)countEl.textContent=vids.length;
+    if(currentMode==='live'){
+      document.getElementById('emptyState').style.display=vids.length===0?'flex':'none';
+    }
+    Object.keys(vstate).forEach(function(vid){if(!data[vid]&&vstate[vid].state!=='closed')chatSoftOffline(vid);});
+    vids.forEach(function(vid){
+      if(hiddenVids.has(vid))return;
+      var dSlug = data[vid].page || 'home';
+      if(!vcards[vid]){vcards[vid]='pending';getVS(vid);var card=makeCard(vid,data[vid]);grid.appendChild(card);vcards[vid]=card;vdata[vid]={vw:0,vh:0};}
+      if(vcards[vid]==='pending')return;
+      chatSoftOnline(vid,data[vid]);
+      var prev=vdata[vid]||{};
+      if(Math.abs((prev.vw||0)-data[vid].vw)>30||Math.abs((prev.vh||0)-data[vid].vh)>30){if(prev.vw)updateCardDims(vid,data[vid]);}
+      updateCard(vid,data[vid]);vdata[vid]=data[vid];
+    });
+    Object.keys(vcards).forEach(function(vid){if(hiddenVids.has(vid)||vcards[vid]==='pending')return;if(!data[vid]){chatSoftOffline(vid);var c=vcards[vid];if(c&&c!=='pending'){c.style.opacity='0';c.style.transition='opacity 0.3s';setTimeout(function(){if(c.parentNode)c.parentNode.removeChild(c);},300);}delete vcards[vid];delete vdata[vid];}});
+    Object.keys(vstate).forEach(function(vid){var vs=vstate[vid];if(vs&&vs.state==='open'&&!vs.dragged&&data[vid])placePopup(vid);});
+  }).catch(function(){});
+}
+function applyBgMessages(vid,vs,data){
+  if(data.ts)vs.bgTs=data.ts;
+  if(!data.messages||!data.messages.length)return;
+  var newVisitor=0;
+  // Ensure a popup exists when we need to render (keeps iPhone SMS replies visible
+  // even if the live card briefly disappeared).
+  var needBox=false;
+  data.messages.forEach(function(m){
+    if(m.id&&vs.shownIds[m.id])return;
+    needBox=true;
+  });
+  if(needBox&&(vs.state==='open'||vs.state==='mini')&&!document.getElementById('cmsgs_'+vid)){
+    createPopup(vid);
+    if(vs.state==='open'){var p=vpopups[vid];if(p)p.classList.add('show');}
+  }
+  data.messages.forEach(function(m){
+    if(m.id&&vs.shownIds[m.id])return;      // already displayed (our own send or prior fetch)
+    if(m.id)vs.shownIds[m.id]=true;
+    if(m.from==='steven'){                    // a reply made elsewhere (Steven's iPhone) -> mirror, labeled
+      if(m.url)chatAppendMsg(vid,m);else chatAppendPhone(vid,m.text||'');
+    }else{                                     // visitor message -> notify + badge + chime
+      chatAppendMsg(vid,m);
+      newVisitor++;
+    }
+  });
+  if(newVisitor>0){vs.unread+=newVisitor;refreshBadge(vid);setDot(vid,'red');chime();}
+}
+function pollBg(){
+  // Poll live cards AND any open/mini chat whose visitor dropped off live.
+  var vids={};
+  Object.keys(vdata).forEach(function(vid){vids[vid]=1;});
+  Object.keys(vstate).forEach(function(vid){
+    if(vstate[vid]&&(vstate[vid].state==='open'||vstate[vid].state==='mini'))vids[vid]=1;
+  });
+  Object.keys(vids).forEach(function(vid){
+    if(hiddenVids.has(vid))return;var vs=getVS(vid);
+    if(vs.bgTs===0){
+      // Prime: record existing history as already-seen so it isn't replayed as "new".
+      fetch('/api/chat?vid='+vid+'&since=0').then(function(r){return r.json();}).then(function(data){
+        vs.bgTs=data.ts||Math.floor(Date.now()/1000);
+        if(data.messages)data.messages.forEach(function(m){if(m.id)vs.shownIds[m.id]=true;});
+      }).catch(function(){vs.bgTs=Math.floor(Date.now()/1000);});
+      return;
+    }
+    fetch('/api/chat?vid='+vid+'&since='+vs.bgTs).then(function(r){return r.json();}).then(function(data){
+      applyBgMessages(vid,vs,data);
+    }).catch(function(){});
+  });
+}
+document.getElementById('liveGrid').addEventListener('dragstart',function(e){var c=e.target.closest('.visitor-card');if(!c)return;dragCard=c;setTimeout(function(){c.classList.add('dragging');},0);});
+document.getElementById('liveGrid').addEventListener('dragend',function(){if(dragCard){dragCard.classList.remove('dragging');dragCard=null;}document.querySelectorAll('.visitor-card').forEach(function(c){c.classList.remove('drag-over');});});
+document.getElementById('liveGrid').addEventListener('dragover',function(e){e.preventDefault();var c=e.target.closest('.visitor-card');if(!c||c===dragCard)return;document.querySelectorAll('.visitor-card').forEach(function(x){x.classList.remove('drag-over');});c.classList.add('drag-over');var g=document.getElementById('liveGrid');if(e.clientX<c.getBoundingClientRect().left+c.offsetWidth/2)g.insertBefore(dragCard,c);else g.insertBefore(dragCard,c.nextSibling);});
+document.getElementById('liveGrid').addEventListener('click',function(e){
+  var del=e.target.closest('.delete-btn');if(del){var vid=del.dataset.vid;hiddenVids.add(vid);chatClose(vid);var card=vcards[vid];if(card&&card!=='pending'){card.style.opacity='0';card.style.transition='opacity 0.3s';setTimeout(function(){if(card.parentNode)card.parentNode.removeChild(card);},300);}delete vcards[vid];return;}
+  var msg=e.target.closest('.msg-btn');if(msg)chatOpen(msg.dataset.vid);
+});
+
+fetch('/api/chat/status',{credentials:'include'}).then(function(r){return r.json();}).then(function(d){
+  var on=(d.status==='online'||d.status==='online_cam');
+  isOnline=on;
+  var b=document.getElementById('onlineBtn');
+  if(!b)return;
+  if(on){b.textContent='Online';b.style.background='#1a6b72';}else{b.textContent='Offline';b.style.background='#8b2020';}
+}).catch(function(){});
+poll();
+setInterval(poll,800);
+setInterval(pollBg,1000);
+setInterval(function(){Object.keys(vdata).forEach(function(vid){var el=document.getElementById('ct_'+vid);if(el&&vdata[vid])el.textContent=elapsed(vdata[vid].first);});},1000);
+var isOnline=false;
+var IDLE_MS=60000;
+var idleTimer=null;
+var hiddenTimer=null;
+var heartbeatTimer=null;
+function toggleOnline(){isOnline?goOffline():goOnline();}
+function goOnline(){isOnline=true;var b=document.getElementById('onlineBtn');b.textContent='Online';b.style.background='#1a6b72';setStatus('online_cam');resetIdleTimer();clearInterval(heartbeatTimer);heartbeatTimer=setInterval(function(){if(isOnline)setStatus('online_cam');},20000);}
+function goOffline(){isOnline=false;clearTimeout(idleTimer);idleTimer=null;clearTimeout(hiddenTimer);hiddenTimer=null;clearInterval(heartbeatTimer);heartbeatTimer=null;var b=document.getElementById('onlineBtn');if(b){b.textContent='Offline';b.style.background='#8b2020';}setStatus('offline');}
+function setStatus(s){fetch('/api/chat/status',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({status:s})}).catch(function(){});}
+function resetIdleTimer(){
+  clearTimeout(idleTimer);
+  idleTimer=null;
+  if(!isOnline)return;
+  idleTimer=setTimeout(function(){goOffline();},IDLE_MS);
+}
+['mousemove','mousedown','keydown','touchstart','scroll','click','wheel'].forEach(function(ev){
+  document.addEventListener(ev,function(){if(isOnline)resetIdleTimer();},{passive:true});
+});
+document.addEventListener('visibilitychange',function(){
+  clearTimeout(hiddenTimer);
+  hiddenTimer=null;
+  if(document.hidden){
+    if(isOnline)hiddenTimer=setTimeout(function(){goOffline();},IDLE_MS);
+  }else if(isOnline){
+    resetIdleTimer();
+  }
+});
+function forceOfflineBeacon(){
+  if(!isOnline)return;
+  isOnline=false;
+  try{
+    if(navigator.sendBeacon){
+      navigator.sendBeacon('/api/chat/status',new Blob([JSON.stringify({status:'offline'})],{type:'application/json'}));
+      return;
+    }
+  }catch(e){}
+  setStatus('offline');
+}
+window.addEventListener('pagehide',forceOfflineBeacon);
+window.addEventListener('beforeunload',forceOfflineBeacon);
+</script>
+
+</div>
+<script>
+var API_OPTS = {credentials:'include'};
+function showApp(){
+  document.getElementById('loginScreen').style.display='none';
+  var app=document.getElementById('appShell');
+  app.style.display='flex';
+}
+async function checkAuth(){
+  try{
+    var r=await fetch('/api/sessions',API_OPTS);
+    if(r.ok){showApp();return true;}
+  }catch(e){}
+  return false;
+}
+var resetToken=new URLSearchParams(window.location.search).get('reset')||'';
+function showLoginFormOnly(){document.getElementById('loginForm').style.display='';document.getElementById('forgotForm').style.display='none';document.getElementById('resetForm').style.display='none';}
+function showForgot(){document.getElementById('loginForm').style.display='none';document.getElementById('forgotForm').style.display='block';document.getElementById('resetForm').style.display='none';}
+function showResetForm(){document.getElementById('loginForm').style.display='none';document.getElementById('forgotForm').style.display='none';document.getElementById('resetForm').style.display='block';}
+async function doLogin(e){
+  e.preventDefault();
+  var err=document.getElementById('loginErr');
+  err.style.display='none';
+  var r=await fetch('/api/login',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({username:document.getElementById('loginUser').value,password:document.getElementById('loginPass').value})});
+  var d=await r.json().catch(function(){return {};});
+  if(!r.ok){err.textContent=d.error||'Invalid credentials.';err.style.display='block';return false;}
+  showApp();
+  return false;
+}
+async function doForgot(e){
+  e.preventDefault();
+  var err=document.getElementById('loginErr');err.style.display='none';
+  var r=await fetch('/api/forgot-password',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({page:'visitors'})});
+  var d=await r.json().catch(function(){return {};});
+  err.textContent=r.ok?(d.message||'Sent.'):(d.error||'Failed');err.style.display='block';err.style.color=r.ok?'#4caf50':'';
+  return false;
+}
+async function doReset(e){
+  e.preventDefault();
+  var err=document.getElementById('loginErr');err.style.display='none';
+  var p1=document.getElementById('resetPass').value,p2=document.getElementById('resetPass2').value;
+  if(p1!==p2){err.textContent='Passwords do not match.';err.style.display='block';return false;}
+  var r=await fetch('/api/reset-password',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({token:resetToken,password:p1})});
+  var d=await r.json().catch(function(){return {};});
+  if(!r.ok){err.textContent=d.error||'Failed';err.style.display='block';return false;}
+  history.replaceState({},'','/visitors.html');showApp();return false;
+}
+function showChangePassword(){document.getElementById('changePasswordPanel').style.display='flex';}
+function hideChangePassword(){document.getElementById('changePasswordPanel').style.display='none';}
+async function doChangePassword(){
+  var err=document.getElementById('changePassErr');err.style.display='none';
+  var p1=document.getElementById('changeNew').value,p2=document.getElementById('changeNew2').value;
+  if(p1!==p2){err.textContent='Passwords do not match.';err.style.display='block';return;}
+  var r=await fetch('/api/change-password',{method:'POST',credentials:'include',headers:{'Content-Type':'application/json'},body:JSON.stringify({currentPassword:document.getElementById('changeCurrent').value,newPassword:p1})});
+  var d=await r.json().catch(function(){return {};});
+  if(!r.ok){err.textContent=d.error||'Failed';err.style.display='block';return;}
+  hideChangePassword();
+}
+async function doLogout(){
+  await fetch('/api/logout',{method:'POST',credentials:'include'});
+  location.reload();
+}
+if(resetToken){showResetForm();}else{checkAuth();}
+</script>
+</body>
+</html>

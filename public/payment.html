@@ -1,0 +1,508 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>Secure Payment — PhobiaFree.life</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&family=Cinzel:wght@400;600&display=swap" rel="stylesheet"/>
+<script src="https://js.stripe.com/v3/"></script>
+<style>
+  :root {
+    --teal: #1a6b72;
+    --teal-dark: #124d52;
+    --gold: #c9a84c;
+    --cream: #f9f6f1;
+    --warm-white: #fdfaf5;
+    --charcoal: #2c2c2c;
+    --mid-gray: #6b6b6b;
+  }
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--warm-white);
+    color: var(--charcoal);
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem 1rem;
+  }
+  .logo {
+    font-family: 'Cinzel', serif;
+    font-size: 1.4rem;
+    color: var(--teal);
+    text-decoration: none;
+    margin-bottom: 2rem;
+    letter-spacing: 0.04em;
+  }
+  .logo span { color: var(--gold); }
+  .card {
+    background: #fff;
+    border-radius: 4px;
+    border-top: 4px solid var(--teal);
+    padding: 2.5rem;
+    width: 100%;
+    max-width: 480px;
+    box-shadow: 0 8px 40px rgba(26,107,114,0.12);
+  }
+  .card-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.8rem;
+    font-weight: 300;
+    color: var(--teal-dark);
+    margin-bottom: 0.4rem;
+  }
+  .card-sub { font-size: 0.85rem; color: var(--mid-gray); margin-bottom: 1.25rem; }
+  .greeting {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.35rem;
+    font-weight: 400;
+    color: var(--teal-dark);
+    line-height: 1.4;
+    margin-bottom: 1.25rem;
+  }
+  .promise {
+    font-size: 0.82rem;
+    color: var(--teal-dark);
+    background: rgba(26,107,114,0.06);
+    border: 1px solid rgba(26,107,114,0.15);
+    border-radius: 3px;
+    padding: 0.75rem 0.9rem;
+    margin-bottom: 1.5rem;
+    line-height: 1.5;
+  }
+  .summary {
+    background: var(--cream);
+    border-radius: 3px;
+    padding: 1.2rem;
+    margin-bottom: 2rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+  }
+  .summary-name { font-size: 0.88rem; color: var(--charcoal); font-weight: 500; }
+  .summary-desc { font-size: 0.78rem; color: var(--mid-gray); margin-top: 0.2rem; }
+  .summary-amount {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 2rem;
+    font-weight: 600;
+    color: var(--teal);
+    white-space: nowrap;
+  }
+  .field-label {
+    font-size: 0.72rem;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--mid-gray);
+    margin-bottom: 0.4rem;
+    display: block;
+  }
+  .field-group { margin-bottom: 1.2rem; }
+  .name-input, .amount-input {
+    width: 100%;
+    padding: 0.75rem 1rem;
+    border: 1px solid rgba(26,107,114,0.2);
+    border-radius: 2px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.95rem;
+    background: var(--warm-white);
+    color: var(--charcoal);
+  }
+  .name-input:focus, .amount-input:focus { outline: none; border-color: var(--teal); }
+  .amount-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+  .amount-wrap span {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.4rem;
+    color: var(--teal);
+  }
+  #stripe-card-element {
+    padding: 0.85rem 1rem;
+    border: 1px solid rgba(26,107,114,0.2);
+    border-radius: 2px;
+    background: var(--warm-white);
+  }
+  #stripe-card-element.focused { border-color: var(--teal); }
+  #card-errors {
+    color: #8b2020;
+    font-size: 0.82rem;
+    margin-top: 0.5rem;
+    min-height: 1.2em;
+  }
+  .pay-btn {
+    width: 100%;
+    padding: 1rem;
+    background: var(--teal);
+    color: #fff;
+    border: none;
+    border-radius: 2px;
+    font-family: 'Cinzel', serif;
+    font-size: 0.95rem;
+    letter-spacing: 0.08em;
+    cursor: pointer;
+    margin-top: 0.5rem;
+  }
+  .pay-btn:hover { background: var(--teal-dark); }
+  .pay-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+  .secure-note {
+    text-align: center;
+    font-size: 0.75rem;
+    color: var(--mid-gray);
+    margin-top: 1rem;
+  }
+  .status-msg {
+    text-align: center;
+    padding: 2rem 1rem;
+    color: var(--mid-gray);
+    line-height: 1.6;
+  }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+<a href="https://phobiafree.life" class="logo">Phobia<span>Free</span>.life</a>
+
+<div class="card">
+  <div id="bootMsg" class="status-msg">Loading secure payment…</div>
+
+  <div id="donateStep" class="hidden">
+    <div class="card-title" id="donateTitle">Leave a Donation</div>
+    <div class="greeting" id="donateGreeting"></div>
+    <div class="card-sub">Choose any amount that feels right for you.</div>
+    <div class="summary">
+      <div>
+        <div class="summary-name" id="donateClientName">—</div>
+        <div class="summary-desc" id="donateDescription">—</div>
+      </div>
+    </div>
+    <div class="field-group">
+      <label class="field-label">Donation Amount (USD)</label>
+      <div class="amount-wrap">
+        <span>$</span>
+        <input type="number" class="amount-input" id="donationAmount" min="1" step="1" placeholder="" inputmode="decimal"/>
+      </div>
+    </div>
+    <button class="pay-btn" id="donateContinueBtn" type="button">Continue to Payment</button>
+    <div id="donateErrors" style="color:#8b2020;font-size:0.82rem;margin-top:0.75rem;min-height:1.2em;"></div>
+  </div>
+
+  <div id="paymentForm" class="hidden">
+    <div class="card-title" id="payTitle">Invoice</div>
+    <div class="card-sub" id="paySub">Review your invoice and complete payment below.</div>
+    <div class="promise" id="payPromise"><strong>Pay after Complete Satisfaction</strong> — you confirm when you’re fully satisfied.</div>
+
+    <div class="summary">
+      <div>
+        <div class="summary-name" id="clientName">—</div>
+        <div class="summary-desc" id="description">—</div>
+      </div>
+      <div class="summary-amount" id="amount">—</div>
+    </div>
+    <div id="invoiceNoteBox" class="hidden" style="background:rgba(26,107,114,0.06);border:1px solid rgba(26,107,114,0.15);border-radius:3px;padding:0.85rem 1rem;margin:-0.75rem 0 1.5rem;line-height:1.55;">
+      <div style="font-size:0.7rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--mid-gray);margin-bottom:0.35rem;">Note</div>
+      <div id="priceReason" style="color:var(--teal-dark);font-size:0.9rem;white-space:pre-wrap;"></div>
+    </div>
+
+    <div id="cardFields">
+      <div class="field-group">
+        <label class="field-label">Name on Card</label>
+        <input type="text" class="name-input" id="cardholder-name" autocomplete="cc-name"/>
+      </div>
+
+      <div class="field-group">
+        <label class="field-label">Card Details</label>
+        <div id="stripe-card-element"></div>
+        <div id="card-errors"></div>
+      </div>
+    </div>
+
+    <a class="pay-btn hidden" id="externalPayBtn" href="#" target="_blank" rel="noopener" style="display:none;text-align:center;text-decoration:none;">🔒 &nbsp; Pay securely</a>
+    <button class="pay-btn" id="payBtn" type="button">🔒 &nbsp; Pay</button>
+    <div class="secure-note" id="secureNote">🔒 Payments secured by Stripe. Your card details are never stored on our servers.</div>
+  </div>
+</div>
+
+<script>
+(function () {
+  var params = new URLSearchParams(window.location.search);
+  var TOKEN = (params.get('token') || '').trim();
+  var boot = document.getElementById('bootMsg');
+  var form = document.getElementById('paymentForm');
+  var donateStep = document.getElementById('donateStep');
+  var stripe, cardElement, paymentIntentSecret, amountFormatted = '';
+  var LINK_TYPE = 'standard';
+  var CLIENT_NAME = '';
+  var INFO = null;
+
+  function showError(msg) {
+    boot.style.display = 'block';
+    boot.textContent = msg || 'Unable to load this payment link.';
+    form.classList.add('hidden');
+    donateStep.classList.add('hidden');
+  }
+
+  function goThanks() {
+    var q = new URLSearchParams({
+      type: LINK_TYPE || 'standard',
+      name: CLIENT_NAME || ''
+    });
+    window.location.href = '/thank-you.html?' + q.toString();
+  }
+
+  function mountStripe(data) {
+    if (!data.publishableKey || !data.clientSecret) {
+      document.getElementById('card-errors').textContent =
+        data.error || 'Stripe is not configured on the server yet. Please contact Steven.';
+      document.getElementById('payBtn').disabled = true;
+      return;
+    }
+    paymentIntentSecret = data.clientSecret;
+    amountFormatted = data.amountFormatted || amountFormatted;
+    document.getElementById('amount').textContent = amountFormatted;
+    document.getElementById('payBtn').textContent = '🔒  Pay ' + amountFormatted;
+    stripe = Stripe(data.publishableKey);
+    var elements = stripe.elements({
+      appearance: {
+        theme: 'stripe',
+        variables: {
+          colorPrimary: '#1a6b72',
+          colorBackground: '#fdfaf5',
+          colorText: '#2c2c2c',
+          colorDanger: '#8b2020',
+          fontFamily: 'DM Sans, sans-serif',
+          borderRadius: '2px'
+        }
+      }
+    });
+    cardElement = elements.create('card', {
+      style: {
+        base: {
+          fontSize: '15px',
+          color: '#2c2c2c',
+          fontFamily: 'DM Sans, sans-serif',
+          '::placeholder': { color: '#9b9b9b' }
+        }
+      }
+    });
+    cardElement.mount('#stripe-card-element');
+    cardElement.on('focus', function () {
+      document.getElementById('stripe-card-element').classList.add('focused');
+    });
+    cardElement.on('blur', function () {
+      document.getElementById('stripe-card-element').classList.remove('focused');
+    });
+    cardElement.on('change', function (e) {
+      document.getElementById('card-errors').textContent = e.error ? e.error.message : '';
+    });
+  }
+
+  function showExternalPay(info) {
+    showPaymentForm(info);
+    document.getElementById('cardFields').classList.add('hidden');
+    document.getElementById('payBtn').classList.add('hidden');
+    document.getElementById('payBtn').style.display = 'none';
+    var btn = document.getElementById('externalPayBtn');
+    btn.href = info.externalPayUrl;
+    btn.classList.remove('hidden');
+    btn.style.display = 'block';
+    var label = info.isDonation
+      ? 'Continue to donate'
+      : ('Pay ' + (info.amountFormatted || 'now'));
+    btn.textContent = '🔒  ' + label;
+    document.getElementById('secureNote').textContent =
+      'You’ll complete payment on a secure checkout page. After paying, you can close that tab.';
+    document.getElementById('amount').textContent = info.amountFormatted || (info.isDonation ? 'Donation' : '—');
+  }
+
+  function showPaymentForm(info) {
+    document.getElementById('clientName').textContent = info.clientName || 'Client';
+    document.getElementById('description').textContent = info.description || 'PhobiaFree session';
+    var nameEl = document.getElementById('cardholder-name');
+    if (nameEl) nameEl.value = info.clientName || '';
+    var reasonEl = document.getElementById('priceReason');
+    var noteBox = document.getElementById('invoiceNoteBox');
+    if (info.priceReason) {
+      reasonEl.textContent = info.priceReason;
+      noteBox.classList.remove('hidden');
+    } else {
+      reasonEl.textContent = '';
+      noteBox.classList.add('hidden');
+    }
+    if (info.isDonation) {
+      document.getElementById('payTitle').textContent = 'Donation';
+      document.getElementById('paySub').textContent = 'Complete your donation below.';
+      document.getElementById('payPromise').classList.add('hidden');
+    } else {
+      document.getElementById('payTitle').textContent = 'Invoice';
+      document.getElementById('paySub').textContent = 'Review your invoice and complete payment below.';
+    }
+    donateStep.classList.add('hidden');
+    boot.style.display = 'none';
+    form.classList.remove('hidden');
+  }
+
+  function createIntent(extra) {
+    return fetch('/api/payment/intent', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(Object.assign({ token: TOKEN }, extra || {}))
+    }).then(function (r) { return r.json(); });
+  }
+
+  if (!TOKEN) {
+    showError('This payment link is missing a token.');
+    return;
+  }
+
+  fetch('/api/payment/info?token=' + encodeURIComponent(TOKEN))
+    .then(function (r) { return r.json(); })
+    .then(function (info) {
+      if (info.error) {
+        showError(info.message || 'This payment link is invalid or has already been used.');
+        return null;
+      }
+      INFO = info;
+      LINK_TYPE = info.linkType || 'standard';
+      CLIENT_NAME = info.clientName || '';
+      amountFormatted = info.amountFormatted || '';
+
+      // Preferred path: hosted checkout URL (no API secret needed)
+      if (info.externalPayUrl) {
+        if (info.isDonation) {
+          document.getElementById('donateGreeting').textContent = info.greeting || '';
+          document.getElementById('donateClientName').textContent = info.clientName || 'Client';
+          document.getElementById('donateDescription').textContent = info.description || 'Donation';
+          if (info.priceReason) {
+            var dg = document.getElementById('donateGreeting');
+            if (dg.textContent) dg.textContent += '\n\n' + info.priceReason;
+            else dg.textContent = info.priceReason;
+          }
+          boot.style.display = 'none';
+          donateStep.classList.add('hidden');
+          showExternalPay(info);
+          return null;
+        }
+        showExternalPay(info);
+        return null;
+      }
+
+      if (info.isDonation) {
+        document.getElementById('donateGreeting').textContent = info.greeting || '';
+        document.getElementById('donateClientName').textContent = info.clientName || 'Client';
+        document.getElementById('donateDescription').textContent = info.description || 'Donation';
+        if (info.priceReason) {
+          var dg2 = document.getElementById('donateGreeting');
+          if (dg2.textContent) dg2.textContent += '\n\n' + info.priceReason;
+          else dg2.textContent = info.priceReason;
+        }
+        boot.style.display = 'none';
+        donateStep.classList.remove('hidden');
+        return null;
+      }
+
+      showPaymentForm(info);
+      document.getElementById('amount').textContent = amountFormatted || '—';
+      document.getElementById('payBtn').textContent = '🔒  Pay ' + (amountFormatted || '');
+      return createIntent();
+    })
+    .then(function (data) {
+      if (!data) return;
+      if (data.error) {
+        document.getElementById('card-errors').textContent = data.error;
+        document.getElementById('payBtn').disabled = true;
+        return;
+      }
+      mountStripe(data);
+    })
+    .catch(function () {
+      showError('Could not reach the payment server. Please try again shortly.');
+    });
+
+  document.getElementById('donateContinueBtn').addEventListener('click', function () {
+    var err = document.getElementById('donateErrors');
+    if (INFO && INFO.externalPayUrl) {
+      showExternalPay(INFO);
+      return;
+    }
+    var dollars = parseFloat(document.getElementById('donationAmount').value, 10);
+    if (!dollars || dollars < 1) {
+      err.textContent = 'Please enter a donation of at least $1.';
+      return;
+    }
+    var cents = Math.round(dollars * 100);
+    var btn = document.getElementById('donateContinueBtn');
+    btn.disabled = true;
+    btn.textContent = 'Preparing…';
+    err.textContent = '';
+    createIntent({ amount_cents: cents })
+      .then(function (data) {
+        btn.disabled = false;
+        btn.textContent = 'Continue to Payment';
+        if (data.error) {
+          err.textContent = data.error;
+          return;
+        }
+        amountFormatted = data.amountFormatted || ('$' + (cents / 100).toFixed(2));
+        showPaymentForm(INFO);
+        mountStripe(data);
+      })
+      .catch(function () {
+        btn.disabled = false;
+        btn.textContent = 'Continue to Payment';
+        err.textContent = 'Could not reach the payment server. Please try again.';
+      });
+  });
+
+  document.getElementById('payBtn').addEventListener('click', async function () {
+    var btn = document.getElementById('payBtn');
+    var errors = document.getElementById('card-errors');
+    var name = document.getElementById('cardholder-name').value.trim();
+    if (!name) {
+      errors.textContent = 'Please enter the name on your card.';
+      return;
+    }
+    if (!stripe || !paymentIntentSecret || !cardElement) {
+      errors.textContent = 'Payment is not ready yet. Please refresh the page.';
+      return;
+    }
+    btn.disabled = true;
+    btn.textContent = 'Processing…';
+    errors.textContent = '';
+    CLIENT_NAME = name;
+    var result = await stripe.confirmCardPayment(paymentIntentSecret, {
+      payment_method: {
+        card: cardElement,
+        billing_details: { name: name }
+      }
+    });
+    if (result.error) {
+      errors.textContent = result.error.message || 'Payment failed.';
+      btn.disabled = false;
+      btn.textContent = '🔒  Pay ' + amountFormatted;
+      return;
+    }
+    if (result.paymentIntent && result.paymentIntent.status === 'succeeded') {
+      try {
+        await fetch('/api/payment/confirm', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            token: TOKEN,
+            payment_intent: result.paymentIntent.id
+          })
+        });
+      } catch (e) {}
+      goThanks();
+    }
+  });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+{
+  "slug": "fear-of-storms",
+  "title": "Fear of Storms — Relief in One Session | PhobiaFree.life",
+  "description": "Overcome fear of storms in one peaceful Zoom session. No trance, no exposure, no long-term therapy.",
+  "cssHref": "/fear-of-storms/styles.css",
+  "photoUrl": "/fear-of-storms/img/storms.png",
+  "pfCurrentSlug": "fear-of-storms",
+  "pfSamePageSlugs": {
+    "fear-of-storms": true,
+    "astraphobia": true
+  },
+  "selectedPhobiaSlug": "fear-of-storms",
+  "assetDir": "fear-of-storms",
+  "latinSlug": "astraphobia",
+  "label": "Fear of Storms",
+  "image": "storms.png"
+}

@@ -1,0 +1,16 @@
+{
+  "slug": "my_fear",
+  "title": "PhobiaFree.life — Stop Letting Fear Run Your Life",
+  "description": "One peaceful Zoom session for the phobia that’s been running the show. No trance, no exposure, no long-term therapy. Book a complimentary consultation.",
+  "cssHref": "/my_fear/styles.css",
+  "photoUrl": "/my_fear/img/my-fear.png",
+  "pfCurrentSlug": "my_fear",
+  "pfSamePageSlugs": {
+    "my_fear": true,
+    "my-fear": true
+  },
+  "selectedPhobiaSlug": "",
+  "assetDir": "my_fear",
+  "label": "My Fear",
+  "image": "my-fear.png"
+}

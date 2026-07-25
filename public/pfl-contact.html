@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Get in touch with Steven Shaw, CCHP — PhobiaFree.life">
+  <title>Contact — PhobiaFree.life</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&family=Sora:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/fear-of-flying/styles.css">
+</head>
+<body class="is-legal">
+
+<div class="page-photo" aria-hidden="true"></div>
+
+<header class="nav is-scrolled" id="nav">
+  <a class="brand" href="/fear-of-flying">Phobia<span>Free</span>.life</a>
+  <nav class="nav-links" aria-label="Legal">
+    <a href="/pfl-privacy">Privacy</a>
+    <a href="/pfl-terms">Terms</a>
+    <a href="/pfl-contact" aria-current="page">Contact</a>
+  </nav>
+  <a class="nav-cta" href="/fear-of-flying?modal=1">Book Consultation</a>
+</header>
+
+<main class="legal-main" id="legalMain">
+  <article class="legal-card" onclick="event.stopPropagation()">
+    <a class="legal-close" href="/fear-of-flying" aria-label="Close">&times;</a>
+    <span class="eyebrow">PhobiaFree.life</span>
+    <h1>Get in Touch</h1>
+    <p class="legal-lead">Questions, concerns, or just curious? Reach out — Steven typically responds within 24 hours.</p>
+
+    <div class="contact-grid">
+      <div class="contact-tile">
+        <span class="eyebrow">Phone</span>
+        <a href="tel:+13234872623">323-4-TRANCE</a>
+        <div class="meta">323-487-2623</div>
+      </div>
+      <div class="contact-tile">
+        <span class="eyebrow">Email</span>
+        <a href="mailto:steven@stevenshawccht.com">steven@stevenshawccht.com</a>
+        <div class="meta">Usually within 24 hours</div>
+      </div>
+    </div>
+
+    <div class="contact-cta">
+      <p>Ready to get started? The fastest way is to book a free 30-minute consultation — no obligation, no pressure.</p>
+      <a class="btn btn-solid" href="/fear-of-flying?modal=1">Book Consultation</a>
+    </div>
+
+    <div class="contact-sign">
+      <strong>Steven Shaw, CCHP</strong><br>
+      Certified Clinical Hypnotherapist<br>
+      Naples, Florida — serving clients throughout the United States via Zoom
+    </div>
+  </article>
+</main>
+
+<footer class="footer">
+  <p>© 2026 PhobiaFree.life</p>
+  <div class="footer-links">
+    <a href="/pfl-privacy">Privacy Policy</a>
+    <a href="/pfl-terms">Terms of Service</a>
+    <a href="/pfl-contact">Contact</a>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var BACK = '/fear-of-flying';
+    var main = document.getElementById('legalMain');
+    if (main) {
+      main.addEventListener('click', function (e) {
+        if (e.target === main) window.location.href = BACK;
+      });
+    }
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') window.location.href = BACK;
+    });
+  })();
+</script>
+<script>
+(function () {
+  if (window.location.search.indexOf('notrack=1') !== -1) return;
+
+  var vid = sessionStorage.getItem('pfvid') || '';
+  if (!vid) {
+    vid = 'v_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now().toString(36);
+  }
+  sessionStorage.setItem('pfvid', vid);
+
+  var path = (window.location.pathname || '/').replace(/\.html$/i, '').replace(/\/$/, '') || '/';
+  var parts = path.split('/').filter(Boolean);
+  var page = parts.length ? parts[parts.length - 1] : 'home';
+
+  var mx = 0.5, my = 0.5, lastSent = 0, pendingEvents = [];
+  var ua = navigator.userAgent, device = 'Desktop';
+  if (/iPhone|iPod/.test(ua)) device = 'iPhone';
+  else if (/iPad/.test(ua)) device = 'iPad';
+  else if (/Android/.test(ua) && /Mobile/.test(ua)) device = 'Android Phone';
+  else if (/Android/.test(ua)) device = 'Android Tablet';
+  else if (/Macintosh/.test(ua)) device = 'Mac';
+  else if (/Windows/.test(ua)) device = 'Windows';
+
+  function getViewport() {
+    if (window.visualViewport) {
+      return {
+        w: Math.round(window.visualViewport.width),
+        h: Math.round(window.visualViewport.height)
+      };
+    }
+    return { w: window.innerWidth, h: window.innerHeight };
+  }
+
+  function isModalTarget(el) {
+    var t = el;
+    while (t && t !== document && t !== document.body) {
+      try {
+        var oc = (t.getAttribute && t.getAttribute('onclick')) || '';
+        if (oc.indexOf('openModal') !== -1) return true;
+        if (t.classList && (t.classList.contains('btn-book') || t.classList.contains('nav-cta'))) {
+          if (oc.indexOf('openModal') !== -1 || (t.getAttribute('href') || '').indexOf('modal=1') !== -1) {
+            return true;
+          }
+        }
+      } catch (e) {}
+      t = t.parentElement;
+    }
+    return false;
+  }
+
+  function selectorFor(el) {
+    try {
+      if (!el) return '';
+      if (el.id) return '#' + el.id;
+      if (el.className && typeof el.className === 'string') {
+        return el.tagName.toLowerCase() + '.' + el.className.trim().split(/\s+/)[0];
+      }
+      return el.tagName ? el.tagName.toLowerCase() : '';
+    } catch (e) {
+      return '';
+    }
+  }
+
+  window.pfTrackPush = function (ev) {
+    if (!ev || typeof ev !== 'object') return;
+    pendingEvents.push(ev);
+    send();
+  };
+
+  document.addEventListener('mousemove', function (e) {
+    mx = e.clientX / window.innerWidth;
+    my = e.clientY / window.innerHeight;
+  });
+
+  document.addEventListener('click', function (e) {
+    var vp = getViewport();
+    pendingEvents.push({
+      type: 'click',
+      x: Math.round((e.clientX / vp.w) * 1000) / 1000,
+      y: Math.round(Math.max(0, Math.min(1, e.clientY / vp.h)) * 1000) / 1000,
+      modal: isModalTarget(e.target),
+      selector: selectorFor(e.target)
+    });
+    send();
+  });
+
+  var firstLoad = Math.floor(Date.now() / 1000);
+
+  function send() {
+    var now = Date.now();
+    if (now - lastSent < 150) return;
+    lastSent = now;
+    var vp = getViewport();
+    var sh = document.documentElement.scrollHeight - window.innerHeight;
+    var sp = sh > 0 ? Math.round((window.scrollY / sh) * 1000) / 1000 : 0;
+    var eventsToSend = pendingEvents.splice(0);
+    fetch('/track', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        vid: vid,
+        x: Math.round(mx * 1000) / 1000,
+        y: Math.round(my * 1000) / 1000,
+        scrollY: window.scrollY,
+        scrollPct: sp,
+        vw: vp.w,
+        vh: vp.h,
+        page: page,
+        section: page,
+        device: device,
+        first_load: firstLoad,
+        events: eventsToSend
+      })
+    }).catch(function () {});
+  }
+
+  document.addEventListener('mousemove', send);
+  document.addEventListener('scroll', send, { passive: true });
+
+  function leaveNow() {
+    try {
+      var payload = JSON.stringify({ vid: vid });
+      if (navigator.sendBeacon) {
+        navigator.sendBeacon('/track?leave=1', new Blob([payload], { type: 'application/json' }));
+      } else {
+        fetch('/track?leave=1', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: payload,
+          keepalive: true
+        }).catch(function () {});
+      }
+    } catch (e) {}
+  }
+  window.addEventListener('pagehide', leaveNow);
+  window.addEventListener('beforeunload', leaveNow);
+  setInterval(send, 5000);
+  setTimeout(send, 500);
+})();
+</script>
+
+</body>
+</html>

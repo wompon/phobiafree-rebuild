@@ -1,0 +1,144 @@
+<div class="modal-overlay" id="consultModal" onclick="handleOverlayClick(event)">
+  <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <button type="button" class="modal-close" onclick="closeModalMaybeRedirect()" aria-label="Close">&times;</button>
+    <div class="form-title" id="modalTitle">Schedule Your Consultation</div>
+    <div class="form-sub">Complimentary · 30 minutes · Zoom · No obligation</div>
+
+    <div id="consultBookedBanner" class="consult-booked-banner" hidden></div>
+
+    <div id="consultCore">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="cf_first_name">First Name</label>
+          <input type="text" id="cf_first_name" placeholder="Jane"/>
+        </div>
+        <div class="form-group">
+          <label for="cf_last_name">Last Name</label>
+          <input type="text" id="cf_last_name" placeholder="Smith"/>
+        </div>
+      </div>
+      <div class="form-group">
+        <label for="cf_email">Email Address</label>
+        <input type="email" id="cf_email" placeholder="jane@example.com"/>
+      </div>
+      <div class="form-group">
+        <label for="cf_phone">Phone (optional)</label>
+        <input type="tel" id="cf_phone" placeholder="+1 (555) 000-0000"/>
+      </div>
+      <div class="form-group">
+        <label for="cf_phobia">What is your phobia or fear?</label>
+        <select id="cf_phobia">
+        <option value="" data-slug="">Select one...</option>
+        <option value="Fear of Flying" data-slug="fear-of-flying" selected>Fear of Flying</option>
+        <option value="Fear of Heights" data-slug="fear-of-heights">Fear of Heights</option>
+        <option value="Fear of Water" data-slug="fear-of-water">Fear of Water</option>
+        <option value="Fear of Driving" data-slug="fear-of-driving">Fear of Driving</option>
+        <option value="Fear of Enclosed Spaces" data-slug="fear-of-enclosed-spaces">Fear of Enclosed Spaces</option>
+        <option value="Fear of Public Speaking" data-slug="fear-of-public-speaking">Fear of Public Speaking</option>
+        <option value="Fear of Open Spaces" data-slug="fear-of-open-spaces">Fear of Open Spaces</option>
+        <option value="Fear of Spiders" data-slug="fear-of-spiders">Fear of Spiders</option>
+        <option value="Fear of Roaches" data-slug="fear-of-roaches">Fear of Roaches</option>
+        <option value="Fear of Snakes" data-slug="fear-of-snakes">Fear of Snakes</option>
+        <option value="Fear of Dogs" data-slug="fear-of-dogs">Fear of Dogs</option>
+        <option value="Fear of Storms" data-slug="fear-of-storms">Fear of Storms</option>
+        <option value="Fear of the Dark" data-slug="fear-of-the-dark">Fear of the Dark</option>
+        <option value="Fear of Clowns" data-slug="fear-of-clowns">Fear of Clowns</option>
+        <option value="Fear of Hospitals" data-slug="fear-of-hospitals">Fear of Hospitals</option>
+        <option value="Fear of Doctors" data-slug="fear-of-doctors">Fear of Doctors</option>
+        <option value="Fear of Ferns" data-slug="fear-of-ferns">Fear of Ferns</option>
+        <option value="Fear of Plants" data-slug="fear-of-plants">Fear of Plants</option>
+        <option value="Fear of Needles" data-slug="fear-of-needles">Fear of Needles</option>
+        <option value="Fear of Blood" data-slug="fear-of-blood">Fear of Blood</option>
+        <option value="Fear of Being Sick" data-slug="fear-of-being-sick">Fear of Being Sick</option>
+        <option value="Fear of Germs" data-slug="fear-of-germs">Fear of Germs</option>
+        <option value="Fear of Phone Calls" data-slug="fear-of-phone-calls">Fear of Phone Calls</option>
+        <option value="Sales Call Anxiety" data-slug="fear-of-sales-calls">Sales Call Anxiety</option>
+        <option value="Fear of Rejection" data-slug="fear-of-rejection">Fear of Rejection</option>
+        <option value="Rejection Sensitive Dysphoria" data-slug="fear-of-rejection-sensitivity">Rejection Sensitive Dysphoria</option>
+        <option value="Fear of the Dentist" data-slug="fear-of-the-dentist">Fear of the Dentist</option>
+        <option value="Fear of Crowds" data-slug="fear-of-crowds">Fear of Crowds</option>
+        <option value="Fear of Aging" data-slug="fear-of-aging">Fear of Aging</option>
+        <option value="Fear of Mirrors" data-slug="fear-of-mirrors">Fear of Mirrors</option>
+        <option value="Fear of Being Stared At" data-slug="fear-of-being-stared-at">Fear of Being Stared At</option>
+        <option value="Fear of Making Decisions" data-slug="fear-of-making-decisions">Fear of Making Decisions</option>
+        <option value="Fear of Eating in Public" data-slug="fear-of-eating-in-public">Fear of Eating in Public</option>
+        <option value="Other (describe below)" data-slug="my_fear">Other (describe below)</option>
+      </select>
+      </div>
+      <div class="form-group">
+        <label>Select an Available Time</label>
+        <div id="slotPicker" class="slot-picker">
+          <div class="slot-loading">Loading available times...</div>
+        </div>
+        <input type="hidden" id="cf_datetime"/>
+        <div id="selectedSlotLabel" class="slot-selected-label"></div>
+      </div>
+    </div>
+
+    <div id="consultExtras" class="consult-extras">
+      <div class="form-group">
+        <label for="cf_notes">Anything you'd like me to know? (optional)</label>
+        <textarea id="cf_notes" placeholder="Brief description of your situation..."></textarea>
+      </div>
+      <div class="form-help">
+        <div class="eyebrow">Helpful Questions</div>
+        <p id="consultHelpIntro">These are questions I will ask during our consultation — answer any that help tailor your session.</p>
+        <div class="form-group">
+          <label for="cf_q1">How long has this fear been limiting you?</label>
+          <input type="text" id="cf_q1" placeholder="e.g. Since childhood, about 10 years..."/>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="cf_q2">Intensity of fear (1–10)</label>
+            <select id="cf_q2">
+              <option value="">Select...</option>
+              <option>1 — Very mild</option><option>2</option><option>3</option><option>4</option>
+              <option>5 — Moderate</option><option>6</option><option>7</option><option>8</option><option>9</option>
+              <option>10 — Completely debilitating</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="cf_q3">Life interference (1–10)</label>
+            <select id="cf_q3">
+              <option value="">Select...</option>
+              <option>1 — Barely noticeable</option><option>2</option><option>3</option><option>4</option>
+              <option>5 — Significant impact</option><option>6</option><option>7</option><option>8</option><option>9</option>
+              <option>10 — Controls my life</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="cf_q4">What do you believe first triggered this response in you?</label>
+          <textarea id="cf_q4" style="min-height:70px"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="cf_q5">Describe the ways this fear has been holding you back.</label>
+          <textarea id="cf_q5" style="min-height:70px"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="cf_q8">What has the price of this fear been?</label>
+          <textarea id="cf_q8" style="min-height:70px"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="cf_q6">As you imagine life free of this fear, what becomes possible?</label>
+          <textarea id="cf_q6" style="min-height:70px"></textarea>
+        </div>
+        <div class="form-group">
+          <label for="cf_q7">What other approaches have you tried?</label>
+          <textarea id="cf_q7" style="min-height:70px"></textarea>
+        </div>
+      </div>
+    </div>
+
+    <div id="consultConsent" class="form-group sms-consent">
+      <input type="checkbox" id="sms_consent" name="sms_consent"/>
+      <label for="sms_consent">I agree to receive text messages from PhobiaFree.life regarding my consultation appointment, session reminders, and follow-up. Message and data rates may apply. Reply STOP to unsubscribe.</label>
+    </div>
+
+    <button type="button" class="form-submit btn-book" id="consultSubmitBtn" onclick="submitConsultForm(event)">Book Consultation</button>
+    <button type="button" class="form-submit btn-book" id="consultDetailsBtn" onclick="submitConsultDetails(event)" hidden>Save answers</button>
+    <button type="button" class="form-skip" id="consultSkipBtn" onclick="finishConsultFlow()" hidden>Skip for now</button>
+    <div id="consultMsg" class="consult-msg" hidden></div>
+    <p class="form-note" id="consultFormNote">By submitting, you agree to our <a href="/pfl-privacy" target="_blank" rel="noopener">Privacy Policy</a>.</p>
+  </div>
+</div>

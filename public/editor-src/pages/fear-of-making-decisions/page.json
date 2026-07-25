@@ -1,0 +1,17 @@
+{
+  "slug": "fear-of-making-decisions",
+  "title": "Fear of Making Decisions — Relief in One Session | PhobiaFree.life",
+  "description": "Overcome fear of making decisions in one peaceful Zoom session. No trance, no exposure, no long-term therapy.",
+  "cssHref": "/fear-of-making-decisions/styles.css",
+  "photoUrl": "/fear-of-making-decisions/img/making-decisions.png",
+  "pfCurrentSlug": "fear-of-making-decisions",
+  "pfSamePageSlugs": {
+    "fear-of-making-decisions": true,
+    "decidophobia": true
+  },
+  "selectedPhobiaSlug": "fear-of-making-decisions",
+  "assetDir": "fear-of-making-decisions",
+  "latinSlug": "decidophobia",
+  "label": "Fear of Making Decisions",
+  "image": "making-decisions.png"
+}

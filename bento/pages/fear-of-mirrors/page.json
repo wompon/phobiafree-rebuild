@@ -1,0 +1,17 @@
+{
+  "slug": "fear-of-mirrors",
+  "title": "Fear of Mirrors — Relief in One Session | PhobiaFree.life",
+  "description": "Overcome fear of mirrors in one peaceful Zoom session. No trance, no exposure, no long-term therapy.",
+  "cssHref": "/fear-of-mirrors/styles.css",
+  "photoUrl": "/fear-of-mirrors/img/mirrors.png",
+  "pfCurrentSlug": "fear-of-mirrors",
+  "pfSamePageSlugs": {
+    "fear-of-mirrors": true,
+    "eisoptrophobia": true
+  },
+  "selectedPhobiaSlug": "fear-of-mirrors",
+  "assetDir": "fear-of-mirrors",
+  "latinSlug": "eisoptrophobia",
+  "label": "Fear of Mirrors",
+  "image": "mirrors.png"
+}

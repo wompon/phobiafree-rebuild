@@ -1,0 +1,17 @@
+{
+  "slug": "fear-of-snakes",
+  "title": "Fear of Snakes — Relief in One Session | PhobiaFree.life",
+  "description": "Overcome fear of snakes in one peaceful Zoom session. No trance, no exposure, no long-term therapy.",
+  "cssHref": "/fear-of-snakes/styles.css",
+  "photoUrl": "/fear-of-snakes/img/snakes.png",
+  "pfCurrentSlug": "fear-of-snakes",
+  "pfSamePageSlugs": {
+    "fear-of-snakes": true,
+    "ophidiophobia": true
+  },
+  "selectedPhobiaSlug": "fear-of-snakes",
+  "assetDir": "fear-of-snakes",
+  "latinSlug": "ophidiophobia",
+  "label": "Fear of Snakes",
+  "image": "snakes.png"
+}

@@ -1,0 +1,447 @@
+<script>
+  var PF_CURRENT_SLUG = '{{PF_CURRENT_SLUG}}';
+  var PF_SAME_PAGE_SLUGS = {{PF_SAME_PAGE_SLUGS}};
+
+  // A/B: default two-step. Override with ?form=single or ?form=two
+  // Also accepts ?ab_form= for future test harnesses.
+  var PF_CONSULT_FORM = (function () {
+    var q = new URLSearchParams(window.location.search);
+    var v = (q.get('form') || q.get('ab_form') || 'two').toLowerCase();
+    return v === 'single' ? 'single' : 'two';
+  })();
+
+  var _bookingId = null;
+  var _bookedChosenSlug = '';
+
+  function isSamePageSlug(slug) {
+    if (!slug || slug === PF_CURRENT_SLUG) return true;
+    if (PF_SAME_PAGE_SLUGS[PF_CURRENT_SLUG] && PF_SAME_PAGE_SLUGS[slug]) return true;
+    // Also treat latin aliases stored as values in same-page map
+    return false;
+  }
+
+  function applyConsultFormMode() {
+    var extras = document.getElementById('consultExtras');
+    if (!extras) return;
+    if (PF_CONSULT_FORM === 'single') {
+      extras.hidden = false;
+      document.getElementById('consultHelpIntro').textContent =
+        'These are questions I will ask during our consultation — answer any that help tailor your session.';
+    } else {
+      extras.hidden = true;
+    }
+  }
+
+  function openModal(e) {
+    if (e) e.preventDefault();
+    logEvent('Opened');
+    // Programmatic opens (e.g. ?modal=1) — click capture already covers button taps
+    if (!e) {
+      try {
+        if (typeof window.pfTrackPush === 'function') {
+          window.pfTrackPush({
+            type: 'click',
+            x: 0.5,
+            y: 0.2,
+            modal: true,
+            selector: '.btn-book'
+          });
+        }
+      } catch (err) {}
+    }
+    resetConsultUi();
+    applyConsultFormMode();
+    document.getElementById('consultModal').classList.add('active');
+    document.body.style.overflow = 'hidden';
+    if (typeof window.pfTrackFlush === 'function') window.pfTrackFlush();
+    if (typeof loadSlots === 'function') loadSlots();
+    if (typeof window.pfTrackAttachModalScroll === 'function') {
+      setTimeout(function () { window.pfTrackAttachModalScroll(); }, 0);
+    }
+  }
+  function closeModal() {
+    document.getElementById('consultModal').classList.remove('active');
+    document.body.style.overflow = '';
+    if (typeof window.pfTrackFlush === 'function') window.pfTrackFlush();
+  }
+  function closeModalMaybeRedirect() {
+    if (window._postSubmitTimer) {
+      clearTimeout(window._postSubmitTimer);
+      window._postSubmitTimer = null;
+      window.location.href = '/' + window._postSubmitRedirectSlug;
+      return;
+    }
+    if (_bookingId && PF_CONSULT_FORM === 'two') {
+      // Already booked — closing is fine without redirect pressure
+      finishConsultFlow(true);
+      return;
+    }
+    var sel = document.getElementById('cf_phobia');
+    if (sel && sel.selectedIndex >= 0) {
+      var slug = sel.options[sel.selectedIndex].getAttribute('data-slug') || '';
+      if (slug && !isSamePageSlug(slug)) {
+        window.location.href = '/' + slug;
+        return;
+      }
+    }
+    closeModal();
+  }
+  function handleOverlayClick(e) {
+    if (e.target === document.getElementById('consultModal')) closeModalMaybeRedirect();
+  }
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') closeModalMaybeRedirect();
+  });
+
+  function resetConsultUi() {
+    _bookingId = null;
+    _bookedChosenSlug = '';
+    document.getElementById('consultBookedBanner').hidden = true;
+    document.getElementById('consultCore').hidden = false;
+    document.getElementById('consultConsent').hidden = false;
+    document.getElementById('consultSubmitBtn').hidden = false;
+    document.getElementById('consultSubmitBtn').disabled = false;
+    document.getElementById('consultSubmitBtn').textContent = 'Book Consultation';
+    document.getElementById('consultSubmitBtn').style.display = '';
+    document.getElementById('consultDetailsBtn').hidden = true;
+    document.getElementById('consultSkipBtn').hidden = true;
+    document.getElementById('consultFormNote').style.display = '';
+    document.getElementById('modalTitle').textContent = 'Schedule Your Consultation';
+    var msg = document.getElementById('consultMsg');
+    msg.hidden = true;
+    msg.textContent = '';
+  }
+
+  function loadSlots() {
+    var picker = document.getElementById('slotPicker');
+    picker.classList.remove('slot-picked');
+    picker.innerHTML = '<div class="slot-loading">Loading available times...</div>';
+    document.getElementById('cf_datetime').value = '';
+    document.getElementById('selectedSlotLabel').textContent = '';
+    fetch('/api/consult/slots')
+      .then(function (r) { return r.json(); })
+      .then(function (res) {
+        if (!res.success || !res.days || !res.days.length) {
+          picker.innerHTML = '<div class="slot-loading">No available slots at this time. Please contact us directly.</div>';
+          return;
+        }
+        var html = '';
+        res.days.forEach(function (day) {
+          html += '<div class="slot-day">' + day.label + '</div><div class="slot-row">';
+          day.slots.forEach(function (slot) {
+            if (slot.available) {
+              html += '<button type="button" class="slot-btn" data-dt="' + slot.datetime + '" onclick="selectSlot(this,\'' + slot.datetime + '\',\'' + day.label + ' at ' + slot.label + '\')">' + slot.label + '</button>';
+            } else {
+              html += '<button type="button" class="slot-btn slot-busy" disabled>' + slot.label + '</button>';
+            }
+          });
+          html += '</div>';
+        });
+        picker.innerHTML = html;
+      })
+      .catch(function () {
+        picker.innerHTML = '<div class="slot-loading slot-error">Could not load times. Please refresh and try again.</div>';
+      });
+  }
+
+  function selectSlot(btn, datetime, label) {
+    document.getElementById('cf_datetime').value = datetime;
+    var picker = document.getElementById('slotPicker');
+    picker.classList.add('slot-picked');
+    picker.innerHTML = '<div class="slot-confirm"><span>✓ &nbsp;' + label + '</span><button type="button" class="slot-change" onclick="reopenSlotPicker()">Change</button></div>';
+    document.getElementById('selectedSlotLabel').textContent = '';
+  }
+
+  function reopenSlotPicker() {
+    var picker = document.getElementById('slotPicker');
+    picker.classList.remove('slot-picked');
+    document.getElementById('cf_datetime').value = '';
+    loadSlots();
+  }
+
+  function collectExtras() {
+    return {
+      notes: document.getElementById('cf_notes').value.trim(),
+      q_duration: document.getElementById('cf_q1').value.trim(),
+      q_intensity: document.getElementById('cf_q2').value,
+      q_interference: document.getElementById('cf_q3').value,
+      q_cause: document.getElementById('cf_q4').value.trim(),
+      q_impact: document.getElementById('cf_q5').value.trim(),
+      q_cost: document.getElementById('cf_q8').value.trim(),
+      q_outcome: document.getElementById('cf_q6').value.trim(),
+      q_previous: document.getElementById('cf_q7').value.trim()
+    };
+  }
+
+  function submitConsultForm(e) {
+    e.preventDefault();
+    var btn = document.getElementById('consultSubmitBtn');
+    var msg = document.getElementById('consultMsg');
+    var first_name = document.getElementById('cf_first_name').value.trim();
+    var last_name = document.getElementById('cf_last_name').value.trim();
+    var email = document.getElementById('cf_email').value.trim();
+    var appointment_dt = document.getElementById('cf_datetime').value;
+    if (!first_name || !last_name || !email) {
+      showMsg(msg, 'Please fill in your first name, last name, and email address.', 'error');
+      return;
+    }
+    if (!appointment_dt) {
+      showMsg(msg, 'Please select an available time slot.', 'error');
+      return;
+    }
+    if (!document.getElementById('sms_consent').checked) {
+      showMsg(msg, 'Please agree to receive text messages to continue.', 'error');
+      return;
+    }
+
+    var payload = {
+      first_name: first_name,
+      last_name: last_name,
+      email: email,
+      phone: document.getElementById('cf_phone').value.trim(),
+      phobia: document.getElementById('cf_phobia').value,
+      appointment_dt: appointment_dt,
+      sms_consent: true
+    };
+
+    if (PF_CONSULT_FORM === 'single') {
+      var extras = collectExtras();
+      for (var k in extras) payload[k] = extras[k];
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Booking...';
+    msg.hidden = true;
+
+    fetch('/api/consult/book', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (res) {
+        if (res.success) {
+          var selBox = document.getElementById('cf_phobia');
+          var chosenSlug = (selBox && selBox.selectedIndex >= 0)
+            ? (selBox.options[selBox.selectedIndex].getAttribute('data-slug') || '')
+            : '';
+          _bookedChosenSlug = chosenSlug;
+          _bookingId = res.id || null;
+          logEvent('Booked');
+          if (typeof gtag === 'function') {
+            gtag('event', 'conversion', {
+              send_to: 'AW-18237377845/HlAECNOLwb4cELWaofhD',
+              value: 299.0,
+              currency: 'USD'
+            });
+          }
+
+          if (PF_CONSULT_FORM === 'two') {
+            enterPostBookStep(res.message);
+          } else {
+            showMsg(msg, res.message, 'success');
+            btn.style.display = 'none';
+            document.getElementById('consultFormNote').style.display = 'none';
+            document.getElementById('consultCore').querySelectorAll('input, select, textarea').forEach(function (el) {
+              if (el.type === 'checkbox') el.checked = false;
+              else if (el.id !== 'cf_datetime') el.value = '';
+            });
+            document.getElementById('cf_phobia').selectedIndex = 0;
+            document.getElementById('slotPicker').innerHTML = '<div class="slot-confirm"><span>✓ &nbsp;Appointment booked</span></div>';
+            scheduleRedirectIfNeeded(chosenSlug);
+          }
+        } else {
+          showMsg(msg, res.message || 'Booking failed.', 'error');
+          btn.disabled = false;
+          btn.textContent = 'Book Consultation';
+          if ((res.message || '').indexOf('slot was just taken') !== -1) loadSlots();
+        }
+      })
+      .catch(function () {
+        showMsg(msg, 'Something went wrong. Please try again or contact us directly.', 'error');
+        btn.disabled = false;
+        btn.textContent = 'Book Consultation';
+      });
+  }
+
+  function enterPostBookStep(successMessage) {
+    document.getElementById('modalTitle').textContent = 'You’re booked';
+    var banner = document.getElementById('consultBookedBanner');
+    banner.hidden = false;
+    banner.textContent = successMessage || 'Your consultation is confirmed.';
+    document.getElementById('consultCore').hidden = true;
+    document.getElementById('consultConsent').hidden = true;
+    document.getElementById('consultSubmitBtn').hidden = true;
+    document.getElementById('consultFormNote').style.display = 'none';
+    document.getElementById('consultExtras').hidden = false;
+    document.getElementById('consultHelpIntro').textContent =
+      'Your appointment is secured. Optional — answer any of these so I can tailor our call.';
+    document.getElementById('consultDetailsBtn').hidden = false;
+    document.getElementById('consultSkipBtn').hidden = false;
+    document.getElementById('consultMsg').hidden = true;
+    var box = document.querySelector('#consultModal .modal-box');
+    if (box) box.scrollTop = 0;
+    if (typeof window.pfTrackAttachModalScroll === 'function') {
+      setTimeout(function () { window.pfTrackAttachModalScroll(); }, 0);
+    }
+  }
+
+  function submitConsultDetails(e) {
+    e.preventDefault();
+    var btn = document.getElementById('consultDetailsBtn');
+    var msg = document.getElementById('consultMsg');
+    if (!_bookingId) {
+      finishConsultFlow();
+      return;
+    }
+    var extras = collectExtras();
+    extras.id = _bookingId;
+    btn.disabled = true;
+    btn.textContent = 'Saving...';
+    fetch('/api/consult/update', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(extras)
+    })
+      .then(function (r) { return r.json(); })
+      .then(function (res) {
+        if (res.success) {
+          showMsg(msg, res.message || 'Thanks — your answers were saved.', 'success');
+          btn.hidden = true;
+          document.getElementById('consultSkipBtn').textContent = 'Done';
+          setTimeout(function () { finishConsultFlow(); }, 1200);
+        } else {
+          showMsg(msg, res.message || 'Could not save answers.', 'error');
+          btn.disabled = false;
+          btn.textContent = 'Save answers';
+        }
+      })
+      .catch(function () {
+        showMsg(msg, 'Could not save answers. You can skip — your booking is still confirmed.', 'error');
+        btn.disabled = false;
+        btn.textContent = 'Save answers';
+      });
+  }
+
+  function finishConsultFlow(skipCloseRedirect) {
+    scheduleRedirectIfNeeded(_bookedChosenSlug);
+    if (!skipCloseRedirect) closeModal();
+    else closeModal();
+  }
+
+  function scheduleRedirectIfNeeded(chosenSlug) {
+    if (chosenSlug && !isSamePageSlug(chosenSlug)) {
+      window._postSubmitRedirectSlug = chosenSlug;
+      window._postSubmitTimer = setTimeout(function () {
+        window.location.href = '/' + chosenSlug;
+      }, 20000);
+    }
+  }
+
+  function showMsg(el, text, type) {
+    el.hidden = false;
+    el.textContent = text;
+    el.className = 'consult-msg consult-msg--' + type;
+  }
+
+  function logEvent(label) {
+    var vid = sessionStorage.getItem('pfvid') || '';
+    var fd = new FormData();
+    fd.append('event', label);
+    fd.append('vid', vid);
+    fetch('/track?event=1', { method: 'POST', body: fd }).catch(function () {});
+  }
+
+  window.openInvestment = function (e) {
+    if (e) e.preventDefault();
+    setNavOpen(false);
+    var el = document.getElementById('investmentModal');
+    if (el) el.classList.add('active');
+    document.body.style.overflow = 'hidden';
+  };
+
+  window.closeInvestment = function () {
+    var el = document.getElementById('investmentModal');
+    if (el) el.classList.remove('active');
+    var consult = document.getElementById('consultModal');
+    if (!consult || !consult.classList.contains('active')) {
+      document.body.style.overflow = '';
+    }
+  };
+
+  window.handleInvestmentOverlayClick = function (e) {
+    if (e.target === document.getElementById('investmentModal')) closeInvestment();
+  };
+
+  var nav = document.getElementById('nav');
+  var navToggle = document.getElementById('navToggle');
+  var navLinks = document.getElementById('navLinks');
+  function setNavOpen(open) {
+    if (!nav) return;
+    nav.classList.toggle('is-open', open);
+    if (navToggle) navToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
+    if (navToggle) navToggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+  }
+  if (navToggle) {
+    navToggle.addEventListener('click', function () {
+      setNavOpen(!nav.classList.contains('is-open'));
+    });
+  }
+  if (navLinks) {
+    navLinks.querySelectorAll('a').forEach(function (a) {
+      a.addEventListener('click', function () { setNavOpen(false); });
+    });
+  }
+  document.addEventListener('keydown', function (e) {
+    if (e.key !== 'Escape') return;
+    var invest = document.getElementById('investmentModal');
+    if (invest && invest.classList.contains('active')) {
+      closeInvestment();
+      return;
+    }
+    setNavOpen(false);
+  });
+  var onScroll = function () {
+    if (!nav) return;
+    nav.classList.toggle('is-scrolled', window.scrollY > 12);
+  };
+  onScroll();
+  window.addEventListener('scroll', onScroll, { passive: true });
+
+  var tiles = document.querySelectorAll('.tile');
+  if ('IntersectionObserver' in window) {
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (e) {
+        if (e.isIntersecting) {
+          e.target.classList.add('is-in');
+          io.unobserve(e.target);
+        }
+      });
+    }, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+    tiles.forEach(function (t, i) {
+      t.style.transitionDelay = Math.min(i % 6, 4) * 60 + 'ms';
+      io.observe(t);
+    });
+  } else {
+    tiles.forEach(function (t) { t.classList.add('is-in'); });
+  }
+
+  window.addEventListener('load', function () {
+    applyConsultFormMode();
+    var params = new URLSearchParams(window.location.search);
+    if (params.get('modal') === '1') {
+      openModal();
+      if (window.history.replaceState) {
+        var cleaned = new URL(window.location.href);
+        cleaned.searchParams.delete('modal');
+        window.history.replaceState(null, '', cleaned.pathname + cleaned.search + cleaned.hash);
+      }
+    }
+    if (window.location.hash === '#pricing' || window.location.hash === '#investment') {
+      openInvestment();
+    }
+  });
+  window.addEventListener('hashchange', function () {
+    if (window.location.hash === '#pricing' || window.location.hash === '#investment') openInvestment();
+  });
+</script>

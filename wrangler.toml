@@ -1,0 +1,12 @@
+name = "phobiafree-rebuild"
+compatibility_date = "2026-06-08"
+main = "visitor-tracker-worker.js"
+
+[[d1_databases]]
+binding = "phobiafree_db"
+database_name = "phobiafree-db"
+database_id = "d535cc2f-b269-4b2e-b366-85dcaca0bf8b"
+
+[[kv_namespaces]]
+binding = "VISITORS_KV"
+id = "891fa36b337c4daaada2bf8ccdf240a2"

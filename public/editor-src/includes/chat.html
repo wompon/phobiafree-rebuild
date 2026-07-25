@@ -1,0 +1,503 @@
+﻿<!-- LIVE CHAT BUTTON -->
+<div id="liveBtn" style="display:none;position:fixed;bottom:1.75rem;right:1.75rem;z-index:900;">
+  <button type="button" class="pf-chat-btn" onclick="startTextChat()">
+    <span class="pf-chat-btn-dot" aria-hidden="true"></span>
+    Live Chat
+  </button>
+</div>
+
+<!-- CHAT CHOICE POPUP -->
+<div id="chatChoicePopup" style="display:none;position:fixed;bottom:5rem;right:1.75rem;z-index:901;background:#fff;border-radius:10px;box-shadow:0 8px 40px rgba(0,0,0,0.2);overflow:hidden;width:220px;font-family:'DM Sans',sans-serif;">
+  <div style="background:#124d52;padding:0.65rem 1rem;display:flex;align-items:center;justify-content:space-between;">
+    <span style="font-size:0.78rem;color:#fff;font-weight:500;">How would you like to connect?</span>
+    <button onclick="closeChatChoice()" style="background:none;border:none;color:rgba(255,255,255,0.7);cursor:pointer;font-size:1.1rem;line-height:1;padding:0 4px;">&times;</button>
+  </div>
+  <div style="padding:0.75rem;">
+    <button onclick="closeChatChoice();startTextChat();" style="width:100%;padding:0.75rem;background:#f9f6f1;color:#124d52;border:1px solid rgba(26,107,114,0.2);border-radius:6px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:0.82rem;display:flex;align-items:center;gap:0.6rem;">
+      <span style="font-size:1.1rem;">&#128172;</span>
+      <div style="text-align:left;"><div style="font-weight:500;">Text Chat</div><div style="font-size:0.68rem;color:#6b6b6b;">No camera required</div></div>
+    </button>
+  </div>
+</div>
+
+<!-- TEXT CHAT WINDOW -->
+<div id="textChatWin" style="position:fixed;bottom:1rem;right:1rem;z-index:900;width:min(390px,calc(100vw - 2rem));height:min(560px,calc(100vh - 5rem));background:#fff;border-radius:10px;box-shadow:0 8px 40px rgba(0,0,0,0.2);flex-direction:column;overflow:hidden;font-family:'DM Sans',sans-serif;display:none;">
+  <div style="background:#124d52;padding:0.5rem 0.75rem;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;cursor:move;" id="textChatBar">
+    <div style="display:flex;align-items:center;gap:0.5rem;">
+      <div style="width:7px;height:7px;background:#4caf50;border-radius:50%;"></div>
+      <span style="font-size:0.75rem;color:#fff;font-weight:500;">Chat with Steven Shaw CCHP</span>
+    </div>
+    <button type="button" id="textChatCloseBtn" onclick="closeTextChat()" style="background:rgba(255,255,255,0.15);border:none;color:#fff;cursor:pointer;font-size:1rem;line-height:1;padding:4px 8px;border-radius:4px;">&times;</button>
+  </div>
+  <div id="textChatMessages" style="flex:1;overflow-y:auto;padding:0.75rem;display:flex;flex-direction:column;gap:0.5rem;background:#f9f6f1;"></div>
+  <div style="padding:0.5rem;background:#fff;border-top:1px solid rgba(26,107,114,0.1);display:flex;gap:0.4rem;flex-shrink:0;">
+    <input id="textChatInput" type="text" enterkeyhint="send" placeholder="Type a message..." style="flex:1;padding:0.5rem 0.75rem;border:1px solid rgba(26,107,114,0.2);border-radius:20px;font-family:'DM Sans',sans-serif;font-size:0.82rem;outline:none;"/>
+    <button type="button" id="textChatSendBtn" style="background:#124d52;color:#fff;border:none;border-radius:50%;width:34px;height:34px;cursor:pointer;font-size:1rem;flex-shrink:0;">&#10148;</button>
+  </div>
+</div>
+
+<script>
+var shownMsgIds = {};
+var isOnline = false;
+var textChatVid = null;
+var textChatDragInit = false;
+var pfChatLog = [];
+// iOS: tapping Send dismisses the keyboard, the layout jumps, and the delayed
+// "click" lands on the × — chat vanishes after the first message. Block that.
+var pfChatIgnoreCloseUntil = 0;
+
+function pfPushChatLog(entry) {
+  if (!entry) return;
+  pfChatLog.push(entry);
+  if (pfChatLog.length > 40) pfChatLog = pfChatLog.slice(-40);
+}
+
+function pfChatFlush() {
+  if (typeof window.pfTrackFlush === 'function') window.pfTrackFlush();
+}
+
+function pfGetChatPos() {
+  var el = document.getElementById('textChatWin');
+  if (!el || el.style.display !== 'flex') return null;
+  // Default placement uses right/bottom — no custom drag yet.
+  if (!el.style.left || el.style.left === 'auto') return null;
+  var left = parseFloat(el.style.left);
+  var top = parseFloat(el.style.top);
+  if (!isFinite(left) || !isFinite(top)) return null;
+  var iw = window.innerWidth || 1;
+  var ih = window.innerHeight || 1;
+  return {
+    leftPct: Math.max(0, Math.min(1, left / iw)),
+    topPct: Math.max(0, Math.min(1, top / ih))
+  };
+}
+
+// Tracker reads this on every ping so live/replay can rebuild the visitor's chat.
+window.pfGetChatState = function () {
+  var win = document.getElementById('textChatWin');
+  var open = !!(win && (win.style.display === 'flex' || win.style.getPropertyValue('display') === 'flex'));
+  var pos = open ? pfGetChatPos() : null;
+  return {
+    open: open,
+    leftPct: pos ? pos.leftPct : null,
+    topPct: pos ? pos.topPct : null,
+    msgs: pfChatLog.slice()
+  };
+};
+
+// --- CHAT CHOICE ---
+function openChatChoice() {
+  document.getElementById('chatChoicePopup').style.display = 'block';
+}
+function closeChatChoice() {
+  document.getElementById('chatChoicePopup').style.display = 'none';
+}
+document.addEventListener('click', function(e) {
+  var popup = document.getElementById('chatChoicePopup');
+  var btn   = document.getElementById('liveBtn');
+  if (popup && popup.style.display !== 'none') {
+    if (!popup.contains(e.target) && !btn.contains(e.target)) closeChatChoice();
+  }
+});
+
+// --- TEXT CHAT ---
+function startTextChat() {
+  textChatVid = sessionStorage.getItem('pfvid');
+  if (!textChatVid) {
+    textChatVid = 'v_' + Math.random().toString(36).substr(2,9) + '_' + Date.now().toString(36);
+    sessionStorage.setItem('pfvid', textChatVid);
+  }
+  document.getElementById('liveBtn').style.display = 'none';
+  var win = document.getElementById('textChatWin');
+  if (win.style.display === 'flex') return;
+  win.style.display = 'flex';
+  makeTextChatDraggable();
+  var msg = isOnline
+    ? "Hi, this is Steven. What brings you in today?"
+    : "Hi! I'm not available right this second but I'd love to connect. Feel free to leave your name and the best way to reach you \u2014 phone/SMS or email \u2014 and I'll get back to you very soon.";
+  appendTextMessage('steven', msg);
+  document.getElementById('textChatInput').onkeydown = function(e) { if (e.key === 'Enter') sendTextMessage(); };
+  pfChatFlush();
+}
+
+function closeTextChat() {
+  if (Date.now() < pfChatIgnoreCloseUntil) return;
+  document.getElementById('textChatWin').style.display = 'none';
+  document.getElementById('liveBtn').style.display = 'block';
+  pfChatFlush();
+}
+
+function sendTextMessage(e) {
+  if (e && e.preventDefault) e.preventDefault();
+  if (e && e.stopPropagation) e.stopPropagation();
+  var input = document.getElementById('textChatInput');
+  var text  = input ? input.value.trim() : '';
+  if (!text || !textChatVid) return;
+  // Swallow the iOS ghost-click that would otherwise hit × after keyboard slide.
+  pfChatIgnoreCloseUntil = Date.now() + 1200;
+  input.value = '';
+  appendTextMessage('visitor', text);
+  fetch('/api/chat', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({vid: textChatVid, from: 'visitor', text: text})
+  }).catch(function(){});
+  // Keep focus so the keyboard stays put (avoids the layout jump entirely).
+  setTimeout(function(){ try { input.focus(); } catch (err) {} }, 0);
+}
+
+(function bindChatSendBtn() {
+  function wire() {
+    var btn = document.getElementById('textChatSendBtn');
+    if (!btn || btn.getAttribute('data-wired') === '1') return;
+    btn.setAttribute('data-wired', '1');
+    btn.addEventListener('touchend', function(e) {
+      e.preventDefault(); // prevents the synthetic click that lands on ×
+      sendTextMessage(e);
+    }, { passive: false });
+    btn.addEventListener('click', function(e) { sendTextMessage(e); });
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', wire);
+  else wire();
+})();
+
+function appendTextLink(from, label, url, msgId) {
+  if (msgId && shownMsgIds[msgId]) return;
+  if (msgId) shownMsgIds[msgId] = true;
+  var box = document.getElementById('textChatMessages');
+  var div = document.createElement('div');
+  div.style.cssText = 'max-width:90%;padding:0.5rem 0.75rem;border-radius:12px 12px 12px 2px;background:#e8f4f5;align-self:flex-start;';
+  div.innerHTML = '<div style="font-size:0.72rem;color:#6b6b6b;margin-bottom:4px;">Steven shared:</div>'
+    + '<a href="' + url + '" target="_blank" style="display:block;background:#124d52;color:#fff;padding:0.5rem 0.75rem;border-radius:6px;font-size:0.78rem;text-decoration:none;">&#128279; ' + label + '</a>';
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+  pfPushChatLog({ from: from || 'steven', type: 'link', text: label || '', url: url || '', id: msgId || null });
+  pfChatFlush();
+  showLinkPanel(url, label);
+}
+
+
+function appendTextImage(from, url, msgId, label) {
+  if (msgId && shownMsgIds[msgId]) return;
+  if (msgId) shownMsgIds[msgId] = true;
+  var box = document.getElementById('textChatMessages');
+  if (!box) return;
+  var div = document.createElement('div');
+  var isSteven = from === 'steven';
+  div.style.cssText = 'max-width:80%;padding:4px;border-radius:10px;'
+    + (isSteven
+      ? 'background:#e8f4f5;align-self:flex-start;border-radius:12px 12px 12px 2px;'
+      : 'background:#124d52;align-self:flex-end;margin-left:auto;border-radius:12px 12px 2px 12px;');
+  div.innerHTML = (isSteven ? '<div style="font-size:0.72rem;color:#6b6b6b;margin:2px 6px 4px;">Steven sent a photo</div>' : '')
+    + '<a href="' + url + '" target="_blank" rel="noopener"><img src="' + url + '" alt="" style="max-width:200px;border-radius:7px;display:block;"></a>';
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+  pfPushChatLog({ from: from || 'steven', type: 'image', text: label || '', url: url || '', id: msgId || null });
+  pfChatFlush();
+}
+function appendTextFile(from, label, url, msgId) {
+  if (msgId && shownMsgIds[msgId]) return;
+  if (msgId) shownMsgIds[msgId] = true;
+  var box = document.getElementById('textChatMessages');
+  if (!box) return;
+  var div = document.createElement('div');
+  var isSteven = from === 'steven';
+  div.style.cssText = 'max-width:85%;padding:0.5rem 0.75rem;border-radius:12px;font-size:0.82rem;'
+    + (isSteven
+      ? 'background:#e8f4f5;color:#124d52;align-self:flex-start;border-radius:12px 12px 12px 2px;'
+      : 'background:#124d52;color:#fff;align-self:flex-end;margin-left:auto;border-radius:12px 12px 2px 12px;');
+  div.innerHTML = (isSteven ? '<div style="font-size:0.72rem;color:#6b6b6b;margin-bottom:4px;">Steven sent a file</div>' : '')
+    + '<a href="' + url + '" target="_blank" rel="noopener" style="color:inherit;">&#128206; ' + (label || 'file') + '</a>';
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+  pfPushChatLog({ from: from || 'steven', type: 'file', text: label || 'file', url: url || '', id: msgId || null });
+  pfChatFlush();
+}
+function appendTextChatLink(from, label, url, msgId) {
+  if (msgId && shownMsgIds[msgId]) return;
+  if (msgId) shownMsgIds[msgId] = true;
+  var box = document.getElementById('textChatMessages');
+  if (!box) return;
+  var div = document.createElement('div');
+  var isSteven = from === 'steven';
+  div.style.cssText = 'max-width:90%;padding:0.5rem 0.75rem;border-radius:12px;font-size:0.82rem;'
+    + (isSteven
+      ? 'background:#e8f4f5;color:#124d52;align-self:flex-start;border-radius:12px 12px 12px 2px;'
+      : 'background:#124d52;color:#fff;align-self:flex-end;margin-left:auto;border-radius:12px 12px 2px 12px;');
+  div.innerHTML = (isSteven ? '<div style="font-size:0.72rem;color:#6b6b6b;margin-bottom:4px;">Steven shared:</div>' : '')
+    + '<a href="' + url + '" target="_blank" rel="noopener" style="display:block;background:#124d52;color:#fff;padding:0.5rem 0.75rem;border-radius:6px;font-size:0.78rem;text-decoration:none;">&#128279; ' + (label || 'link') + '</a>';
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+  pfPushChatLog({ from: from || 'steven', type: 'chat_link', text: label || 'link', url: url || '', id: msgId || null });
+  pfChatFlush();
+}
+function appendTextMessage(from, text, msgId) {
+  if (msgId && shownMsgIds[msgId]) return;
+  if (msgId) shownMsgIds[msgId] = true;
+  var box = document.getElementById('textChatMessages');
+  var div = document.createElement('div');
+  var isSteven = from === 'steven';
+  div.style.cssText = 'max-width:85%;padding:0.5rem 0.75rem;border-radius:12px;font-size:0.82rem;line-height:1.5;word-break:break-word;'
+    + (isSteven
+      ? 'background:#e8f4f5;color:#124d52;border-radius:12px 12px 12px 2px;align-self:flex-start;'
+      : 'background:#124d52;color:#fff;border-radius:12px 12px 2px 12px;align-self:flex-end;margin-left:auto;');
+  div.textContent = text;
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+  pfPushChatLog({ from: from || 'steven', type: 'text', text: String(text || '').slice(0, 500), url: '', id: msgId || null });
+  pfChatFlush();
+}
+
+function makeTextChatDraggable() {
+  if (textChatDragInit) return;
+  textChatDragInit = true;
+  var el  = document.getElementById('textChatWin');
+  var bar = document.getElementById('textChatBar');
+  var mx = 0, my = 0;
+  function endDrag() {
+    document.onmousemove = null;
+    document.onmouseup = null;
+    document.ontouchmove = null;
+    document.ontouchend = null;
+    pfChatFlush();
+  }
+  function moveDrag(clientX, clientY) {
+    el.style.left   = (el.offsetLeft + clientX - mx) + 'px';
+    el.style.top    = (el.offsetTop  + clientY - my) + 'px';
+    el.style.right  = 'auto';
+    el.style.bottom = 'auto';
+    mx = clientX; my = clientY;
+  }
+  bar.onmousedown = function(e) {
+    mx = e.clientX; my = e.clientY;
+    document.onmousemove = function(e2) { moveDrag(e2.clientX, e2.clientY); };
+    document.onmouseup = endDrag;
+    e.preventDefault();
+  };
+  bar.ontouchstart = function(e) {
+    if (!e.touches || !e.touches[0]) return;
+    mx = e.touches[0].clientX; my = e.touches[0].clientY;
+    document.ontouchmove = function(e2) {
+      if (!e2.touches || !e2.touches[0]) return;
+      moveDrag(e2.touches[0].clientX, e2.touches[0].clientY);
+      e2.preventDefault();
+    };
+    document.ontouchend = endDrag;
+  };
+}
+
+// --- STATUS CHECK ---
+function checkStatus() {
+  fetch('/api/chat/status')
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      var s   = d.status;
+      var btn = document.getElementById('liveBtn');
+      if (s === 'online' || s === 'online_cam') {
+        isOnline = true;
+        btn.style.display = 'block';
+        btn.classList.add('is-live');
+        btn.classList.remove('is-away');
+        btn.querySelector('button').innerHTML = '<span class="pf-chat-btn-dot" aria-hidden="true"></span> Live Chat';
+        btn.querySelector('button').onclick = function() { startTextChat(); };
+      } else {
+        isOnline = false;
+        btn.style.display = 'block';
+        btn.classList.add('is-away');
+        btn.classList.remove('is-live');
+        btn.querySelector('button').innerHTML = '<span class="pf-chat-btn-dot" aria-hidden="true"></span> Let\'s Chat';
+        btn.querySelector('button').onclick = function() { startTextChat(); };
+      }
+    }).catch(function(){});
+}
+
+// --- LINK PANELS ---
+var panelCount = 0;
+var topZ = 998;
+
+function bringToFront(el) { topZ++; el.style.zIndex = topZ; }
+
+function closePanel(id) { var p = document.getElementById(id); if (p) p.remove(); }
+
+document.addEventListener('click', function(e) {
+  if (e.target && e.target.classList.contains('panelCloseBtn')) {
+    var id = e.target.getAttribute('data-panelid');
+    if (id) closePanel(id);
+  }
+});
+document.addEventListener('touchend', function(e) {
+  if (e.target && e.target.classList.contains('panelCloseBtn')) {
+    var id = e.target.getAttribute('data-panelid');
+    if (id) { closePanel(id); e.preventDefault(); }
+  }
+});
+
+function showLinkPanel(url, label) {
+  if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) { window.open(url, '_blank'); return; }
+  panelCount++;
+  var id     = 'stevenPanel' + panelCount;
+  var offset = ((panelCount - 1) % 5) * 35;
+  var isPdf  = url.toLowerCase().indexOf('.pdf') !== -1;
+  var isDownload = isPdf || url.toLowerCase().indexOf('download') !== -1;
+  var panel  = document.createElement('div');
+  panel.id   = id;
+panel.style.cssText = 'position:fixed;top:' + Math.min(window.innerHeight - 440, 20 + offset) + 'px;left:' + Math.min(window.innerWidth - 360, 20 + offset) + 'px;;z-index:' + (998 + panelCount) + ';width:340px;height:420px;background:#fff;border-radius:8px;box-shadow:0 8px 40px rgba(0,0,0,0.2);display:flex;flex-direction:column;overflow:hidden;font-family:DM Sans,sans-serif;min-width:200px;min-height:200px;';
+  panel.addEventListener('mousedown', function() { bringToFront(panel); });
+  panel.addEventListener('touchstart', function() { bringToFront(panel); }, {passive:true});
+  panel.addEventListener('mouseenter', function() { document.documentElement.style.overflow = 'hidden'; document.body.style.overflow = 'hidden'; });
+  panel.addEventListener('mouseleave', function() { document.documentElement.style.overflow = ''; document.body.style.overflow = ''; });
+  var downloadBtn = isDownload
+    ? '<a href="' + url + '" download target="_blank" style="color:rgba(255,255,255,0.8);font-size:0.7rem;text-decoration:none;background:rgba(255,255,255,0.15);padding:4px 10px;border-radius:10px;margin-right:0.4rem;white-space:nowrap;">&#11015; Save</a>'
+    : '';
+  panel.innerHTML =
+    '<div id="bar_' + id + '" style="background:#124d52;padding:0.6rem 0.75rem;display:flex;align-items:center;justify-content:space-between;cursor:move;flex-shrink:0;user-select:none;-webkit-user-select:none;">'
+    + '<span style="font-size:0.72rem;color:#fff;font-weight:500;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-right:0.5rem;">' + label + '</span>'
+    + '<div style="display:flex;align-items:center;gap:0.4rem;">'
+    + downloadBtn
+    + '<button data-panelid="' + id + '" class="panelCloseBtn" style="background:rgba(255,255,255,0.15);border:none;color:#fff;cursor:pointer;font-size:1.1rem;line-height:1;padding:4px 8px;border-radius:4px;min-width:30px;min-height:30px;display:flex;align-items:center;justify-content:center;">&times;</button>'
+    + '</div></div>'
+    + ((/\.(png|jpe?g|gif|webp)(\?|#|$)/i.test(url) || /\/file\/[^"']+\.(png|jpe?g|gif|webp)/i.test(url)) ? '<div style="flex:1;overflow:auto;display:flex;align-items:center;justify-content:center;background:#0d1117;"><img src="' + url + '" alt="" style="max-width:100%;max-height:100%;object-fit:contain;display:block;"></div>' : '<iframe src="' + url + '" style="flex:1;border:none;width:100%;display:block;" allow="camera;microphone;fullscreen"></iframe>')
+    + '<div class="resizeHandle" data-panelid="' + id + '" style="position:absolute;bottom:0;right:0;width:24px;height:24px;cursor:se-resize;z-index:20;display:flex;align-items:flex-end;justify-content:flex-end;padding:3px;"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M11 1L1 11M11 6L6 11" stroke="rgba(0,0,0,0.3)" stroke-width="1.5" stroke-linecap="round"/></svg></div>';
+  document.body.appendChild(panel);
+  var closeBtn = panel.querySelector('.panelCloseBtn');
+  if (closeBtn) {
+    closeBtn.addEventListener('click', function(e) { closePanel(id); e.stopPropagation(); });
+    closeBtn.addEventListener('touchend', function(e) { closePanel(id); e.preventDefault(); e.stopPropagation(); });
+  }
+  makePanelDraggable(panel, 'bar_' + id);
+  makePanelResizable(panel, id);
+}
+
+function makePanelDraggable(el, barId) {
+  var bar = document.getElementById(barId);
+  if (!bar) return;
+  var mx = 0, my = 0;
+  var shield = document.createElement('div');
+  shield.style.cssText = 'position:absolute;left:0;right:0;bottom:0;top:36px;z-index:10;display:none;cursor:move;';
+  el.appendChild(shield);
+  bar.addEventListener('mousedown', function() { bringToFront(el); });
+  bar.addEventListener('touchstart', function() { bringToFront(el); }, {passive:true});
+  bar.onmousedown = dragStart;
+  bar.ontouchstart = function(e) {
+    var t = e.touches[0]; mx = t.clientX; my = t.clientY;
+    shield.style.display = 'block';
+    document.ontouchmove = dragTouchMove;
+    document.ontouchend  = dragEnd;
+    e.preventDefault();
+  };
+  function dragStart(e) { mx = e.clientX; my = e.clientY; shield.style.display = 'block'; document.onmousemove = dragMove; document.onmouseup = dragEnd; e.preventDefault(); }
+  function dragMove(e) {
+    var dx = e.clientX - mx, dy = e.clientY - my; mx = e.clientX; my = e.clientY;
+    var nl = Math.max(-(el.offsetWidth-60), Math.min(window.innerWidth-60, el.offsetLeft+dx));
+    var nt = Math.max(0, Math.min(window.innerHeight-40, el.offsetTop+dy));
+    el.style.left = nl+'px'; el.style.top = nt+'px'; el.style.right = 'auto'; el.style.bottom = 'auto';
+  }
+  function dragTouchMove(e) {
+    var t = e.touches[0], dx = t.clientX-mx, dy = t.clientY-my; mx = t.clientX; my = t.clientY;
+    var nl = Math.max(-(el.offsetWidth-60), Math.min(window.innerWidth-60, el.offsetLeft+dx));
+    var nt = Math.max(0, Math.min(window.innerHeight-40, el.offsetTop+dy));
+    el.style.left = nl+'px'; el.style.top = nt+'px'; el.style.right = 'auto'; el.style.bottom = 'auto';
+    e.preventDefault();
+  }
+  function dragEnd() { shield.style.display = 'none'; document.onmousemove = null; document.onmouseup = null; document.ontouchmove = null; document.ontouchend = null; }
+  el.addEventListener('touchcancel', function() { shield.style.display = 'none'; });
+}
+
+function makePanelResizable(el, id) {
+  var handle = el.querySelector('.resizeHandle[data-panelid="' + id + '"]');
+  if (!handle) return;
+  var startX, startY, startW, startH;
+  function resizeStart(cx, cy) {
+    startX = cx; startY = cy; startW = el.offsetWidth; startH = el.offsetHeight;
+    document.onmousemove = resizeMove; document.onmouseup = resizeEnd;
+    document.ontouchmove = function(e) { resizeMove({clientX:e.touches[0].clientX, clientY:e.touches[0].clientY}); e.preventDefault(); };
+    document.ontouchend = resizeEnd;
+  }
+  handle.onmousedown = function(e) { resizeStart(e.clientX, e.clientY); e.preventDefault(); e.stopPropagation(); };
+  handle.addEventListener('touchstart', function(e) { resizeStart(e.touches[0].clientX, e.touches[0].clientY); e.preventDefault(); e.stopPropagation(); }, {passive:false});
+  function resizeMove(e) {
+    el.style.width  = Math.max(200, Math.min(window.innerWidth  - el.offsetLeft - 10, startW + (e.clientX - startX))) + 'px';
+    el.style.height = Math.max(200, Math.min(window.innerHeight - el.offsetTop  - 10, startH + (e.clientY - startY))) + 'px';
+  }
+  function resizeEnd() { document.onmousemove = null; document.onmouseup = null; document.ontouchmove = null; document.ontouchend = null; }
+}
+
+checkStatus();
+setInterval(checkStatus, 3000);
+</script>
+
+<!-- BACKGROUND POLL -- receives messages from Steven.
+     FIX: the "since" cursor now always comes from the SERVER's clock.
+     A priming request (since=0) records existing message ids without
+     rendering them, and takes the server's ts as the starting cursor.
+     This makes delivery immune to any client/server clock skew. -->
+<script>
+(function() {
+  var bgLastTs = null;
+  var bgPrimed = false;
+
+  function getVid() { return sessionStorage.getItem('pfvid'); }
+
+  function openTextChatWindow() {
+    var win = document.getElementById('textChatWin');
+    if (!win) return;
+    win.style.setProperty('display', 'flex', 'important');
+    window.textChatVid = getVid();
+    if (typeof textChatVid !== 'undefined') textChatVid = getVid();
+    if (typeof makeTextChatDraggable === 'function') makeTextChatDraggable();
+    var liveBtn = document.getElementById('liveBtn');
+    if (liveBtn) liveBtn.style.display = 'none';
+    if (typeof pfChatFlush === 'function') pfChatFlush();
+  }
+
+  function isTextChatOpen() {
+    var win = document.getElementById('textChatWin');
+    if (!win) return false;
+    return win.offsetParent !== null || win.style.display === 'flex';
+  }
+
+  function bgPoll() {
+    var vid = getVid();
+    if (!vid) return;
+
+    // -- Priming request: learn the server's clock, mark history as seen --
+    if (!bgPrimed) {
+      fetch('/api/chat?vid=' + vid + '&since=0')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          bgPrimed = true;
+          bgLastTs = data.ts || 0;
+          window.chatTs = bgLastTs;
+          if (data.messages) {
+            data.messages.forEach(function(m) { if (m.id) shownMsgIds[m.id] = true; });
+          }
+        }).catch(function(){});
+      return;
+    }
+
+    fetch('/api/chat?vid=' + vid + '&since=' + bgLastTs)
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (data.ts) { bgLastTs = data.ts; window.chatTs = data.ts; }
+        if (!data.messages || !data.messages.length) return;
+        data.messages.forEach(function(m) {
+          if (m.from !== 'steven') return;
+          if (!isTextChatOpen()) openTextChatWindow();
+          if (m.type === 'image') {
+            if (typeof appendTextImage === 'function') appendTextImage('steven', m.url, m.id, m.text);
+          } else if (m.type === 'file') {
+            if (typeof appendTextFile === 'function') appendTextFile('steven', m.text, m.url, m.id);
+          } else if (m.type === 'chat_link') {
+            if (typeof appendTextChatLink === 'function') appendTextChatLink('steven', m.text, m.url, m.id);
+          } else if (m.type === 'link') {
+            if (typeof appendTextLink === 'function') appendTextLink('steven', m.text, m.url, m.id);
+          } else {
+            if (typeof appendTextMessage === 'function') appendTextMessage('steven', m.text, m.id);
+          }
+        });
+      }).catch(function(){});
+  }
+
+  setTimeout(function() { bgPoll(); setInterval(bgPoll, 3000); }, 1000);
+})();
+</script>

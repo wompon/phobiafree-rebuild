@@ -1,0 +1,17 @@
+{
+  "slug": "fear-of-spiders",
+  "title": "Fear of Spiders — Relief in One Session | PhobiaFree.life",
+  "description": "Overcome fear of spiders in one peaceful Zoom session. No trance, no exposure, no long-term therapy.",
+  "cssHref": "/fear-of-spiders/styles.css",
+  "photoUrl": "/fear-of-spiders/img/spiders.png",
+  "pfCurrentSlug": "fear-of-spiders",
+  "pfSamePageSlugs": {
+    "fear-of-spiders": true,
+    "arachnophobia": true
+  },
+  "selectedPhobiaSlug": "fear-of-spiders",
+  "assetDir": "fear-of-spiders",
+  "latinSlug": "arachnophobia",
+  "label": "Fear of Spiders",
+  "image": "spiders.png"
+}

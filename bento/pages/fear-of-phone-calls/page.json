@@ -1,0 +1,17 @@
+{
+  "slug": "fear-of-phone-calls",
+  "title": "Fear of Phone Calls — Relief in One Session | PhobiaFree.life",
+  "description": "Overcome fear of phone calls in one peaceful Zoom session. No trance, no exposure, no long-term therapy.",
+  "cssHref": "/fear-of-phone-calls/styles.css",
+  "photoUrl": "/fear-of-phone-calls/img/phone-calls.png",
+  "pfCurrentSlug": "fear-of-phone-calls",
+  "pfSamePageSlugs": {
+    "fear-of-phone-calls": true,
+    "telephobia": true
+  },
+  "selectedPhobiaSlug": "fear-of-phone-calls",
+  "assetDir": "fear-of-phone-calls",
+  "latinSlug": "telephobia",
+  "label": "Fear of Phone Calls",
+  "image": "phone-calls.png"
+}

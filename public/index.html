@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="Phobia Free Life" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PhobiaFree.life</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&family=Cinzel:wght@400;600&display=swap" rel="stylesheet"/>
+  <link rel="stylesheet" href="/welcome.css">
+  <script src="/welcome.js"></script>
+  <!-- Google tag (gtag.js) — Ads + Analytics -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=AW-18237377845"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'AW-18237377845');
+    gtag('config', 'G-12NP1QWCDX');
+  </script>
+</head>
+<body>
+<div id="welcome-stage" style="position:fixed;inset:0;z-index:200;overflow-y:auto;background:#fdfaf5;">
+  <div id="welcome-content" style="display:flex;align-items:flex-start;justify-content:center;min-height:100vh;padding:0.5vh 0;"></div>
+</div>
+
+<script>
+var _cssInjected = false;
+
+function go(scene) {
+  if (scene === 'welcome') scene = 'home';
+  trackScene(scene, '');
+  loadScene('welcome-' + scene);
+}
+
+// Wrap buildCloud to ensure clickFn always resolves at call time (not capture time)
+var _origBuildCloud = buildCloud;
+buildCloud = function(containerId, items, clickFn) {
+  var fnName = clickFn === selectFear ? 'selectFear' :
+               clickFn === selectCurio ? 'selectCurio' :
+               clickFn === selectWhy ? 'selectWhy' : null;
+  var wrappedFn = fnName ? function(f){ window[fnName](f); } : clickFn;
+  _origBuildCloud(containerId, items, wrappedFn);
+};
+
+// Override selectCurio and selectWhy to use AJAX instead of navigation.
+// These must be defined before buildCloud runs so the cloud captures them.
+function selectCurio(f) {
+  trackScene('curious-selected', f.label);
+  loadScene('welcome-curious-selected', 'item=' + encodeURIComponent(f.label));
+}
+function selectWhy(f) {
+  trackScene('why-selected', f.label);
+  loadScene('welcome-why-selected', 'item=' + encodeURIComponent(f.label));
+}
+
+function loadScene(page, qs) {
+  var url = '/' + page + '.html?notrack=1' + (qs ? '&' + qs : '');
+  fetch(url)
+    .then(function(r){ return r.text(); })
+    .then(function(html){
+      var parser = new DOMParser();
+      var doc = parser.parseFromString(html, 'text/html');
+
+      // Inject CSS once only
+      if (!_cssInjected) {
+        doc.querySelectorAll('style').forEach(function(s){
+          var ns = document.createElement('style');
+          ns.textContent = s.textContent;
+          document.head.appendChild(ns);
+        });
+        doc.querySelectorAll('link[rel="stylesheet"]').forEach(function(l){
+          var href = l.getAttribute('href');
+          if (href && !document.querySelector('link[href="'+href+'"]')) {
+            var nl = document.createElement('link');
+            nl.rel = 'stylesheet'; nl.href = href;
+            document.head.appendChild(nl);
+          }
+        });
+        _cssInjected = true;
+      }
+
+      // Inject #stage content
+      var stage = doc.getElementById('stage');
+      var content = document.getElementById('welcome-content');
+      if (stage && content) {
+        content.innerHTML = stage.outerHTML;
+      }
+
+      // scene tracking is handled by go(), selectCurio(), selectWhy() before loadScene is called
+      var scene = page.replace('welcome-', '');
+
+      // Execute inline scripts from the LIVE DOM after injection
+      var liveStage = document.getElementById('stage');
+      if (liveStage) {
+        liveStage.querySelectorAll('script').forEach(function(s){
+          var ns = document.createElement('script');
+          ns.textContent = s.textContent;
+          document.body.appendChild(ns);
+          document.body.removeChild(ns);
+        });
+      }
+
+      // Build clouds after layout settles
+      requestAnimationFrame(function(){
+        requestAnimationFrame(function(){
+          if (scene === 'fear'    && document.getElementById('fear-cloud'))
+            buildCloud('fear-cloud', fears, selectFear);
+          if (scene === 'curious' && document.getElementById('curiosity-map'))
+            buildCloud('curiosity-map', curiosities, selectCurio);
+          if (scene === 'why'     && document.getElementById('why-map'))
+            buildCloud('why-map', whys, selectWhy);
+        });
+      });
+    })
+    .catch(function(e){ console.error('loadScene', e); });
+}
+
+// Load home scene on startup
+loadScene('welcome-home');
+</script>
+
+<!-- VISITOR TRACKER -->
+<script>
+(function(){
+  if (window.self !== window.top) return;
+  if (window.location.search.indexOf('notrack=1') !== -1) return;
+  if (navigator.webdriver) return;
+
+  var params = new URLSearchParams(window.location.search);
+  var vid = params.get('vid') || sessionStorage.getItem('pfvid');
+  if (!vid) { vid = 'v_' + Math.random().toString(36).substr(2,9) + '_' + Date.now().toString(36); }
+  sessionStorage.setItem('pfvid', vid);
+
+  window._pageLoadTs = Math.floor(Date.now() / 1000);
+
+  var mouseX = 0.5, mouseY = 0.5, lastSent = 0, pendingEvents = [];
+  var IDLE_MS = 120000;
+  var lastActivity = Date.now();
+  var idleLeft = false;
+  // Same session-proof gate as fear pages: bots/prerenders never send interacted,
+  // and without interacted:1 the /track API rejects the ping (that was why home
+  // disappeared from /visitors after the bot filter landed).
+  var INTERACT_KEY = 'pf_interacted';
+  var hasInteracted = false;
+  try { hasInteracted = sessionStorage.getItem(INTERACT_KEY) === '1'; } catch (e) {}
+  function markActivity() {
+    lastActivity = Date.now();
+    idleLeft = false;
+    hasInteracted = true;
+    try { sessionStorage.setItem(INTERACT_KEY, '1'); } catch (e) {}
+  }
+
+  var ua = navigator.userAgent, device = 'Desktop';
+  if      (/iPhone|iPod/.test(ua))                   device = 'iPhone';
+  else if (/iPad/.test(ua))                          device = 'iPad';
+  else if (/Android/.test(ua) && /Mobile/.test(ua)) device = 'Android Phone';
+  else if (/Android/.test(ua))                       device = 'Android Tablet';
+  else if (/Macintosh/.test(ua))                     device = 'Mac';
+  else if (/Windows/.test(ua))                       device = 'Windows';
+
+  document.addEventListener('mousemove', function(e){
+    mouseX = e.clientX / window.innerWidth;
+    mouseY = e.clientY / window.innerHeight;
+    markActivity();
+  });
+  document.addEventListener('touchmove', function(e){
+    if (e.touches.length > 0) {
+      var vp = window.visualViewport || {width:window.innerWidth,height:window.innerHeight,offsetTop:0};
+      mouseX = e.touches[0].clientX / vp.width;
+      mouseY = (e.touches[0].clientY + vp.offsetTop) / vp.height;
+    }
+    markActivity();
+  },{passive:true});
+  document.addEventListener('touchstart', function(){ markActivity(); }, {passive:true});
+  document.addEventListener('keydown', function(){ markActivity(); });
+
+  document.addEventListener('click', function(e){
+    markActivity();
+    var vp = getViewport();
+    pendingEvents.push({
+      type:'click',
+      x: Math.round((e.clientX/vp.w)*1000)/1000,
+      y: Math.round(Math.max(0,Math.min(1,e.clientY/vp.h))*1000)/1000,
+      modal:false, selector:''
+    });
+    sendData();
+  });
+
+  function getViewport(){
+    if (window.visualViewport) return {w:Math.round(window.visualViewport.width),h:Math.round(window.visualViewport.height)};
+    return {w:window.innerWidth,h:window.innerHeight};
+  }
+
+  function isPrerendering() {
+    return document.prerendering === true || document.visibilityState === 'prerender';
+  }
+
+  function sendData(){
+    if (isPrerendering()) return;
+    if (!hasInteracted) return;
+    var now = Date.now();
+    if (now - lastSent < 150) return;
+    lastSent = now;
+    var vp = getViewport();
+    var _st = document.getElementById('welcome-stage') || document.documentElement;
+    var scrollH = _st.scrollHeight - _st.clientHeight;
+    var scrollPct = scrollH > 0 ? Math.round((_st.scrollTop/scrollH)*1000)/1000 : 0;
+    var eventsToSend = pendingEvents.splice(0);
+    fetch('/track', {
+      method:'POST', headers:{'Content-Type':'application/json'},
+      body: JSON.stringify({
+        vid: vid,
+        x: Math.round(mouseX*1000)/1000,
+        y: Math.round(Math.max(0,Math.min(1,mouseY))*1000)/1000,
+        scrollY: window.scrollY,
+        scrollPct: scrollPct,
+        vw: vp.w, vh: vp.h,
+        section: 'welcome-' + (window._welcomeScene||'home') + (window._welcomeItem ? ':'+window._welcomeItem : ''),
+        page: 'welcome',
+        device: device,
+        first_load: window._pageLoadTs,
+        interacted: 1,
+        events: eventsToSend
+      })
+    }).catch(function(){});
+  }
+
+  function activeSend(){ markActivity(); sendData(); }
+  document.addEventListener('mousemove', activeSend);
+  document.addEventListener('scroll', activeSend, {passive:true});
+  document.addEventListener('touchmove', activeSend, {passive:true});
+  document.addEventListener('visibilitychange', function(){
+    if (!document.hidden) activeSend();
+  });
+  var _stEl = document.getElementById('welcome-stage');
+  if(_stEl) _stEl.addEventListener('scroll', activeSend, {passive:true});
+
+  function leaveNow() {
+    try {
+      var payload = JSON.stringify({ vid: vid });
+      if (navigator.sendBeacon) {
+        navigator.sendBeacon('/track?leave=1', new Blob([payload], { type: 'application/json' }));
+      } else {
+        fetch('/track?leave=1', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: payload,
+          keepalive: true
+        }).catch(function () {});
+      }
+    } catch (e) {}
+  }
+  window.addEventListener('pagehide', leaveNow);
+  window.addEventListener('beforeunload', leaveNow);
+  document.addEventListener('prerenderingchange', function () {
+    window._pageLoadTs = Math.floor(Date.now() / 1000);
+    markActivity();
+    sendData();
+  });
+  setInterval(function () {
+    if (Date.now() - lastActivity > IDLE_MS) {
+      if (!idleLeft) { idleLeft = true; leaveNow(); }
+      return;
+    }
+    sendData();
+  }, 4000);
+  if (hasInteracted) setTimeout(sendData, 200);
+  else setTimeout(sendData, 500);
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,17 @@
+{
+  "slug": "fear-of-heights",
+  "title": "Fear of Heights — Stand Tall in One Session | PhobiaFree.life",
+  "description": "Overcome fear of heights in one peaceful Zoom session. No trance, no exposure, no long-term therapy.",
+  "cssHref": "/fear-of-heights/styles.css",
+  "photoUrl": "/fear-of-heights/img/heights.png",
+  "pfCurrentSlug": "fear-of-heights",
+  "pfSamePageSlugs": {
+    "fear-of-heights": true,
+    "acrophobia": true
+  },
+  "selectedPhobiaSlug": "fear-of-heights",
+  "assetDir": "fear-of-heights",
+  "latinSlug": "acrophobia",
+  "label": "Fear of Heights",
+  "image": "heights.png"
+}

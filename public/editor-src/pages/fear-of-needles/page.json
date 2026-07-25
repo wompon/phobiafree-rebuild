@@ -1,0 +1,17 @@
+{
+  "slug": "fear-of-needles",
+  "title": "Fear of Needles — Relief in One Session | PhobiaFree.life",
+  "description": "Overcome fear of needles in one peaceful Zoom session. No trance, no exposure, no long-term therapy.",
+  "cssHref": "/fear-of-needles/styles.css",
+  "photoUrl": "/fear-of-needles/img/needles.png",
+  "pfCurrentSlug": "fear-of-needles",
+  "pfSamePageSlugs": {
+    "fear-of-needles": true,
+    "trypanophobia": true
+  },
+  "selectedPhobiaSlug": "fear-of-needles",
+  "assetDir": "fear-of-needles",
+  "latinSlug": "trypanophobia",
+  "label": "Fear of Needles",
+  "image": "needles.png"
+}

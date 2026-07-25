@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Investment — PhobiaFree.life</title>
+  <meta http-equiv="refresh" content="0;url=/my_fear#investment">
+  <script>
+    (function () {
+      var ref = document.referrer || '';
+      try {
+        if (ref) {
+          var u = new URL(ref);
+          if (u.host === location.host && /fear-of-|my_fear/i.test(u.pathname)) {
+            u.hash = 'investment';
+            location.replace(u.pathname + u.search + u.hash);
+            return;
+          }
+        }
+      } catch (e) {}
+      location.replace('/my_fear#investment');
+    })();
+  </script>
+</head>
+<body>
+  <p><a href="/my_fear#investment">View Investment</a></p>
+</body>
+</html>

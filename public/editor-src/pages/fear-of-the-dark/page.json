@@ -1,0 +1,17 @@
+{
+  "slug": "fear-of-the-dark",
+  "title": "Fear of the Dark — Relief in One Session | PhobiaFree.life",
+  "description": "Overcome fear of the dark in one peaceful Zoom session. No trance, no exposure, no long-term therapy.",
+  "cssHref": "/fear-of-the-dark/styles.css",
+  "photoUrl": "/fear-of-the-dark/img/the-dark.png",
+  "pfCurrentSlug": "fear-of-the-dark",
+  "pfSamePageSlugs": {
+    "fear-of-the-dark": true,
+    "nyctophobia": true
+  },
+  "selectedPhobiaSlug": "fear-of-the-dark",
+  "assetDir": "fear-of-the-dark",
+  "latinSlug": "nyctophobia",
+  "label": "Fear of the Dark",
+  "image": "the-dark.png"
+}

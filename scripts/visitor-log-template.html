@@ -1,0 +1,913 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>PhobiaFree Admin</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500&family=Cinzel:wght@400&family=Cormorant+Garamond:wght@300;400&display=swap" rel="stylesheet"/>
+<style>
+:root{--teal:#1a6b72;--teal-dark:#124d52;--gold:#c9a84c;--cream:#f9f6f1;--warm-white:#fdfaf5;--charcoal:#2c2c2c;--mid-gray:#6b6b6b;--sage:#7a9e7e;--divider:rgba(26,107,114,0.15);--sidebar:220px;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:#f0f2f5;color:var(--charcoal);min-height:100vh;}
+
+/* LOGIN */
+#loginScreen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:1rem;background:var(--cream);}
+.login-card{background:#fff;border-radius:4px;border-top:4px solid var(--teal);padding:2.5rem;width:100%;max-width:380px;box-shadow:0 8px 40px rgba(26,107,114,0.12);}
+.login-logo{font-family:'Cinzel',serif;font-size:1.2rem;color:var(--teal);margin-bottom:0.3rem;}
+.login-logo span{color:var(--gold);}
+.login-sub{font-size:0.78rem;color:var(--mid-gray);margin-bottom:2rem;}
+.login-card label{display:block;font-size:0.7rem;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--mid-gray);margin-bottom:0.4rem;}
+.login-card input{width:100%;padding:0.75rem 1rem;border:1px solid rgba(26,107,114,0.2);border-radius:2px;font-family:'DM Sans',sans-serif;font-size:0.9rem;outline:none;margin-bottom:1.2rem;}
+.login-card input:focus{border-color:var(--teal);}
+.login-card button{width:100%;padding:1rem;background:var(--teal);color:#fff;border:none;border-radius:2px;font-size:0.88rem;font-weight:500;letter-spacing:0.06em;text-transform:uppercase;cursor:pointer;}
+.login-error{background:rgba(200,50,50,0.08);border:1px solid rgba(200,50,50,0.2);color:#8b2020;padding:0.75rem 1rem;border-radius:2px;font-size:0.82rem;margin-bottom:1rem;display:none;}
+
+#appShell{display:none;}
+#appShell.active{display:flex;min-height:100vh;width:100%;}
+
+/* SIDEBAR */
+.sidebar{width:var(--sidebar);background:var(--teal-dark);display:flex;flex-direction:column;position:fixed;top:0;left:0;bottom:0;z-index:100;transition:transform 0.3s;}
+.sidebar-logo{font-family:'Cinzel',serif;font-size:1rem;color:#fff;padding:1.5rem 1.5rem 1rem;letter-spacing:0.04em;border-bottom:1px solid rgba(255,255,255,0.08);}
+.sidebar-logo span{color:var(--gold);}
+.sidebar-logo small{display:block;font-family:'DM Sans',sans-serif;font-size:0.65rem;color:rgba(255,255,255,0.4);letter-spacing:0.1em;text-transform:uppercase;margin-top:0.2rem;}
+.nav-item{display:flex;align-items:center;gap:0.75rem;padding:0.85rem 1.5rem;cursor:pointer;font-size:0.85rem;color:rgba(255,255,255,0.6);transition:all 0.2s;border-left:3px solid transparent;text-decoration:none;}
+.nav-item:hover{background:rgba(255,255,255,0.06);color:#fff;}
+.nav-item.active{background:rgba(255,255,255,0.1);color:#fff;border-left-color:var(--gold);}
+.nav-icon{font-size:0.85rem;width:20px;text-align:center;flex-shrink:0;}
+.nav-badge{margin-left:auto;background:var(--gold);color:#fff;font-size:0.65rem;font-weight:700;padding:2px 7px;border-radius:10px;}
+.sidebar-footer{margin-top:auto;padding:1rem 1.5rem;border-top:1px solid rgba(255,255,255,0.08);}
+.logout-btn{display:block;width:100%;text-align:center;font-size:0.75rem;color:rgba(255,255,255,0.4);background:none;border:none;padding:0.5rem;cursor:pointer;transition:color 0.2s;}
+.logout-btn:hover{color:#fff;}
+
+/* MAIN */
+.main{margin-left:var(--sidebar);flex:1;padding:2rem;min-width:0;}
+.page-header{margin-bottom:2rem;}
+.page-title{font-family:'Cormorant Garamond',serif;font-size:1.8rem;font-weight:300;color:var(--teal-dark);}
+.page-sub{font-size:0.82rem;color:var(--mid-gray);margin-top:0.2rem;}
+.tab-content{display:none;}
+.tab-content.active{display:block;}
+
+/* STATS */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:2rem;}
+.stat-card{background:#fff;border-radius:3px;padding:1.5rem;box-shadow:0 2px 8px rgba(0,0,0,0.04);border-top:3px solid var(--teal);}
+.stat-card.gold{border-top-color:var(--gold);}
+.stat-card.sage{border-top-color:var(--sage);}
+.stat-card.dark{border-top-color:var(--teal-dark);}
+.stat-num{font-family:'Cormorant Garamond',serif;font-size:2.2rem;font-weight:600;color:var(--teal-dark);line-height:1;}
+.stat-card.gold .stat-num{color:var(--gold);}
+.stat-label{font-size:0.72rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--mid-gray);margin-top:0.4rem;}
+
+/* CARDS & TABLES */
+.card{background:#fff;border-radius:3px;box-shadow:0 2px 8px rgba(0,0,0,0.04);margin-bottom:1.5rem;overflow:hidden;}
+.card-header{padding:1.2rem 1.5rem;border-bottom:1px solid var(--divider);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.5rem;}
+.card-title{font-size:0.88rem;font-weight:500;color:var(--charcoal);}
+.table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
+table{width:100%;border-collapse:collapse;font-size:0.82rem;min-width:500px;}
+th{padding:0.75rem 1rem;text-align:left;font-size:0.68rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--mid-gray);background:var(--cream);border-bottom:1px solid var(--divider);white-space:nowrap;}
+td{padding:0.85rem 1rem;border-bottom:1px solid var(--divider);vertical-align:top;}
+tr:last-child td{border-bottom:none;}
+tr:hover td{background:rgba(26,107,114,0.02);}
+
+/* BADGES */
+.badge{display:inline-block;padding:3px 10px;border-radius:2px;font-size:0.68rem;font-weight:500;letter-spacing:0.04em;text-transform:uppercase;}
+.badge-pending{background:rgba(201,168,76,0.12);color:#8a6a1a;}
+.badge-confirmed{background:rgba(26,107,114,0.1);color:var(--teal-dark);}
+.badge-completed{background:rgba(122,158,126,0.15);color:#3d6b42;}
+.badge-cancelled{background:rgba(200,50,50,0.08);color:#8b2020;}
+.badge-scheduled{background:rgba(26,107,114,0.1);color:var(--teal-dark);}
+.badge-paid{background:rgba(122,158,126,0.15);color:#3d6b42;}
+.badge-unpaid{background:rgba(201,168,76,0.12);color:#8a6a1a;}
+
+/* BUTTONS */
+.btn{display:inline-block;padding:0.4rem 0.9rem;border-radius:2px;font-size:0.75rem;font-weight:500;cursor:pointer;border:none;font-family:'DM Sans',sans-serif;transition:all 0.15s;white-space:nowrap;}
+.btn-teal{background:var(--teal);color:#fff;}
+.btn-teal:hover{background:var(--teal-dark);}
+.btn-gold{background:var(--gold);color:#fff;}
+.btn-gold:hover{background:#b8963d;}
+.btn-red{background:rgba(200,50,50,0.1);color:#8b2020;}
+.btn-red:hover{background:rgba(200,50,50,0.2);}
+.btn-ghost{background:transparent;border:1px solid var(--divider);color:var(--mid-gray);}
+.btn-ghost:hover{border-color:var(--teal);color:var(--teal);}
+.status-select{padding:3px 8px;border:1px solid var(--divider);border-radius:2px;font-size:0.75rem;font-family:'DM Sans',sans-serif;background:var(--cream);cursor:pointer;}
+
+/* SCHEDULE */
+.schedule-controls{display:flex;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap;align-items:center;}
+.slot-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:0.75rem;}
+.slot-item{padding:0.75rem 1rem;border-radius:2px;font-size:0.8rem;display:flex;align-items:center;justify-content:space-between;border:1px solid var(--divider);}
+.slot-item.available{background:#fff;}
+.slot-item.booked{background:rgba(26,107,114,0.06);border-color:rgba(26,107,114,0.2);}
+.slot-item.blocked{background:rgba(200,50,50,0.06);border-color:rgba(200,50,50,0.2);}
+.slot-time{font-weight:500;color:var(--charcoal);}
+.slot-label{font-size:0.68rem;color:var(--mid-gray);margin-top:0.1rem;}
+
+/* FORMS */
+.form-group{margin-bottom:1rem;}
+.form-group label{display:block;font-size:0.7rem;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--mid-gray);margin-bottom:0.3rem;}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:0.65rem 0.9rem;border:1px solid rgba(26,107,114,0.2);border-radius:2px;font-family:'DM Sans',sans-serif;font-size:0.85rem;color:var(--charcoal);background:var(--warm-white);outline:none;}
+.form-group input:focus,.form-group select:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(26,107,114,0.08);}
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+
+/* MODALS */
+.modal-overlay{display:none;position:fixed;inset:0;z-index:500;background:rgba(18,77,82,0.6);backdrop-filter:blur(4px);align-items:center;justify-content:center;padding:1.5rem;}
+.modal-overlay.active{display:flex;}
+.modal-box{background:#fff;border-radius:4px;border-top:4px solid var(--teal);padding:2rem;width:100%;max-width:500px;max-height:90vh;overflow-y:auto;position:relative;}
+.modal-title{font-size:1rem;font-weight:500;color:var(--teal-dark);margin-bottom:1.5rem;}
+.modal-close{position:absolute;top:1rem;right:1rem;background:none;border:none;font-size:1.3rem;cursor:pointer;color:var(--mid-gray);}
+.detail-row{display:flex;gap:1rem;padding:0.5rem 0;border-bottom:1px solid var(--divider);font-size:0.82rem;}
+.detail-label{color:var(--mid-gray);min-width:140px;flex-shrink:0;}
+.detail-value{color:var(--charcoal);}
+
+/* MISC */
+.toast{position:fixed;bottom:2rem;right:2rem;background:var(--teal-dark);color:#fff;padding:0.75rem 1.5rem;border-radius:3px;font-size:0.82rem;z-index:1000;display:none;box-shadow:0 4px 20px rgba(0,0,0,0.2);}
+.toast.show{display:block;}
+.search-bar{padding:0.6rem 1rem;border:1px solid var(--divider);border-radius:2px;font-family:'DM Sans',sans-serif;font-size:0.82rem;width:200px;outline:none;}
+.search-bar:focus{border-color:var(--teal);}
+.upcoming-item{display:flex;align-items:center;gap:1rem;padding:0.85rem 1.5rem;border-bottom:1px solid var(--divider);flex-wrap:wrap;}
+.upcoming-item:last-child{border-bottom:none;}
+.upcoming-dot{width:10px;height:10px;border-radius:50%;background:var(--teal);flex-shrink:0;}
+.upcoming-time{font-size:0.75rem;color:var(--mid-gray);min-width:140px;}
+.upcoming-name{font-weight:500;font-size:0.85rem;}
+.upcoming-phobia{font-size:0.75rem;color:var(--sage);}
+
+/* MOBILE HAMBURGER */
+.hamburger{display:none;position:fixed;top:1rem;left:1rem;z-index:200;background:var(--teal-dark);color:#fff;border:none;border-radius:3px;padding:0.5rem 0.75rem;font-size:1.2rem;cursor:pointer;}
+.sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,0.4);z-index:99;}
+.sidebar-overlay.active{display:block;}
+
+/* VISITOR LOG */
+.vlog-row{display:grid;grid-template-columns:1fr 1fr 1fr 80px 80px auto;gap:0.5rem;padding:0.85rem 1rem;border-bottom:1px solid var(--divider);font-size:0.8rem;align-items:start;}
+.vlog-row:hover{background:rgba(26,107,114,0.02);}
+.vlog-head{background:var(--cream);font-size:0.68rem;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--mid-gray);padding:0.6rem 1rem;}
+.vlog-pages{display:flex;flex-wrap:wrap;gap:0.25rem;}
+.vlog-page-tag{background:rgba(26,107,114,0.08);color:var(--teal-dark);padding:2px 6px;border-radius:2px;font-size:0.65rem;}
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  .sidebar{transform:translateX(-100%);}
+  .sidebar.open{transform:translateX(0);}
+  .main{margin-left:0;padding:1rem;padding-top:4rem;}
+  .hamburger{display:block;}
+  .stats-grid{grid-template-columns:1fr 1fr;}
+  .form-row{grid-template-columns:1fr;}
+  .vlog-row{grid-template-columns:1fr 1fr;gap:0.25rem;}
+  .vlog-row .vlog-hide{display:none;}
+}
+@media(max-width:600px){
+  .stats-grid{grid-template-columns:1fr 1fr;}
+  .stat-card{padding:1rem;}
+  .stat-num{font-size:1.6rem;}
+  .page-title{font-size:1.4rem;}
+  .search-bar{width:100%;}
+  .card-header{flex-direction:column;align-items:flex-start;}
+}
+</style>
+</head>
+<body>
+
+<div id="loginScreen">
+  <div class="login-card">
+    <div class="login-logo">Phobia<span>Free</span>.life</div>
+    <div class="login-sub">Admin Dashboard</div>
+    <div id="loginErr" class="login-error"></div>
+    <form id="loginForm" onsubmit="return doLogin(event)">
+      <label>Username</label>
+      <input type="text" id="loginUser" autofocus/>
+      <label>Password</label>
+      <input type="password" id="loginPass"/>
+      <button type="submit">Sign In</button>
+    </form>
+  </div>
+</div>
+
+<div id="appShell">
+<button class="hamburger" onclick="toggleSidebar()">☰</button>
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+<div class="sidebar" id="sidebar">
+  <div class="sidebar-logo">Phobia<span>Free</span>.life<small>Admin</small></div>
+  <nav style="margin-top:0.5rem;" id="sidebarNav">
+    <a class="nav-item active" onclick="switchTab('dashboard',this)"><span class="nav-icon">⊞</span><span>Dashboard</span></a>
+    <a class="nav-item" onclick="switchTab('consultations',this)"><span class="nav-icon">C</span><span>Consultations</span><span class="nav-badge" id="pendingBadge" style="display:none"></span></a>
+    <a class="nav-item" onclick="switchTab('sessions',this)"><span class="nav-icon">T</span><span>Therapy Sessions</span></a>
+    <a class="nav-item" onclick="switchTab('schedule',this)"><span class="nav-icon">S</span><span>Schedule</span></a>
+    <a class="nav-item" onclick="switchTab('clients',this)"><span class="nav-icon">P</span><span>Clients</span></a>
+    <a class="nav-item" onclick="switchTab('payments',this)"><span class="nav-icon">$</span><span>Payments</span></a>
+    <a class="nav-item" onclick="switchTab('visitors',this)"><span class="nav-icon">👁</span><span>Visitor Log</span></a>
+    <a class="nav-item" onclick="switchTab('settings',this)"><span class="nav-icon">⚙</span><span>Settings</span></a>
+  </nav>
+  <div class="sidebar-footer"><button type="button" class="logout-btn" onclick="doLogout()">Sign Out</button></div>
+</div>
+
+<div class="main">
+
+<div id="tab-dashboard" class="tab-content active"></div>
+<div id="tab-consultations" class="tab-content"></div>
+<div id="tab-sessions" class="tab-content"></div>
+<div id="tab-schedule" class="tab-content"></div>
+<div id="tab-clients" class="tab-content"></div>
+<div id="tab-payments" class="tab-content"></div>
+<div id="tab-visitors" class="tab-content"></div>
+<div id="tab-settings" class="tab-content"></div>
+
+</div>
+</div>
+
+<!-- ADD SESSION MODAL -->
+<div class="modal-overlay" id="addSessionModal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="this.closest('.modal-overlay').classList.remove('active')">&times;</button>
+    <div class="modal-title">Schedule Therapy Session</div>
+    <div class="form-group"><label>Select Client</label>
+      <select id="sess_consult" onchange="fillSessionFromConsult(this)">
+        <option value="">-- Select a client --</option>
+      </select>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Client Name</label><input type="text" id="sess_name"/></div>
+      <div class="form-group"><label>Client Email</label><input type="email" id="sess_email"/></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Phone</label><input type="tel" id="sess_phone"/></div>
+      <div class="form-group"><label>Session Date & Time</label><input type="datetime-local" id="sess_dt"/></div>
+    </div>
+    <div class="form-group"><label>Zoom Link</label><input type="text" id="sess_zoom" placeholder="https://zoom.us/j/..."/></div>
+    <div class="form-group"><label>Notes</label><textarea id="sess_notes" style="width:100%;min-height:60px;padding:0.65rem 0.9rem;border:1px solid rgba(26,107,114,0.2);border-radius:2px;font-family:'DM Sans',sans-serif;font-size:0.85rem;outline:none;background:var(--warm-white);"></textarea></div>
+    <button class="btn btn-teal" style="width:100%;padding:0.85rem;" onclick="addSession()">Schedule Session</button>
+  </div>
+</div>
+
+<!-- CONSULTATION DETAIL MODAL -->
+<div class="modal-overlay" id="consultDetailModal">
+  <div class="modal-box" style="max-width:640px;">
+    <button class="modal-close" onclick="this.closest('.modal-overlay').classList.remove('active')">&times;</button>
+    <div class="modal-title" id="consultDetailTitle">Client Details</div>
+    <div id="consultDetailContent"></div>
+  </div>
+</div>
+
+<!-- PAYMENT MODAL -->
+<div class="modal-overlay" id="paymentModal">
+  <div class="modal-box">
+    <button class="modal-close" onclick="this.closest('.modal-overlay').classList.remove('active')">&times;</button>
+    <div class="modal-title">Generate Payment Link</div>
+    <div class="form-group"><label>Client Name</label><input type="text" id="pm_name"/></div>
+    <div class="form-group"><label>Client Email</label><input type="email" id="pm_email"/></div>
+    <input type="hidden" id="pm_session_id" value="0"/>
+    <div id="pm_result" style="display:none;margin-bottom:1rem;padding:0.75rem 1rem;background:rgba(26,107,114,0.06);border:1px solid rgba(26,107,114,0.2);border-radius:2px;font-size:0.82rem;word-break:break-all;color:var(--teal);"></div>
+    <button class="btn btn-gold" style="width:100%;padding:0.85rem;" onclick="generatePayLink()">Generate Payment Link</button>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+var CONSULTATIONS = [];
+var PAYMENTS = [];
+var BLOCKED_SLOTS = [];
+var BOOKED_SLOTS = [];
+var SESSIONS = [];
+var VISITOR_LOGS = [];
+var STATS = { todayCount: 0, weekCount: 0, totalClients: 0, totalRevenue: 0, pendingCount: 0 };
+
+function escapeHtml(str) {
+  if (str == null) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+function fmtDate(dt, opts) {
+  if (!dt) return '—';
+  var d = new Date(String(dt).replace(' ', 'T'));
+  if (isNaN(d.getTime())) return escapeHtml(dt);
+  return d.toLocaleString('en-US', opts || { month: 'short', day: 'numeric', year: 'numeric' });
+}
+
+function fmtTime(dt) {
+  if (!dt) return '—';
+  var d = new Date(String(dt).replace(' ', 'T'));
+  if (isNaN(d.getTime())) return '—';
+  return d.toLocaleString('en-US', { hour: 'numeric', minute: '2-digit' });
+}
+
+function fmtDateLong() {
+  return new Date().toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+}
+
+function paymentUrl(token) {
+  return '/payment.html?token=' + encodeURIComponent(token);
+}
+
+function showLogin() {
+  document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('appShell').classList.remove('active');
+}
+
+function showApp() {
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('appShell').classList.add('active');
+}
+
+async function doLogin(e) {
+  e.preventDefault();
+  var err = document.getElementById('loginErr');
+  err.style.display = 'none';
+  var r = await fetch('/api/login', {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      username: document.getElementById('loginUser').value,
+      password: document.getElementById('loginPass').value
+    })
+  });
+  var d = await r.json().catch(function() { return {}; });
+  if (!r.ok) {
+    err.textContent = d.error || 'Invalid username or password.';
+    err.style.display = 'block';
+    return false;
+  }
+  await loadDashboard();
+  return false;
+}
+
+async function doLogout() {
+  await fetch('/api/logout', { method: 'POST', credentials: 'include' });
+  location.reload();
+}
+
+function ajax(data) {
+  return fetch('/api/crm/action', {
+    method: 'POST',
+    credentials: 'include',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data)
+  }).then(function(r) { return r.json(); });
+}
+
+async function loadDashboard() {
+  var r = await fetch('/api/crm/dashboard', { credentials: 'include' });
+  if (r.status === 401) {
+    showLogin();
+    return;
+  }
+  if (!r.ok) {
+    toast('Failed to load dashboard');
+    return;
+  }
+  var d = await r.json();
+  CONSULTATIONS = d.consultations || [];
+  PAYMENTS = d.payments || [];
+  BLOCKED_SLOTS = d.blocked_slots || [];
+  BOOKED_SLOTS = CONSULTATIONS.map(function(c) { return c.appointment_dt; });
+  SESSIONS = d.sessions || [];
+  VISITOR_LOGS = d.visitorLogs || [];
+  STATS = d.stats || STATS;
+  showApp();
+  renderAll();
+}
+
+function getUpcoming() {
+  var now = Date.now();
+  var end = now + 7 * 24 * 60 * 60 * 1000;
+  return CONSULTATIONS.filter(function(c) {
+    var t = new Date(String(c.appointment_dt).replace(' ', 'T')).getTime();
+    return t >= now && t <= end;
+  }).sort(function(a, b) {
+    return new Date(String(a.appointment_dt).replace(' ', 'T')) - new Date(String(b.appointment_dt).replace(' ', 'T'));
+  });
+}
+
+function updatePendingBadge() {
+  var badge = document.getElementById('pendingBadge');
+  if (STATS.pendingCount > 0) {
+    badge.textContent = STATS.pendingCount;
+    badge.style.display = '';
+  } else {
+    badge.style.display = 'none';
+  }
+}
+
+function populateConsultDropdown() {
+  var sel = document.getElementById('sess_consult');
+  var html = '<option value="">-- Select a client --</option>';
+  CONSULTATIONS.forEach(function(c) {
+    var name = (c.first_name || '') + ' ' + (c.last_name || '');
+    var dt = fmtDate(c.appointment_dt, { month: 'short', day: 'numeric' });
+    html += '<option value="' + escapeHtml(c.id) + '" data-name="' + escapeHtml(name.trim()) + '" data-email="' + escapeHtml(c.email || '') + '" data-phone="' + escapeHtml(c.phone || '') + '">' + escapeHtml(name.trim()) + ' — ' + escapeHtml(dt) + '</option>';
+  });
+  sel.innerHTML = html;
+}
+
+function renderDashboard() {
+  var upcoming = getUpcoming();
+  var html = '<div class="page-header"><div class="page-title">Dashboard</div><div class="page-sub">' + escapeHtml(fmtDateLong()) + '</div></div>';
+  html += '<div class="stats-grid">';
+  html += '<div class="stat-card"><div class="stat-num">' + STATS.todayCount + '</div><div class="stat-label">Today</div></div>';
+  html += '<div class="stat-card gold"><div class="stat-num">' + STATS.weekCount + '</div><div class="stat-label">This Week</div></div>';
+  html += '<div class="stat-card sage"><div class="stat-num">' + STATS.totalClients + '</div><div class="stat-label">Total Clients</div></div>';
+  html += '<div class="stat-card dark"><div class="stat-num">$' + Math.round(STATS.totalRevenue / 100).toLocaleString() + '</div><div class="stat-label">Revenue</div></div>';
+  html += '</div>';
+  html += '<div class="card"><div class="card-header"><div class="card-title">Upcoming (Next 7 Days)</div></div>';
+  if (!upcoming.length) {
+    html += '<div style="padding:2rem;text-align:center;color:var(--mid-gray);font-size:0.85rem;">No upcoming appointments</div>';
+  } else {
+    upcoming.forEach(function(c) {
+      var name = (c.first_name || '') + ' ' + (c.last_name || '');
+      var status = c.status || 'pending';
+      html += '<div class="upcoming-item">';
+      html += '<div class="upcoming-dot"></div>';
+      html += '<div class="upcoming-time">' + escapeHtml(fmtDate(c.appointment_dt, { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })) + '</div>';
+      html += '<div><div class="upcoming-name">' + escapeHtml(name.trim()) + '</div><div class="upcoming-phobia">' + escapeHtml(c.phobia || '') + '</div></div>';
+      html += '<div style="margin-left:auto;"><span class="badge badge-' + escapeHtml(status) + '">' + escapeHtml(status) + '</span></div>';
+      html += '</div>';
+    });
+  }
+  html += '</div>';
+  document.getElementById('tab-dashboard').innerHTML = html;
+}
+
+function renderConsultations() {
+  var html = '<div class="page-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">';
+  html += '<div><div class="page-title">Consultations</div><div class="page-sub">' + CONSULTATIONS.length + ' records</div></div>';
+  html += '<input class="search-bar" type="text" placeholder="Search..." oninput="filterTable(\'consult-table\',this.value)"/>';
+  html += '</div><div class="card"><div class="table-wrap"><table id="consult-table"><thead><tr><th>#</th><th>Client</th><th>Phobia</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead><tbody>';
+  CONSULTATIONS.forEach(function(c) {
+    var name = (c.first_name || '') + ' ' + (c.last_name || '');
+    var status = c.status || 'pending';
+    html += '<tr>';
+    html += '<td style="color:var(--mid-gray)">#' + escapeHtml(c.id) + '</td>';
+    html += '<td><div style="font-weight:500">' + escapeHtml(name.trim()) + '</div>';
+    html += '<div style="font-size:0.75rem;color:var(--mid-gray)">' + escapeHtml(c.email || '') + '</div>';
+    if (c.phone) html += '<div style="font-size:0.75rem;color:var(--mid-gray)">' + escapeHtml(c.phone) + '</div>';
+    html += '</td>';
+    html += '<td>' + escapeHtml(c.phobia || '—') + '</td>';
+    html += '<td><div>' + escapeHtml(fmtDate(c.appointment_dt, { month: 'short', day: 'numeric', year: 'numeric' })) + '</div>';
+    html += '<div style="font-size:0.75rem;color:var(--mid-gray)">' + escapeHtml(fmtTime(c.appointment_dt)) + '</div></td>';
+    html += '<td><select class="status-select" onchange="updateStatus(' + c.id + ',this.value)">';
+    ['pending', 'confirmed', 'completed', 'cancelled'].forEach(function(s) {
+      html += '<option value="' + s + '"' + (status === s ? ' selected' : '') + '>' + s.charAt(0).toUpperCase() + s.slice(1) + '</option>';
+    });
+    html += '</select></td>';
+    html += '<td><button class="btn btn-ghost" onclick="viewConsult(' + c.id + ')" style="margin-right:4px">View</button>';
+    html += '<button class="btn btn-red" onclick="deleteConsult(' + c.id + ')">Delete</button></td>';
+    html += '</tr>';
+  });
+  html += '</tbody></table></div></div>';
+  document.getElementById('tab-consultations').innerHTML = html;
+}
+
+function renderSessions() {
+  var html = '<div class="page-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">';
+  html += '<div><div class="page-title">Therapy Sessions</div><div class="page-sub">' + SESSIONS.length + ' sessions</div></div>';
+  html += '<button class="btn btn-teal" onclick="document.getElementById(\'addSessionModal\').classList.add(\'active\')">+ Schedule Session</button>';
+  html += '</div><div class="card"><div class="table-wrap"><table><thead><tr><th>#</th><th>Client</th><th>Session Date</th><th>Zoom</th><th>Status</th><th>Actions</th></tr></thead><tbody>';
+  if (!SESSIONS.length) {
+    html += '<tr><td colspan="6" style="text-align:center;color:var(--mid-gray);padding:2rem;">No therapy sessions yet.</td></tr>';
+  } else {
+    SESSIONS.forEach(function(s) {
+      var status = s.status || 'scheduled';
+      html += '<tr>';
+      html += '<td style="color:var(--mid-gray)">#' + escapeHtml(s.id) + '</td>';
+      html += '<td><div style="font-weight:500">' + escapeHtml(s.client_name || '') + '</div>';
+      html += '<div style="font-size:0.75rem;color:var(--mid-gray)">' + escapeHtml(s.client_email || '') + '</div>';
+      if (s.client_phone) html += '<div style="font-size:0.75rem;color:var(--mid-gray)">' + escapeHtml(s.client_phone) + '</div>';
+      html += '</td>';
+      html += '<td><div>' + escapeHtml(fmtDate(s.session_dt, { month: 'short', day: 'numeric', year: 'numeric' })) + '</div>';
+      html += '<div style="font-size:0.75rem;color:var(--mid-gray)">' + escapeHtml(fmtTime(s.session_dt)) + '</div></td>';
+      html += '<td>';
+      if (s.zoom_link) {
+        html += '<a href="' + escapeHtml(s.zoom_link) + '" target="_blank" rel="noopener" style="color:var(--teal);font-size:0.78rem;">Open Zoom</a>';
+      } else {
+        html += '<span style="color:var(--mid-gray);font-size:0.75rem;">Not set</span>';
+      }
+      html += '</td>';
+      html += '<td><select class="status-select" onchange="updateSessionStatus(' + s.id + ',this.value)">';
+      ['scheduled', 'completed', 'cancelled', 'no-show'].forEach(function(st) {
+        html += '<option value="' + st + '"' + (status === st ? ' selected' : '') + '>' + (st === 'no-show' ? 'No Show' : st.charAt(0).toUpperCase() + st.slice(1)) + '</option>';
+      });
+      html += '</select></td>';
+      html += '<td><button class="btn btn-gold" onclick="openPaymentModal(' + s.id + ',' + JSON.stringify(s.client_name || '') + ',' + JSON.stringify(s.client_email || '') + ')" style="margin-right:4px">Pay Link</button>';
+      html += '<button class="btn btn-red" onclick="deleteSession(' + s.id + ')">Delete</button></td>';
+      html += '</tr>';
+    });
+  }
+  html += '</tbody></table></div></div>';
+  document.getElementById('tab-sessions').innerHTML = html;
+}
+
+function renderScheduleTab() {
+  var html = '<div class="page-header"><div class="page-title">Schedule Manager</div><div class="page-sub">Block or unblock time slots</div></div>';
+  html += '<div class="schedule-controls"><select id="scheduleDay" onchange="renderSchedule()" style="padding:0.6rem 1rem;border:1px solid var(--divider);border-radius:2px;font-family:\'DM Sans\',sans-serif;font-size:0.82rem;background:#fff;">';
+  for (var d = 0; d < 30; d++) {
+    var date = new Date();
+    date.setDate(date.getDate() + d);
+    var ymd = date.toISOString().slice(0, 10);
+    var label = date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric' });
+    html += '<option value="' + ymd + '">' + escapeHtml(label) + '</option>';
+  }
+  html += '</select></div>';
+  html += '<div class="card"><div class="card-header"><div class="card-title">Time Slots</div></div>';
+  html += '<div style="padding:1.5rem;"><div class="slot-grid" id="slotGrid">Loading...</div></div></div>';
+  document.getElementById('tab-schedule').innerHTML = html;
+  renderSchedule();
+}
+
+function renderClients() {
+  var html = '<div class="page-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">';
+  html += '<div><div class="page-title">Clients</div><div class="page-sub">' + CONSULTATIONS.length + ' clients</div></div>';
+  html += '<input class="search-bar" type="text" placeholder="Search clients..." oninput="filterTable(\'client-table\',this.value)"/>';
+  html += '</div><div class="card"><div class="table-wrap"><table id="client-table"><thead><tr><th>Client</th><th>Phobia</th><th>Intensity</th><th>Consult Date</th><th>Submitted</th><th>Actions</th></tr></thead><tbody>';
+  CONSULTATIONS.forEach(function(c) {
+    var name = (c.first_name || '') + ' ' + (c.last_name || '');
+    html += '<tr>';
+    html += '<td><div style="font-weight:500">' + escapeHtml(name.trim()) + '</div>';
+    html += '<div style="font-size:0.75rem;color:var(--mid-gray)">' + escapeHtml(c.email || '') + '</div>';
+    if (c.phone) html += '<div style="font-size:0.75rem;color:var(--mid-gray)">' + escapeHtml(c.phone) + '</div>';
+    html += '</td>';
+    html += '<td>' + escapeHtml(c.phobia || '—') + '</td>';
+    html += '<td>' + escapeHtml(c.q_intensity || '—') + '</td>';
+    html += '<td>' + escapeHtml(fmtDate(c.appointment_dt, { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' })) + '</td>';
+    html += '<td style="color:var(--mid-gray);font-size:0.75rem">' + escapeHtml(fmtDate(c.submitted_at, { month: 'short', day: 'numeric', year: 'numeric' })) + '</td>';
+    html += '<td><button class="btn btn-ghost" onclick="viewConsult(' + c.id + ')">View</button></td>';
+    html += '</tr>';
+  });
+  html += '</tbody></table></div></div>';
+  document.getElementById('tab-clients').innerHTML = html;
+}
+
+function renderPayments() {
+  var html = '<div class="page-header"><div><div class="page-title">Payments</div><div class="page-sub">$' + (STATS.totalRevenue / 100).toFixed(2) + ' collected</div></div></div>';
+  html += '<div class="card"><div class="table-wrap"><table><thead><tr><th>Client</th><th>Amount</th><th>Status</th><th>Created</th><th>Paid</th><th>Link</th></tr></thead><tbody>';
+  if (!PAYMENTS.length) {
+    html += '<tr><td colspan="6" style="text-align:center;color:var(--mid-gray);padding:2rem;">No payment links yet.</td></tr>';
+  } else {
+    PAYMENTS.forEach(function(p) {
+      var paid = !!p.paid;
+      html += '<tr>';
+      html += '<td><div style="font-weight:500">' + escapeHtml(p.client_name || '') + '</div>';
+      html += '<div style="font-size:0.75rem;color:var(--mid-gray)">' + escapeHtml(p.client_email || '') + '</div></td>';
+      html += '<td>$' + ((p.amount_cents || 0) / 100).toFixed(2) + '</td>';
+      html += '<td><span class="badge badge-' + (paid ? 'paid' : 'unpaid') + '">' + (paid ? 'Paid' : 'Unpaid') + '</span></td>';
+      html += '<td style="font-size:0.75rem;color:var(--mid-gray)">' + escapeHtml(fmtDate(p.created_at, { month: 'short', day: 'numeric', year: 'numeric' })) + '</td>';
+      html += '<td style="font-size:0.75rem;color:var(--mid-gray)">' + (p.paid_at ? escapeHtml(fmtDate(p.paid_at, { month: 'short', day: 'numeric', year: 'numeric' })) : '—') + '</td>';
+      html += '<td>';
+      if (!paid) {
+        html += '<button class="btn btn-ghost" onclick="copyToClipboard(paymentUrl(\'' + escapeHtml(p.token || '') + '\'))">Copy</button>';
+      } else {
+        html += '<span style="font-size:0.75rem;color:var(--sage);">Complete</span>';
+      }
+      html += '</td></tr>';
+    });
+  }
+  html += '</tbody></table></div></div>';
+  document.getElementById('tab-payments').innerHTML = html;
+}
+
+function renderVisitors() {
+  var html = '<div class="page-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">';
+  html += '<div><div class="page-title">Visitor Log</div><div class="page-sub">' + VISITOR_LOGS.length + ' sessions recorded</div></div>';
+  html += '<div style="display:flex;gap:0.5rem;flex-wrap:wrap;">';
+  html += '<input class="search-bar" type="text" placeholder="Search visitors..." oninput="filterVisitors(this.value)"/>';
+  html += '<button class="btn btn-red" onclick="clearVisitorLog()">Clear Log</button></div></div>';
+  html += '<div class="card"><div class="vlog-row vlog-head">';
+  html += '<div>Location / IP</div><div>Device</div><div>Pages Viewed</div>';
+  html += '<div class="vlog-hide">First Seen</div><div class="vlog-hide">Last Seen</div><div>Time on Site</div></div>';
+  html += '<div id="visitorLogBody">';
+  if (!VISITOR_LOGS.length) {
+    html += '<div style="padding:2rem;text-align:center;color:var(--mid-gray);font-size:0.85rem;">No visitor data yet.</div>';
+  } else {
+    VISITOR_LOGS.forEach(function(v) {
+      var pages = [];
+      try { pages = JSON.parse(v.pages || '[]') || []; } catch (e) { pages = []; }
+      var mins = Math.floor((v.total_seconds || 0) / 60);
+      var secs = (v.total_seconds || 0) % 60;
+      var timeStr = mins > 0 ? mins + 'm ' + secs + 's' : secs + 's';
+      var search = ((v.location || '') + (v.ip || '') + (v.device || '')).toLowerCase();
+      html += '<div class="vlog-row" data-search="' + escapeHtml(search) + '">';
+      html += '<div><div style="font-weight:500;font-size:0.82rem;">' + escapeHtml(v.location || '—') + '</div>';
+      html += '<div style="font-size:0.72rem;color:var(--mid-gray);font-family:monospace;">' + escapeHtml(v.ip || '') + '</div></div>';
+      html += '<div style="font-size:0.8rem;">' + escapeHtml(v.device || '—') + '</div>';
+      html += '<div class="vlog-pages">';
+      if (!pages.length) {
+        html += '<span style="color:var(--mid-gray);font-size:0.75rem;">—</span>';
+      } else {
+        pages.forEach(function(pg) {
+          html += '<span class="vlog-page-tag">' + escapeHtml(pg) + '</span>';
+        });
+      }
+      html += '</div>';
+      html += '<div class="vlog-hide" style="font-size:0.75rem;color:var(--mid-gray);">' + (v.first_seen ? escapeHtml(fmtDate(v.first_seen, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })) : '—') + '</div>';
+      html += '<div class="vlog-hide" style="font-size:0.75rem;color:var(--mid-gray);">' + (v.last_seen ? escapeHtml(fmtDate(v.last_seen, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })) : '—') + '</div>';
+      html += '<div style="font-weight:500;color:var(--teal-dark);font-size:0.82rem;">' + escapeHtml(timeStr) + '</div>';
+      html += '</div>';
+    });
+  }
+  html += '</div></div>';
+  document.getElementById('tab-visitors').innerHTML = html;
+}
+
+function renderSettings() {
+  var today = new Date().toISOString().slice(0, 10);
+  var html = '<div class="page-header"><div class="page-title">Settings</div></div>';
+  html += '<div class="card" style="max-width:600px;"><div class="card-header"><div class="card-title">Available Hours</div></div>';
+  html += '<div style="padding:1.5rem;"><p style="font-size:0.82rem;color:var(--mid-gray);margin-bottom:1rem;line-height:1.6;">Current: Every day 1-3 PM and 7-9 PM in 30-min slots.</p>';
+  html += '<div style="background:var(--cream);padding:1rem;border-radius:2px;font-size:0.8rem;font-family:monospace;">[13,15] = 1:00 PM to 3:00 PM<br>[19,21] = 7:00 PM to 9:00 PM</div></div></div>';
+  html += '<div class="card" style="max-width:600px;"><div class="card-header"><div class="card-title">Block a Date</div></div>';
+  html += '<div style="padding:1.5rem;"><div class="form-row">';
+  html += '<div class="form-group"><label>Date</label><input type="date" id="blockDate" min="' + today + '"/></div>';
+  html += '<div class="form-group"><label>Reason</label><input type="text" id="blockReason" placeholder="e.g. Vacation"/></div>';
+  html += '</div><button class="btn btn-teal" onclick="blockFullDay()">Block Entire Day</button></div></div>';
+  html += '<div class="card" style="max-width:600px;"><div class="card-header"><div class="card-title">Account</div></div>';
+  html += '<div style="padding:1.5rem;">';
+  html += '<div class="detail-row"><div class="detail-label">Username</div><div class="detail-value">launch</div></div>';
+  html += '<div class="detail-row"><div class="detail-label">Email</div><div class="detail-value">steven@stevenshawccht.com</div></div>';
+  html += '<div class="detail-row"><div class="detail-label">SMS</div><div class="detail-value">(863) 712-9312</div></div>';
+  html += '<div class="detail-row" style="border:none"><div class="detail-label">Password</div><div class="detail-value" style="font-size:0.78rem;color:var(--mid-gray)">Managed via admin auth</div></div>';
+  html += '</div></div>';
+  document.getElementById('tab-settings').innerHTML = html;
+}
+
+function renderAll() {
+  updatePendingBadge();
+  populateConsultDropdown();
+  renderDashboard();
+  renderConsultations();
+  renderSessions();
+  renderScheduleTab();
+  renderClients();
+  renderPayments();
+  renderVisitors();
+  renderSettings();
+}
+
+function toggleSidebar() {
+  document.getElementById('sidebar').classList.toggle('open');
+  document.getElementById('sidebarOverlay').classList.toggle('active');
+}
+
+function switchTab(tab, el) {
+  document.querySelectorAll('.tab-content').forEach(function(t) { t.classList.remove('active'); });
+  document.querySelectorAll('.nav-item').forEach(function(n) { n.classList.remove('active'); });
+  document.getElementById('tab-' + tab).classList.add('active');
+  el.classList.add('active');
+  if (tab === 'schedule') renderSchedule();
+  if (window.innerWidth <= 900) toggleSidebar();
+}
+
+function toast(msg, dur) {
+  if (!dur) dur = 2500;
+  var t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(function() { t.classList.remove('show'); }, dur);
+}
+
+function filterTable(id, q) {
+  q = q.toLowerCase();
+  document.querySelectorAll('#' + id + ' tbody tr').forEach(function(r) {
+    r.style.display = r.textContent.toLowerCase().indexOf(q) > -1 ? '' : 'none';
+  });
+}
+
+function filterVisitors(q) {
+  q = q.toLowerCase();
+  document.querySelectorAll('#visitorLogBody .vlog-row').forEach(function(r) {
+    r.style.display = (r.dataset.search || '').indexOf(q) > -1 ? '' : 'none';
+  });
+}
+
+function updateStatus(id, status) {
+  ajax({ ajax_action: 'update_status', id: id, status: status }).then(function() {
+    toast('Status updated');
+    loadDashboard();
+  });
+}
+
+function deleteConsult(id) {
+  if (!confirm('Delete this consultation?')) return;
+  ajax({ ajax_action: 'delete_consultation', id: id }).then(function() {
+    toast('Deleted');
+    loadDashboard();
+  });
+}
+
+function clearVisitorLog() {
+  if (!confirm('Clear all visitor log data?')) return;
+  ajax({ ajax_action: 'clear_visitor_log' }).then(function() {
+    toast('Log cleared');
+    loadDashboard();
+  });
+}
+
+function viewConsult(id) {
+  var c = null;
+  for (var i = 0; i < CONSULTATIONS.length; i++) {
+    if (CONSULTATIONS[i].id == id) { c = CONSULTATIONS[i]; break; }
+  }
+  if (!c) return;
+  document.getElementById('consultDetailTitle').textContent = (c.first_name || '') + ' ' + (c.last_name || '');
+  var fields = [
+    ['Email', c.email], ['Phone', c.phone || '—'], ['Phobia', c.phobia || '—'],
+    ['Consult Date', c.appointment_dt], ['Status', c.status || 'pending'], ['Notes', c.notes || '—'],
+    ['SEP', ''],
+    ['How long limiting', c.q_duration || '—'], ['Intensity', c.q_intensity || '—'],
+    ['Interference', c.q_interference || '—'], ['Trigger', c.q_cause || '—'],
+    ['Life impact', c.q_impact || '—'], ['Cost to life', c.q_cost || '—'],
+    ['Without fear', c.q_outcome || '—'], ['Previous therapies', c.q_previous || '—']
+  ];
+  var html = '';
+  fields.forEach(function(f) {
+    if (f[0] === 'SEP') {
+      html += '<div style="font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);margin:1rem 0 0.5rem;">Pre-Consultation Answers</div>';
+    } else {
+      html += '<div class="detail-row"><div class="detail-label">' + escapeHtml(f[0]) + '</div><div class="detail-value">' + escapeHtml(f[1] || '—') + '</div></div>';
+    }
+  });
+  document.getElementById('consultDetailContent').innerHTML = html;
+  document.getElementById('consultDetailModal').classList.add('active');
+}
+
+function openPaymentModal(id, name, email) {
+  document.getElementById('pm_name').value = name;
+  document.getElementById('pm_email').value = email;
+  document.getElementById('pm_session_id').value = id;
+  document.getElementById('pm_result').style.display = 'none';
+  document.getElementById('paymentModal').classList.add('active');
+}
+
+function generatePayLink() {
+  var name = document.getElementById('pm_name').value.trim();
+  var email = document.getElementById('pm_email').value.trim();
+  var sid = document.getElementById('pm_session_id').value;
+  if (!name || !email) { toast('Enter name and email'); return; }
+  ajax({ ajax_action: 'gen_payment', name: name, email: email, session_id: sid }).then(function(res) {
+    if (res.success) {
+      var link = res.link || paymentUrl(res.token || '');
+      if (link.indexOf('payment.php') > -1) {
+        link = link.replace(/payment\.php/, 'payment.html');
+      }
+      var r = document.getElementById('pm_result');
+      r.textContent = link;
+      r.style.display = 'block';
+      toast('Link generated!');
+      loadDashboard();
+    }
+  });
+}
+
+function copyToClipboard(text) {
+  navigator.clipboard.writeText(text).then(function() { toast('Copied!'); });
+}
+
+function fillSessionFromConsult(sel) {
+  var opt = sel.options[sel.selectedIndex];
+  if (!opt.value) return;
+  document.getElementById('sess_name').value = opt.getAttribute('data-name') || '';
+  document.getElementById('sess_email').value = opt.getAttribute('data-email') || '';
+  document.getElementById('sess_phone').value = opt.getAttribute('data-phone') || '';
+}
+
+function addSession() {
+  var name = document.getElementById('sess_name').value.trim();
+  var email = document.getElementById('sess_email').value.trim();
+  var dt = document.getElementById('sess_dt').value;
+  if (!name || !email || !dt) { toast('Fill in name, email and date'); return; }
+  ajax({
+    ajax_action: 'add_session',
+    consultation_id: document.getElementById('sess_consult').value || 0,
+    client_name: name,
+    client_email: email,
+    client_phone: document.getElementById('sess_phone').value.trim(),
+    session_dt: dt.replace('T', ' '),
+    zoom_link: document.getElementById('sess_zoom').value.trim(),
+    notes: document.getElementById('sess_notes').value.trim()
+  }).then(function(res) {
+    if (res.success) {
+      toast('Session scheduled!');
+      document.getElementById('addSessionModal').classList.remove('active');
+      loadDashboard();
+    }
+  });
+}
+
+function deleteSession(id) {
+  if (!confirm('Delete this session?')) return;
+  ajax({ ajax_action: 'delete_session', id: id }).then(function() {
+    toast('Deleted');
+    loadDashboard();
+  });
+}
+
+function updateSessionStatus(id, status) {
+  ajax({ ajax_action: 'update_session_status', id: id, status: status }).then(function() {
+    toast('Updated');
+    loadDashboard();
+  });
+}
+
+function renderSchedule() {
+  var dayEl = document.getElementById('scheduleDay');
+  if (!dayEl) return;
+  var date = dayEl.value;
+  var wins = [[13, 15], [19, 21]];
+  var grid = document.getElementById('slotGrid');
+  if (!grid) return;
+  var html = '';
+  wins.forEach(function(w) {
+    for (var h = w[0]; h < w[1]; h++) {
+      [0, 30].forEach(function(m) {
+        var pad = function(n) { return String(n).padStart(2, '0'); };
+        var dt = date + ' ' + pad(h) + ':' + pad(m) + ':00';
+        var lbl = new Date(date + 'T' + pad(h) + ':' + pad(m) + ':00').toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+        var isB = BOOKED_SLOTS.indexOf(dt) > -1;
+        var isBl = BLOCKED_SLOTS.indexOf(dt) > -1;
+        var isS = false;
+        var sessName = '';
+        for (var j = 0; j < SESSIONS.length; j++) {
+          if (SESSIONS[j].session_dt === dt) {
+            isS = true;
+            sessName = SESSIONS[j].client_name;
+            break;
+          }
+        }
+        var cls = 'available', sl = 'Available', btn = '';
+        if (isS) {
+          cls = 'booked';
+          sl = 'Session: ' + sessName;
+        } else if (isB) {
+          var f = null;
+          for (var i = 0; i < CONSULTATIONS.length; i++) {
+            if (CONSULTATIONS[i].appointment_dt === dt) { f = CONSULTATIONS[i]; break; }
+          }
+          cls = 'booked';
+          sl = f ? 'Consult: ' + f.first_name + ' ' + f.last_name : 'Booked';
+        } else if (isBl) {
+          cls = 'blocked';
+          sl = 'Blocked';
+          btn = '<button class="btn btn-ghost" style="font-size:0.68rem;padding:2px 8px;" onclick="unblockSlot(\'' + dt + '\')">Unblock</button>';
+        } else {
+          btn = '<button class="btn btn-red" style="font-size:0.68rem;padding:2px 8px;" onclick="blockSlot(\'' + dt + '\')">Block</button>';
+        }
+        html += '<div class="slot-item ' + cls + '"' + (isS ? ' style="border-color:rgba(201,168,76,0.4);background:rgba(201,168,76,0.08);"' : '') + '>';
+        html += '<div><div class="slot-time">' + escapeHtml(lbl) + '</div><div class="slot-label">' + escapeHtml(sl) + '</div></div>' + btn + '</div>';
+      });
+    }
+  });
+  grid.innerHTML = html;
+}
+
+function blockSlot(dt) {
+  ajax({ ajax_action: 'block_slot', datetime: dt, reason: 'Blocked by admin' }).then(function() {
+    toast('Blocked');
+    loadDashboard();
+  });
+}
+
+function unblockSlot(dt) {
+  ajax({ ajax_action: 'unblock_slot', datetime: dt }).then(function() {
+    toast('Unblocked');
+    loadDashboard();
+  });
+}
+
+function blockFullDay() {
+  var date = document.getElementById('blockDate').value;
+  var reason = document.getElementById('blockReason').value || 'Full day blocked';
+  if (!date) { toast('Select a date'); return; }
+  var wins = [[13, 15], [19, 21]];
+  var p = [];
+  wins.forEach(function(w) {
+    for (var h = w[0]; h < w[1]; h++) {
+      [0, 30].forEach(function(m) {
+        var pad = function(n) { return String(n).padStart(2, '0'); };
+        p.push(ajax({ ajax_action: 'block_slot', datetime: date + ' ' + pad(h) + ':' + pad(m) + ':00', reason: reason }));
+      });
+    }
+  });
+  Promise.all(p).then(function() {
+    toast('Day blocked');
+    loadDashboard();
+  });
+}
+
+document.querySelectorAll('.modal-overlay').forEach(function(o) {
+  o.addEventListener('click', function(e) {
+    if (e.target === o) o.classList.remove('active');
+  });
+});
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    document.querySelectorAll('.modal-overlay.active').forEach(function(o) {
+      o.classList.remove('active');
+    });
+  }
+});
+
+loadDashboard();
+</script>
+</body>
+</html>

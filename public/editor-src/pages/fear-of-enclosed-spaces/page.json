@@ -1,0 +1,17 @@
+{
+  "slug": "fear-of-enclosed-spaces",
+  "title": "Fear of Enclosed Spaces — Feel at Ease in One Session | PhobiaFree.life",
+  "description": "Overcome claustrophobia / fear of enclosed spaces in one peaceful Zoom session.",
+  "cssHref": "/fear-of-enclosed-spaces/styles.css",
+  "photoUrl": "/fear-of-enclosed-spaces/img/enclosed-spaces.png",
+  "pfCurrentSlug": "fear-of-enclosed-spaces",
+  "pfSamePageSlugs": {
+    "fear-of-enclosed-spaces": true,
+    "claustrophobia": true
+  },
+  "selectedPhobiaSlug": "fear-of-enclosed-spaces",
+  "assetDir": "fear-of-enclosed-spaces",
+  "latinSlug": "claustrophobia",
+  "label": "Fear of Enclosed Spaces",
+  "image": "enclosed-spaces.png"
+}

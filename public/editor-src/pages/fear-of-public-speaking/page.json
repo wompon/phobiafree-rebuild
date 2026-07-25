@@ -1,0 +1,17 @@
+{
+  "slug": "fear-of-public-speaking",
+  "title": "Fear of Public Speaking — Speak with Confidence in One Session | PhobiaFree.life",
+  "description": "Overcome fear of public speaking in one peaceful Zoom session.",
+  "cssHref": "/fear-of-public-speaking/styles.css",
+  "photoUrl": "/fear-of-public-speaking/img/public-speaking.png",
+  "pfCurrentSlug": "fear-of-public-speaking",
+  "pfSamePageSlugs": {
+    "fear-of-public-speaking": true,
+    "glossophobia": true
+  },
+  "selectedPhobiaSlug": "fear-of-public-speaking",
+  "assetDir": "fear-of-public-speaking",
+  "latinSlug": "glossophobia",
+  "label": "Fear of Public Speaking",
+  "image": "public-speaking.png"
+}

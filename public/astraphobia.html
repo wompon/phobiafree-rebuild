@@ -1,0 +1,1615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="Phobia Free Life" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+
+<!-- Google tag (gtag.js) -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=AW-18237377845"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'AW-18237377845');
+    gtag('config', 'G-12NP1QWCDX');
+
+function openModal(e) {
+    if (e) e.preventDefault();
+    logEvent('Opened');
+    document.getElementById('consultModal').classList.add('active');
+    document.body.style.overflow = 'hidden';
+    if (typeof loadSlots === 'function') loadSlots();
+}
+  function closeModal() {
+    document.getElementById('consultModal').classList.remove('active');
+    document.body.style.overflow = '';
+  }
+  function openPrivacy(e) {
+    if (e) e.preventDefault();
+    document.getElementById('privacyModal').style.display = 'block';
+    document.getElementById('privacyBackBtn').style.display = 'inline-flex';
+    document.body.style.overflow = 'hidden';
+    window.scrollTo(0,0);
+  }
+  function closePrivacy() {
+    document.getElementById('privacyModal').style.display = 'none';
+    document.getElementById('privacyBackBtn').style.display = 'none';
+    document.body.style.overflow = '';
+  }
+</script>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<meta name="description" content="Work toward staying calm through thunder and storms in one peaceful Zoom session with a Certified Clinical Hypnotherapist. No trance, no reliving, no exposure therapy."/>
+<title>Fear of Storms — Stay Calm in One Session | PhobiaFree.life</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=DM+Sans:wght@300;400;500&family=Cinzel:wght@400;600&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --teal:       #1a6b72;
+    --teal-dark:  #124d52;
+    --teal-light: #2a8a93;
+    --gold:       #c9a84c;
+    --gold-light: #e2c97e;
+    --cream:      #f9f6f1;
+    --warm-white: #fdfaf5;
+    --charcoal:   #2c2c2c;
+    --mid-gray:   #6b6b6b;
+    --sage:       #7a9e7e;
+    --sage-light: #a8c5ab;
+    --divider:    rgba(26,107,114,0.15);
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; overflow-y: scroll; }
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--warm-white);
+    color: var(--charcoal);
+    overflow-x: hidden;
+  }
+  html, body { max-width: 100%; overflow-x: hidden; }
+
+  /* ─── NAV ─── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 1.2rem 5%;
+    background: rgba(253,250,245,0.92);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--divider);
+    transition: box-shadow 0.3s;
+  }
+  nav.scrolled { box-shadow: 0 2px 24px rgba(26,107,114,0.10); }
+  .nav-logo {
+    font-family: 'Cinzel', serif; font-size: 1.25rem;
+    color: var(--teal); letter-spacing: 0.04em; text-decoration: none;
+  }
+  .nav-logo span { color: var(--gold); }
+  .nav-links { display: flex; gap: 2rem; list-style: none; }
+  .nav-links a {
+    font-size: 0.85rem; font-weight: 500; letter-spacing: 0.06em;
+    text-transform: uppercase; color: var(--charcoal);
+    text-decoration: none; transition: color 0.2s;
+  }
+  .nav-links a:hover { color: var(--teal); }
+  .nav-cta {
+    background: var(--gold); color: #fff;
+    padding: 0.55rem 1.4rem; border-radius: 2px;
+    font-size: 0.8rem; font-weight: 500; letter-spacing: 0.08em;
+    text-transform: uppercase; text-decoration: none;
+    transition: background 0.2s, transform 0.15s;
+  }
+  .nav-cta:hover { background: var(--gold-light); transform: translateY(-1px); }
+
+  /* ─── SHARED SECTION STYLES ─── */
+  section { padding: 6rem 8%; }
+  .section-label {
+    font-size: 0.7rem; font-weight: 500;
+    letter-spacing: 0.2em; text-transform: uppercase;
+    color: var(--gold);
+    display: flex; align-items: center; gap: 0.8rem;
+    margin-bottom: 1rem;
+  }
+  .section-label::before { content: ''; width: 24px; height: 1px; background: var(--gold); }
+  .section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2rem, 3.5vw, 3rem);
+    font-weight: 300; line-height: 1.2;
+    color: var(--teal-dark); margin-bottom: 1rem;
+  }
+  .section-title em { font-style: italic; color: var(--teal-light); }
+  .section-sub { font-size: 1rem; line-height: 1.8; color: var(--mid-gray); max-width: 600px; }
+
+  /* ─── BUTTONS ─── */
+  .btn-primary {
+    display: inline-block; background: var(--teal); color: #fff;
+    padding: 1rem 2.2rem; font-size: 0.9rem; font-weight: 500;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    text-decoration: none; border-radius: 2px;
+    transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+    box-shadow: 0 4px 20px rgba(26,107,114,0.25);
+  }
+  .btn-primary:hover { background: var(--teal-dark); transform: translateY(-2px); box-shadow: 0 8px 28px rgba(26,107,114,0.3); }
+  .btn-secondary {
+    display: inline-block; color: var(--teal);
+    padding: 1rem 1.5rem; font-size: 0.85rem; font-weight: 500;
+    letter-spacing: 0.06em; text-transform: uppercase;
+    text-decoration: none; border: 1px solid var(--teal);
+    border-radius: 2px; transition: all 0.2s; margin-left: 1rem;
+  }
+  .btn-secondary:hover { background: var(--teal); color: #fff; }
+  .btn-gold {
+    display: inline-block; background: var(--gold); color: #fff;
+    padding: 1.1rem 2.5rem; font-size: 0.9rem; font-weight: 500;
+    letter-spacing: 0.08em; text-transform: uppercase;
+    text-decoration: none; border-radius: 2px;
+    transition: background 0.2s, transform 0.15s, box-shadow 0.2s;
+    box-shadow: 0 4px 20px rgba(201,168,76,0.35);
+  }
+  .btn-gold:hover { background: var(--gold-light); transform: translateY(-2px); box-shadow: 0 8px 28px rgba(201,168,76,0.4); }
+  .btn-outline-light {
+    display: inline-block; border: 1px solid rgba(255,255,255,0.3);
+    color: rgba(249,246,241,0.85); padding: 1.1rem 2.5rem;
+    font-size: 0.9rem; font-weight: 500; letter-spacing: 0.08em;
+    text-transform: uppercase; text-decoration: none; border-radius: 2px; transition: all 0.2s;
+  }
+  .btn-outline-light:hover { background: rgba(255,255,255,0.08); border-color: rgba(255,255,255,0.5); }
+
+  /* ─── HERO ─── */
+  #hero {
+    min-height: 100vh; display: grid; grid-template-columns: 1fr 1fr;
+    align-items: center; padding-top: 80px; position: relative; overflow: hidden;
+  }
+  .hero-bg {
+    position: absolute; inset: 0; z-index: 0;
+    background:
+      radial-gradient(ellipse 60% 80% at 80% 50%, rgba(26,107,114,0.07) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 40% at 20% 80%, rgba(201,168,76,0.06) 0%, transparent 60%);
+  }
+  .hero-bg-lines {
+    position: absolute; inset: 0; z-index: 0;
+    background-image: repeating-linear-gradient(90deg, transparent, transparent 79px, rgba(26,107,114,0.04) 79px, rgba(26,107,114,0.04) 80px);
+  }
+  .hero-content { position: relative; z-index: 1; padding: 6rem 5% 6rem 8%; }
+  .hero-eyebrow {
+    font-family: 'DM Sans', sans-serif; font-size: 0.75rem; font-weight: 500;
+    letter-spacing: 0.18em; text-transform: uppercase; color: var(--gold);
+    margin-bottom: 1.5rem; display: flex; align-items: center; gap: 0.8rem;
+  }
+  .hero-eyebrow::before { content: ''; display: block; width: 32px; height: 1px; background: var(--gold); }
+  .hero-headline {
+    font-family: 'Cormorant Garamond', serif; font-size: clamp(2.8rem, 4.5vw, 4.2rem);
+    font-weight: 300; line-height: 1.15; color: var(--teal-dark); margin-bottom: 1.5rem;
+  }
+  .hero-headline em { font-style: italic; color: var(--teal-light); }
+  .hero-sub { font-size: 1.05rem; line-height: 1.75; color: var(--mid-gray); max-width: 480px; margin-bottom: 2.5rem; }
+  .hero-sub strong { color: var(--charcoal); font-weight: 500; }
+  .hero-visual { position: relative; z-index: 1; display: flex; align-items: center; justify-content: center; padding: 4rem 6% 4rem 2%; }
+  .hero-card {
+    background: #fff; border-radius: 4px; padding: 2.5rem;
+    box-shadow: 0 20px 60px rgba(26,107,114,0.12), 0 2px 8px rgba(0,0,0,0.04);
+    max-width: 380px; border-top: 4px solid var(--gold); position: relative;
+  }
+  .hero-card::before {
+    content: '"'; font-family: 'Cormorant Garamond', serif; font-size: 8rem;
+    color: rgba(26,107,114,0.08); position: absolute; top: -1rem; left: 1rem; line-height: 1;
+  }
+  .hero-card-text { font-family: 'Cormorant Garamond', serif; font-size: 1.35rem; font-style: italic; line-height: 1.6; color: var(--teal-dark); margin-bottom: 1.5rem; }
+  .hero-card-author { font-size: 0.8rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--gold); }
+  .hero-stats { display: flex; gap: 1.5rem; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--divider); }
+  .hero-stat-num { font-family: 'Cormorant Garamond', serif; font-size: 2rem; font-weight: 600; color: var(--teal); line-height: 1; }
+  .hero-stat-label { font-size: 0.7rem; letter-spacing: 0.08em; text-transform: uppercase; color: var(--mid-gray); margin-top: 0.3rem; }
+
+  /* ─── ASPIRATIONAL ─── */
+  #aspirational { background: var(--teal); padding: 2rem 8%; text-align: center; }
+  .aspirational-text { font-family: 'Cormorant Garamond', serif; font-size: clamp(1.2rem, 2vw, 1.6rem); font-style: italic; font-weight: 300; color: rgba(253,250,245,0.95); line-height: 1.5; }
+  .aspirational-text strong { font-style: normal; font-weight: 400; color: var(--gold-light); }
+
+  /* ─── PROBLEM ─── */
+  #problem { background: var(--teal-dark); color: #fff; padding: 5rem 8%; }
+  #problem .section-title { color: var(--cream); }
+  #problem .section-label { color: var(--gold-light); }
+  #problem .section-label::before { background: var(--gold-light); }
+  #problem .section-sub { color: rgba(249,246,241,0.75); max-width: 100%; }
+  .problem-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; margin-top: 3rem; }
+  .problem-card { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08); border-radius: 3px; padding: 2rem; transition: background 0.2s; }
+  .problem-card:hover { background: rgba(255,255,255,0.09); }
+  .problem-icon { font-size: 2rem; margin-bottom: 1rem; }
+  .problem-card h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.3rem; font-weight: 400; color: var(--gold-light); margin-bottom: 0.75rem; }
+  .problem-card p { font-size: 0.9rem; line-height: 1.7; color: rgba(249,246,241,0.7); }
+  .villain-callout { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); border-left: 3px solid var(--gold-light); border-radius: 2px; padding: 1.2rem 1.5rem; margin-top: 2rem; font-size: 0.9rem; line-height: 1.7; color: rgba(249,246,241,0.8); }
+  .villain-callout strong { color: var(--gold-light); }
+
+  /* ─── GUIDE / ABOUT ─── */
+  #guide { display: grid; grid-template-columns: 1fr 1fr; gap: 5rem; align-items: center; background: var(--cream); }
+  .guide-credentials { display: flex; flex-direction: column; gap: 1rem; margin-top: 2rem; }
+  .credential { display: flex; align-items: center; gap: 1rem; padding: 0.9rem 1.2rem; background: #fff; border-left: 3px solid var(--gold); border-radius: 2px; font-size: 0.85rem; color: var(--charcoal); box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+  .credential-icon { font-size: 1.2rem; }
+  .guide-photo-wrap { border-radius: 3px; overflow: hidden; aspect-ratio: 4/5; }
+  .guide-photo-wrap img { width: 100%; height: 100%; object-fit: cover; object-position: center top; display: block; }
+
+  /* ─── PROCESS ─── */
+  #process { background: var(--warm-white); }
+  .steps-container { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; margin-top: 4rem; position: relative; }
+  .steps-container::before { content: ''; position: absolute; top: 3.5rem; left: 16.6%; right: 16.6%; height: 1px; background: linear-gradient(90deg, var(--teal-light), var(--gold), var(--sage)); z-index: 0; }
+  .step { text-align: center; padding: 0 2rem; position: relative; z-index: 1; }
+  .step-num-wrap { width: 7rem; height: 7rem; border-radius: 50%; background: #fff; border: 2px solid var(--teal-light); display: flex; align-items: center; justify-content: center; margin: 0 auto 2rem; box-shadow: 0 4px 20px rgba(26,107,114,0.12); transition: transform 0.2s, box-shadow 0.2s; }
+  .step:hover .step-num-wrap { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(26,107,114,0.18); }
+  .step-num { font-family: 'Cormorant Garamond', serif; font-size: 2.2rem; font-weight: 600; color: var(--teal); line-height: 1; }
+  .step h3 { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 400; color: var(--teal-dark); margin-bottom: 0.75rem; }
+  .step p { font-size: 0.9rem; line-height: 1.75; color: var(--mid-gray); }
+  .step-badge { display: inline-block; margin-top: 1rem; padding: 0.3rem 0.9rem; background: rgba(26,107,114,0.08); color: var(--teal); font-size: 0.72rem; letter-spacing: 0.08em; text-transform: uppercase; border-radius: 2px; }
+
+  /* ─── DIFFERENTIATOR ─── */
+  #differentiator { background: linear-gradient(135deg, var(--teal-dark) 0%, #0d4a50 100%); padding: 5rem 8%; text-align: center; position: relative; overflow: hidden; }
+  #differentiator::before { content: ''; position: absolute; inset: 0; background-image: radial-gradient(circle at 20% 50%, rgba(201,168,76,0.08) 0%, transparent 50%), radial-gradient(circle at 80% 50%, rgba(122,158,126,0.08) 0%, transparent 50%); }
+  #differentiator .section-title { color: var(--cream); }
+  #differentiator .section-label { color: var(--gold-light); justify-content: center; }
+  #differentiator .section-label::before { background: var(--gold-light); }
+  .diff-text { font-family: 'Cormorant Garamond', serif; font-size: clamp(1.4rem, 2.5vw, 2rem); font-style: italic; font-weight: 300; color: rgba(249,246,241,0.9); max-width: 760px; margin: 1.5rem auto 0; line-height: 1.6; position: relative; z-index: 1; }
+  .diff-text strong { color: var(--gold-light); font-style: normal; font-weight: 400; }
+  .diff-compare { display: flex; gap: 2rem; justify-content: center; margin-top: 3.5rem; position: relative; z-index: 1; flex-wrap: wrap; }
+  .diff-col { background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1); border-radius: 3px; padding: 2rem; width: 280px; text-align: left; }
+  .diff-col.highlight { background: rgba(201,168,76,0.12); border-color: rgba(201,168,76,0.3); }
+  .diff-col-label { font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(255,255,255,0.4); margin-bottom: 1rem; }
+  .diff-col.highlight .diff-col-label { color: var(--gold-light); }
+  .diff-item { display: flex; align-items: flex-start; gap: 0.6rem; font-size: 0.88rem; color: rgba(255,255,255,0.65); margin-bottom: 0.65rem; line-height: 1.5; }
+  .diff-col.highlight .diff-item { color: rgba(249,246,241,0.9); }
+  .diff-x { color: rgba(255,100,100,0.7); font-weight: 700; flex-shrink: 0; }
+  .diff-check { color: var(--gold-light); font-weight: 700; flex-shrink: 0; }
+
+  /* ─── TESTIMONIALS ─── */
+  #testimonials { background: var(--cream); }
+  .testi-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; margin-top: 3rem; }
+  .testi-card { background: #fff; border-radius: 3px; padding: 2rem; box-shadow: 0 2px 16px rgba(0,0,0,0.05); position: relative; border-bottom: 3px solid var(--sage); }
+  .testi-stars { color: var(--gold); font-size: 0.9rem; margin-bottom: 1rem; }
+  .testi-text { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-style: italic; line-height: 1.65; color: var(--charcoal); margin-bottom: 1.5rem; }
+  .testi-author { font-size: 0.8rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--mid-gray); }
+  .testi-fear { color: var(--sage); font-weight: 500; }
+
+  /* ─── FAQ ─── */
+  #faq { background: var(--warm-white); }
+  .faq-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1px; background: var(--divider); margin-top: 3rem; border: 1px solid var(--divider); border-radius: 3px; overflow: hidden; }
+  .faq-item { background: #fff; padding: 2rem; cursor: pointer; transition: background 0.2s; }
+  .faq-item:hover { background: var(--cream); }
+  .faq-q { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-weight: 400; color: var(--teal-dark); margin-bottom: 0.75rem; display: flex; justify-content: space-between; align-items: start; gap: 1rem; }
+  .faq-toggle { color: var(--gold); font-size: 1.2rem; flex-shrink: 0; transition: transform 0.2s; }
+  .faq-item.open .faq-toggle { transform: rotate(45deg); }
+  .faq-a { font-size: 0.88rem; line-height: 1.75; color: var(--mid-gray); display: none; }
+  .faq-item.open .faq-a { display: block; }
+
+  /* ─── FAILURE ─── */
+  #failure { background: #1c1c1c; padding: 5rem 8%; text-align: center; }
+  #failure .section-label { color: rgba(201,168,76,0.7); justify-content: center; }
+  #failure .section-label::before { background: rgba(201,168,76,0.7); }
+  #failure .section-title { color: rgba(249,246,241,0.9); }
+  .failure-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 1.5rem; margin-top: 3rem; }
+  .failure-card { background: rgba(255,255,255,0.04); border: 1px solid rgba(255,255,255,0.07); border-radius: 3px; padding: 1.75rem; text-align: left; }
+  .failure-card h4 { font-family: 'Cormorant Garamond', serif; font-size: 1.1rem; font-weight: 400; color: rgba(249,246,241,0.75); margin-bottom: 0.6rem; }
+  .failure-card p { font-size: 0.85rem; line-height: 1.7; color: rgba(249,246,241,0.4); }
+  .failure-divider { display: flex; align-items: center; gap: 1.5rem; margin: 3rem auto; max-width: 500px; color: rgba(255,255,255,0.2); font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; }
+  .failure-divider::before, .failure-divider::after { content: ''; flex: 1; height: 1px; background: rgba(255,255,255,0.1); }
+
+  /* ─── SUCCESS ─── */
+  #success { background: linear-gradient(135deg, #f0f9f0 0%, var(--cream) 100%); padding: 6rem 8%; text-align: center; position: relative; overflow: hidden; }
+  #success::before { content: ''; position: absolute; inset: 0; background: radial-gradient(ellipse 50% 60% at 20% 50%, rgba(122,158,126,0.08) 0%, transparent 60%), radial-gradient(ellipse 50% 60% at 80% 50%, rgba(26,107,114,0.06) 0%, transparent 60%); }
+  .success-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2rem; margin-top: 3rem; position: relative; z-index: 1; }
+  .success-card { background: #fff; border-radius: 3px; padding: 2rem; border-bottom: 3px solid var(--sage); box-shadow: 0 4px 20px rgba(122,158,126,0.12); text-align: left; transition: transform 0.2s, box-shadow 0.2s; }
+  .success-card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(122,158,126,0.18); }
+  .success-card:nth-child(2) { border-bottom-color: var(--teal); }
+  .success-card:nth-child(3) { border-bottom-color: var(--gold); }
+  .success-icon-wrap { width: 48px; height: 48px; border-radius: 50%; background: rgba(122,158,126,0.1); display: flex; align-items: center; justify-content: center; font-size: 1.4rem; margin-bottom: 1.2rem; }
+  .success-card:nth-child(2) .success-icon-wrap { background: rgba(26,107,114,0.08); }
+  .success-card:nth-child(3) .success-icon-wrap { background: rgba(201,168,76,0.1); }
+  .success-card h4 { font-family: 'Cormorant Garamond', serif; font-size: 1.2rem; font-weight: 400; color: var(--teal-dark); margin-bottom: 0.75rem; line-height: 1.3; }
+  .success-card p { font-size: 0.88rem; line-height: 1.75; color: var(--mid-gray); }
+  .success-quote { font-family: 'Cormorant Garamond', serif; font-size: clamp(1.3rem, 2vw, 1.7rem); font-style: italic; font-weight: 300; color: var(--teal-dark); max-width: 700px; margin: 3.5rem auto 0; line-height: 1.6; position: relative; z-index: 1; }
+  .success-quote strong { font-style: normal; font-weight: 400; color: var(--teal); }
+
+  /* ─── FINAL CTA ─── */
+  #final-cta { background: linear-gradient(135deg, var(--teal-dark) 0%, #0d4a50 60%, var(--teal) 100%); text-align: center; padding: 7rem 8%; position: relative; overflow: hidden; }
+  #final-cta::before { content: ''; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); width: 600px; height: 600px; border-radius: 50%; background: radial-gradient(circle, rgba(201,168,76,0.08) 0%, transparent 70%); }
+  #final-cta .section-title { color: var(--cream); position: relative; z-index: 1; }
+  #final-cta .section-label { color: var(--gold-light); justify-content: center; position: relative; z-index: 1; }
+  #final-cta .section-label::before { background: var(--gold-light); }
+  .cta-sub { font-size: 1rem; line-height: 1.8; color: rgba(249,246,241,0.75); max-width: 560px; margin: 1rem auto 2.5rem; position: relative; z-index: 1; }
+  .cta-buttons { display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap; position: relative; z-index: 1; }
+
+  /* ─── MODAL ─── */
+  .modal-overlay { display: none; position: fixed; inset: 0; z-index: 500; background: rgba(18,77,82,0.7); backdrop-filter: blur(6px); align-items: center; justify-content: center; padding: 1.5rem; }
+  .modal-overlay.active { display: flex; }
+  .modal-box { background: #fff; border-radius: 4px; border-top: 4px solid var(--teal); padding: 2.5rem; width: 100%; max-width: 560px; max-height: 90vh; overflow-y: auto; position: relative; animation: fadeUp 0.3s ease both; }
+  .modal-close { position: sticky; top: 0; float: right; margin: -1.5rem -1.5rem 0 0; z-index: 10; width: 2.2rem; height: 2.2rem; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; cursor: pointer; color: var(--mid-gray); background: #fff; border: 1px solid rgba(26,107,114,0.12); border-radius: 50%; line-height: 1; transition: color 0.2s, background 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+  .modal-close:hover { color: var(--charcoal); background: var(--cream); }
+  .form-title { font-family: 'Cormorant Garamond', serif; font-size: 1.5rem; font-weight: 400; color: var(--teal-dark); margin-bottom: 0.4rem; }
+  .form-sub { font-size: 0.82rem; color: var(--mid-gray); margin-bottom: 2rem; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+  .form-group { margin-bottom: 1.2rem; }
+  .form-group label { display: block; font-size: 0.72rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; color: var(--mid-gray); margin-bottom: 0.4rem; }
+  .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.75rem 1rem; border: 1px solid rgba(26,107,114,0.2); border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: 0.9rem; color: var(--charcoal); background: var(--warm-white); transition: border-color 0.2s, box-shadow 0.2s; outline: none; appearance: none; }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--teal); box-shadow: 0 0 0 3px rgba(26,107,114,0.08); background: #fff; }
+  .form-group textarea { resize: vertical; min-height: 90px; }
+  .form-submit { width: 100%; padding: 1rem; background: var(--teal); color: #fff; border: none; border-radius: 2px; font-family: 'DM Sans', sans-serif; font-size: 0.88rem; font-weight: 500; letter-spacing: 0.08em; text-transform: uppercase; cursor: pointer; transition: background 0.2s, transform 0.15s, box-shadow 0.2s; box-shadow: 0 4px 16px rgba(26,107,114,0.25); margin-top: 0.5rem; }
+  .form-submit:hover { background: var(--teal-dark); transform: translateY(-1px); box-shadow: 0 8px 24px rgba(26,107,114,0.3); }
+  .form-note { text-align: center; font-size: 0.75rem; color: var(--mid-gray); margin-top: 1rem; }
+  .form-note a { color: var(--teal); text-decoration: none; }
+
+  /* ─── FOOTER ─── */
+  footer { background: var(--charcoal); color: rgba(255,255,255,0.5); padding: 2.5rem 8%; display: flex; align-items: center; justify-content: space-between; font-size: 0.78rem; flex-wrap: wrap; gap: 1rem; }
+  footer .footer-logo { font-family: 'Cinzel', serif; font-size: 1rem; color: #fff; text-decoration: none; }
+  footer .footer-logo span { color: var(--gold); }
+  .footer-links { display: flex; gap: 1.5rem; }
+  .footer-links a { color: rgba(255,255,255,0.4); text-decoration: none; transition: color 0.2s; }
+  .footer-links a:hover { color: rgba(255,255,255,0.7); }
+  .footer-stripe { display: flex; align-items: center; gap: 0.5rem; color: rgba(255,255,255,0.3); font-size: 0.72rem; letter-spacing: 0.06em; }
+
+  /* ─── ANIMATIONS ─── */
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(24px); } to { opacity: 1; transform: translateY(0); } }
+  .hero-content > * { opacity: 0; animation: fadeUp 0.7s ease forwards; }
+  .hero-eyebrow  { animation-delay: 0.1s; }
+  .hero-headline { animation-delay: 0.25s; }
+  .hero-sub      { animation-delay: 0.4s; }
+  .hero-btns     { animation-delay: 0.55s; }
+  .hero-visual   { animation: fadeUp 0.9s 0.3s ease both; }
+
+  @keyframes btnPulse { 0%,100%{box-shadow:0 4px 18px rgba(18,77,82,0.45);}50%{box-shadow:0 4px 28px rgba(18,77,82,0.75);} }
+
+  /* ─── RESPONSIVE ─── */
+  @media (max-width: 960px) {
+    #hero, #guide { grid-template-columns: 1fr; }
+    #hero { padding-top: 100px; }
+    .hero-content { padding: 3rem 5%; }
+    .hero-visual { padding: 0 5% 4rem; }
+    .problem-grid, .steps-container, .testi-grid, .faq-grid, .failure-grid, .success-grid { grid-template-columns: 1fr; }
+    .steps-container::before { display: none; }
+    nav { padding: 1rem 4%; }
+    .nav-links { display: none; }
+    section { padding: 4rem 5%; }
+    .diff-compare { flex-direction: column; align-items: center; }
+    .diff-col { width: 100%; max-width: 400px; }
+  }
+</style>
+</head>
+<body><!-- NAV -->
+<nav id="navbar">
+  <a href="/" class="nav-logo">Phobia<span>Free</span>.life</a>
+  <ul class="nav-links">
+    <li><a href="#problem">The Problem</a></li>
+    <li><a href="#process">How It Works</a></li>
+    <li><a href="#guide">About</a></li>
+    <li><a href="#faq">FAQ</a></li>
+  </ul>
+  <a href="#" class="nav-cta" onclick="openModal(event)">Complimentary Consultation</a>
+</nav>
+<script>
+  window.addEventListener('scroll', function() {
+    document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 40);
+  });
+</script>
+<!-- HERO -->
+<section id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-bg-lines"></div>
+  <div class="hero-content">
+    <div class="hero-eyebrow">Certified Clinical Hypnotherapist &nbsp;·&nbsp; No Hypnosis Required</div>
+    <h1 class="hero-headline">Hear the Thunder.<br><em>Calm and Settled.</em><br>Finally.</h1>
+    <p class="hero-sub">
+      Tired of every forecast deciding how your day will go? One peaceful Zoom session. No trance. No reliving trauma. No long-term therapy.
+      <strong>A calmer, freer you — on your terms.</strong>
+    </p>
+    <div class="hero-btns" style="opacity:0">
+      <a href="#" class="btn-primary" onclick="openModal(event)">Book Your Complimentary Consultation</a>
+      <a href="#process" class="btn-secondary">See How It Works</a>
+    </div>
+  </div>
+  <div class="hero-visual">
+    <div class="hero-card">
+      <p class="hero-card-text">
+        If you are not completely satisfied after your first session, you don't pay. Simple as that — because the goal isn't a fear you simply manage. It's lasting relief you can feel.
+      </p>
+      <div class="hero-card-author">The PhobiaFree <span style="color:var(--sage)">Guarantee</span></div>
+      <div class="hero-stats">
+        <div><div class="hero-stat-num">1</div><div class="hero-stat-label">Session</div></div>
+        <div><div class="hero-stat-num">100%</div><div class="hero-stat-label">Via Zoom</div></div>
+        <div><div class="hero-stat-num">0</div><div class="hero-stat-label">Exposure Required</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+
+<!-- ASPIRATIONAL IDENTITY -->
+<section id="aspirational">
+  <p class="aspirational-text">
+    You are someone who watches a storm roll in without a second thought — settled indoors, easy in your own skin, even as the thunder rolls.<br>
+    <strong>That person already exists inside you. Together, we simply remove what's been blocking them.</strong>
+  </p>
+</section>
+
+<!-- PROBLEM / STAKES -->
+<section id="problem">
+  <div class="section-label">You Are Not Alone</div>
+  <h2 class="section-title">Don't Let a Fear of Storms<br>Rule Your Forecast</h2>
+  <p class="section-sub">What will it cost you to keep bracing for the sky? Many people quietly organize their lives around the weather — the forecast checked again and again, the plans canceled, the hours spent dreading a storm that may never come — all while the next cloud keeps the upper hand.</p>
+  <div class="villain-callout">
+    <strong>The villain is not you.</strong> It is a misfiring subconscious program — a fear response that was once meant to protect you but now fires indiscriminately, hijacking your body and stealing your choices. It is not a character flaw. It is not permanent. And it is not who you are.
+  </div>
+  <div class="problem-grid">
+        <div class="problem-card">
+      <div class="problem-icon">⛈️</div>
+      <h3>The External Problem</h3>
+      <p>The dread that builds as the sky darkens. The racing heart at the first rumble. Hiding in a closet or basement, checking the radar on repeat, canceling plans at the first sign of clouds. A body on high alert until it clears.</p>
+    </div>
+        <div class="problem-card">
+      <div class="problem-icon">💭</div>
+      <h3>The Internal Problem</h3>
+      <p>The exhaustion of watching the sky for danger. Knowing you're safe indoors and feeling the panic anyway. The quiet belief that everyone else can ride out a storm in a way you can't.</p>
+    </div>
+        <div class="problem-card">
+      <div class="problem-icon">🌦️</div>
+      <h3>The Deeper Problem</h3>
+      <p>You shouldn't have to hand your peace of mind to the weather. The plans canceled, the sleep lost, the seasons spent bracing. A whole stretch of ordinary days, fenced off by one fear.</p>
+    </div>
+      </div>
+</section>
+
+<!-- GUIDE / ABOUT -->
+<section id="guide">
+  <div>
+    <div class="section-label">Your Guide</div>
+    <h2 class="section-title">I Understand.<br><em>Let Me Help.</em></h2>
+    <p class="section-sub" style="margin-bottom:1rem;font-style:italic;color:var(--teal-dark)">
+      "I know what it feels like to let the forecast quietly run your life — to explain, one more time, why you canceled, or why you've been watching the radar all afternoon. You have likely tried to push through it — and it hasn't worked. That is not a failure of willpower. It is a failure of method."
+    </p>
+    <p class="section-sub" style="margin-bottom:1.5rem">
+      With over 12 years of experience, I've helped hundreds regain their freedom from fear. I don't just help you crush your fear. <strong>Together, we replace it with emotions that empower you — the emotions you choose.</strong> Do you want to feel "safe and secure"? "Empowered and in control"? "Calm and free"? The choice is yours.
+    </p>
+    <p class="section-sub" style="margin-bottom:1.5rem;padding:1.2rem 1.5rem;background:rgba(26,107,114,0.06);border-left:3px solid var(--teal);border-radius:2px;">
+      <strong>PhobiaFree.life</strong> offers a single, peaceful Zoom session to help you find relief from serious phobias. One session. Tailored entirely to you. Available anywhere in the world — and backed by a simple guarantee: if you are not completely satisfied after your first session, you don't pay.
+    </p>
+    <p class="section-sub" style="margin-bottom:1.5rem;padding:1.2rem 1.5rem;background:rgba(122,158,126,0.08);border-left:3px solid var(--sage);border-radius:2px;">
+      <strong>Where I fit in your care.</strong> In our complimentary consultation I'll ask one important question: has a physician or psychiatrist diagnosed you with this phobia? If so, I partner with your doctor — a prescription or referral lets us work together properly, with your care coordinated rather than scattered. If you haven't been diagnosed, we can typically begin right away. Either way, you're in responsible hands.
+    </p>
+        <div class="guide-credentials">
+      <div class="credential"><span class="credential-icon">🎓</span> Certified Clinical Hypnotherapist — Florida Institute of Hypnotherapy</div>
+      <div class="credential"><span class="credential-icon">🎓</span> Certified Clinical Hypnotherapist — HMI College of Hypnotherapy</div>
+      <div class="credential"><span class="credential-icon">⏱️</span> 12 years of transformative experience — hundreds helped</div>
+      <div class="credential"><span class="credential-icon">💻</span> Sessions conducted privately via secure Zoom — anywhere in the world</div>
+    </div>
+  </div>
+  <div class="guide-photo-wrap">
+    <img src="Officenaples.jpg" alt="Steven Shaw, Certified Clinical Hypnotherapist"/>
+  </div>
+</section>
+
+<!-- PROCESS / PLAN -->
+<section id="process">
+  <div style="text-align:center">
+    <div class="section-label" style="justify-content:center">The Plan</div>
+    <h2 class="section-title">3 Simple Steps<br><em>to Freedom</em></h2>
+    <p class="section-sub" style="margin:0 auto"><strong>One session.</strong> No group sessions. No homework. No years of therapy. Start your journey toward a phobia-free life today.</p>
+  </div>
+  <div class="steps-container">
+    <div class="step">
+      <div class="step-num-wrap"><div class="step-num">01</div></div>
+      <h3>Book Your Complimentary Consultation</h3>
+      <p>A quick 10-minute chat over Zoom to understand your needs. You share your fear, your history, and — most importantly — how you <em>want</em> to feel instead.</p>
+      <span class="step-badge">Complimentary · No obligation</span>
+    </div>
+    <div class="step">
+      <div class="step-num-wrap" style="border-color:var(--gold)"><div class="step-num" style="color:var(--gold)">02</div></div>
+      <h3>Receive Your Tailored Session</h3>
+      <p>One peaceful Zoom session, customized and directed toward relief. Only words — quietly replacing the fear with the emotions you chose.</p>
+      <span class="step-badge" style="color:var(--gold);background:rgba(201,168,76,0.08)">One session · Deeply relaxing</span>
+    </div>
+    <div class="step">
+      <div class="step-num-wrap" style="border-color:var(--sage)"><div class="step-num" style="color:var(--sage)">03</div></div>
+      <h3>Experience Relief</h3>
+      <p>Many clients feel a shift the same day — then go live your life. Hear the thunder and stay settled. Let the storm roll through. Rest easy instead of bracing. With the emotions you chose waiting for you.</p>
+      <span class="step-badge" style="color:var(--sage);background:rgba(122,158,126,0.1)">Phobia free · On your terms</span>
+    </div>
+  </div>
+</section>
+
+<!-- DIFFERENTIATOR -->
+<section id="differentiator">
+  <div class="section-label">What Makes This Different</div>
+  <h2 class="section-title" style="position:relative;z-index:1">Most Approaches Reduce Fear.<br><em>Let&rsquo;s Replace Yours.</em></h2>
+  <p class="diff-text">
+    "Traditional therapy asks you to tolerate the fear. I ask you something different: <strong>What do you want to feel instead?</strong> Do you want to feel 'safe and secure'? 'Empowered and in control'? The choice is yours — and that answer becomes the destination. Your subconscious does the rest."
+  </p>
+  <div class="diff-compare">
+    <div class="diff-col">
+      <div class="diff-col-label">Traditional Approaches</div>
+      <div class="diff-item"><span class="diff-x">✕</span> Re-exposure to the feared situation</div>
+      <div class="diff-item"><span class="diff-x">✕</span> Months or years of ongoing sessions</div>
+      <div class="diff-item"><span class="diff-x">✕</span> Goal: reduce anxiety to "manageable"</div>
+      <div class="diff-item"><span class="diff-x">✕</span> In-person visits required</div>
+      <div class="diff-item"><span class="diff-x">✕</span> Generic, one-size-fits-all protocols</div>
+    </div>
+    <div class="diff-col highlight">
+      <div class="diff-col-label">PhobiaFree.life Method</div>
+      <div class="diff-item"><span class="diff-check">✓</span> No re-exposure, no reliving, no trance</div>
+      <div class="diff-item"><span class="diff-check">✓</span> One session — that's the plan</div>
+      <div class="diff-item"><span class="diff-check">✓</span> <span style="white-space:nowrap">Goal: feel exactly how <em>you</em> choose</span></div>
+      <div class="diff-item"><span class="diff-check">✓</span> Private, secure Zoom from anywhere</div>
+      <div class="diff-item"><span class="diff-check">✓</span> Tailor-made for your specific fear</div>
+    </div>
+  </div>
+</section>
+
+<!-- FAQ -->
+<section id="faq">
+  <div class="section-label">Questions</div>
+  <h2 class="section-title">Frequently Asked</h2>
+  <div class="faq-grid">
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-q">Will I be hypnotized? <span class="faq-toggle">+</span></div>
+      <div class="faq-a">No — not in the way you're imagining. Although I am a certified clinical hypnotherapist, this method involves no trance, no swinging watch, and no loss of control. You remain relaxed, aware, and fully in charge the entire time. It is a peaceful, guided conversation — nothing more dramatic than that.</div>
+    </div>
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-q">Will I have to experience my fear during the session? <span class="faq-toggle">+</span></div>
+      <div class="faq-a">Absolutely not. This is one of the most important distinctions of this method. I never expose you to your fear — not in imagery, not in discussion, not in any form. The session is deeply relaxing from start to finish.</div>
+    </div>
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-q">How many sessions will I need? <span class="faq-toggle">+</span></div>
+      <div class="faq-a">One. The complimentary consultation allows me to design a complete, tailored therapy so we get it right the first time. Occasional follow-up sessions are available if desired, but the method is built around a single session.</div>
+    </div>
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-q">Can this really work over Zoom? <span class="faq-toggle">+</span></div>
+      <div class="faq-a">Yes — and it works beautifully. The entire method is conducted through spoken word. The comfort of your own home actually enhances the relaxation response, making Zoom sessions highly effective.</div>
+    </div>
+        <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-q">I've panicked at storms since I was a child. Can it really release in one session? <span class="faq-toggle">+</span></div>
+      <div class="faq-a">The age of a fear has surprisingly little to do with how it releases. A storm phobia is a subconscious program, and programs don't get harder to change just because they've been running since childhood. The complimentary consultation lets me design the session around your specific history — how long you've carried it, what triggers it, and what you want to feel instead.</div>
+    </div>
+        <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-q">What if it's the thunder specifically, or the not-knowing-when? <span class="faq-toggle">+</span></div>
+      <div class="faq-a">That's exactly why the session is tailored. Fear of storms is rarely one thing — for some it's the thunder and lightning, for others it's the wind, the warnings, or the not knowing when it will hit. In your complimentary consultation we identify precisely what your version is, and the session is built for that — not a generic 'storms' script.</div>
+    </div>
+        <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-q">Do you work with people who have a diagnosis? <span class="faq-toggle">+</span></div>
+      <div class="faq-a">Yes — and responsibly. If a physician or psychiatrist has formally diagnosed you with this phobia or a related anxiety disorder, I work alongside your doctor and will ask for a prescription or referral before we begin. This keeps your care coordinated. If you haven't been formally diagnosed, we can usually begin right away. We'll cover this in your complimentary consultation.</div>
+    </div>
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-q">What if I'm not satisfied after my session? <span class="faq-toggle">+</span></div>
+      <div class="faq-a">Then you don't pay. Your result is what matters — if you are not completely satisfied after your first session, there is no charge. It's that simple.</div>
+    </div>
+    <div class="faq-item" onclick="toggleFaq(this)">
+      <div class="faq-q">What do you mean by "the emotions you choose"? <span class="faq-toggle">+</span></div>
+      <div class="faq-a">Unlike most approaches that only aim to reduce fear, this method asks what you want to feel instead. Do you want to feel "safe and secure"? "Calm and free"? "Empowered and in control"? Your answer becomes the target — the exact emotional state the session is built to deliver.</div>
+    </div>
+  </div>
+</section>
+
+<!-- FAILURE / STAKES -->
+<section id="failure">
+  <div class="section-label">The Cost of Waiting</div>
+  <h2 class="section-title">What Happens<br>If You Wait?</h2>
+  <div class="failure-grid">
+        <div class="failure-card">
+      <h4>Another day lost to the forecast</h4>
+      <p>The plans canceled over a chance of rain. The night spent in the closet. The afternoon disappeared into the radar — again.</p>
+    </div>
+        <div class="failure-card">
+      <h4>The bracing keeps growing</h4>
+      <p>Each storm dreaded makes the next forecast harder to face. Your peace quietly shrinks to the clear-sky days, and the version of you that rides it out easily gets a little further away.</p>
+    </div>
+        <div class="failure-card">
+      <h4>More of the same results</h4>
+      <p>If checking the radar and hiding it out haven't fixed it by now, they won't fix it next time either. The fear isn't in the storm — it's in the programming.</p>
+    </div>
+      </div>
+  <div class="failure-divider">There is another path</div>
+  <a href="#" class="btn-gold" onclick="openModal(event)">Book Your Complimentary Consultation</a>
+</section>
+
+<!-- SUCCESS -->
+<section id="success">
+  <div class="section-label" style="justify-content:center">The Other Side of Fear</div>
+  <h2 class="section-title" style="position:relative;z-index:1">Your Fear Doesn't<br><em>Define You.</em></h2>
+  <div class="success-grid">
+        <div class="success-card">
+      <div class="success-icon-wrap">⛈️</div>
+      <h4>The calm you finally feel</h4>
+      <p>Imagine hearing thunder and staying settled. Watching the storm from the window with your shoulders down. Feeling the old dread start to rise and noticing — nothing. Just weather, passing through.</p>
+    </div>
+        <div class="success-card">
+      <div class="success-icon-wrap">💫</div>
+      <h4>The feeling you chose</h4>
+      <p>Not just the absence of panic — the presence of what you chose to feel instead. "Calm and settled"? "Safe and at ease"? The choice was yours, and now it's simply how storms feel.</p>
+    </div>
+        <div class="success-card">
+      <div class="success-icon-wrap">🌦️</div>
+      <h4>Your days open back up</h4>
+      <p>The plans that hold. The sleep that comes. The seasons you used to dread. A version of you that lets the weather be the weather — because the fear simply isn't there anymore.</p>
+    </div>
+      </div>
+  <p class="success-quote">
+    The most common thing clients say after their session is not <em>"the fear is gone"</em> —
+    it is <strong>"I feel like myself again."</strong>
+  </p>
+</section>
+
+<!-- FINAL CTA -->
+<section id="final-cta">
+  <div class="section-label">Your Next Step</div>
+  <h2 class="section-title">Your Calm Through the Storm<br><em>Is One Session Away.</em></h2>
+  <p class="cta-sub">You deserve to feel free and confident. The consultation is complimentary, the process is peaceful, and your satisfaction is guaranteed. Let's work together to turn that vision into reality.</p>
+  <div class="cta-buttons">
+    <a href="#" class="btn-gold" onclick="openModal(event)">Book Your Complimentary Consultation</a>
+    <a href="#process" class="btn-outline-light">See How It Works</a>
+  </div>
+</section>
+
+<style>
+#sms_consent {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    min-width: 20px;
+    border: 2px solid rgba(26,107,114,0.4);
+    border-radius: 4px;
+    background: #fff;
+    cursor: pointer;
+    margin-top: 3px;
+    background-image: none;
+    transition: all 0.15s;
+}
+#sms_consent:checked {
+    background: var(--teal);
+    border-color: var(--teal);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath d='M2 6l3 3 5-5' stroke='%23fff' stroke-width='2' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: 12px;
+}
+</style>
+<!-- CONSULTATION MODAL -->
+<div class="modal-overlay" id="consultModal" onclick="handleOverlayClick(event)">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModalMaybeRedirect()">&times;</button>
+    <div class="form-title">Schedule Your Complimentary Consultation</div>
+    <div class="form-sub">Complimentary · 30 minutes · Zoom · No obligation</div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>First Name</label>
+        <input type="text" id="cf_first_name" placeholder="Jane"/>
+      </div>
+      <div class="form-group">
+        <label>Last Name</label>
+        <input type="text" id="cf_last_name" placeholder="Smith"/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Email Address</label>
+      <input type="email" id="cf_email" placeholder="jane@example.com"/>
+    </div>
+    <div class="form-group">
+      <label>Phone (optional)</label>
+      <input type="tel" id="cf_phone" placeholder="+1 (555) 000-0000"/>
+    </div>
+    <div class="form-group">
+      <label>What is your phobia or fear?</label>
+      <select id="cf_phobia">
+        <option value="" data-slug="">Select one...</option>
+        <option value="Fear of Flying" data-slug="aerophobia">Fear of Flying</option><option value="Fear of Heights" data-slug="acrophobia">Fear of Heights</option><option value="Fear of Water" data-slug="aquaphobia">Fear of Water</option><option value="Fear of Driving" data-slug="amaxophobia">Fear of Driving</option><option value="Fear of Enclosed Spaces" data-slug="claustrophobia">Fear of Enclosed Spaces</option><option value="Fear of Public Speaking" data-slug="glossophobia">Fear of Public Speaking</option><option value="Fear of Open Spaces" data-slug="agoraphobia">Fear of Open Spaces</option><option value="Fear of Spiders" data-slug="arachnophobia">Fear of Spiders</option><option value="Fear of Snakes" data-slug="ophidiophobia">Fear of Snakes</option><option value="Fear of Dogs" data-slug="cynophobia">Fear of Dogs</option><option value="Fear of Storms" data-slug="astraphobia" selected>Fear of Storms</option><option value="Fear of the Dark" data-slug="nyctophobia">Fear of the Dark</option><option value="Fear of Clowns" data-slug="coulrophobia">Fear of Clowns</option><option value="Fear of Hospitals" data-slug="nosocomephobia">Fear of Hospitals</option><option value="Fear of Doctors" data-slug="iatrophobia">Fear of Doctors</option><option value="Fear of Ferns" data-slug="pteridophobia">Fear of Ferns</option><option value="Fear of Plants" data-slug="botanophobia">Fear of Plants</option><option value="Fear of Needles" data-slug="trypanophobia">Fear of Needles</option><option value="Fear of Blood" data-slug="hemophobia">Fear of Blood</option><option value="Fear of Being Sick" data-slug="emetophobia">Fear of Being Sick</option><option value="Fear of Germs" data-slug="mysophobia">Fear of Germs</option><option value="Fear of Phone Calls" data-slug="telephobia">Fear of Phone Calls</option><option value="Sales Call Anxiety" data-slug="sales-call-anxiety">Sales Call Anxiety</option><option value="Fear of Rejection" data-slug="rejection-sensitivity">Fear of Rejection</option><option value="Rejection Sensitive Dysphoria" data-slug="rejection-sensitive-dysphoria">Rejection Sensitive Dysphoria</option><option value="Fear of the Dentist" data-slug="dentophobia">Fear of the Dentist</option><option value="Fear of Crowds" data-slug="enochlophobia">Fear of Crowds</option><option value="Fear of Aging" data-slug="gerascophobia">Fear of Aging</option><option value="Fear of Mirrors" data-slug="eisoptrophobia">Fear of Mirrors</option><option value="Fear of Being Stared At" data-slug="scopophobia">Fear of Being Stared At</option><option value="Fear of Making Decisions" data-slug="decidophobia">Fear of Making Decisions</option><option value="Fear of Eating in Public" data-slug="deipnophobia">Fear of Eating in Public</option><option value="Other (describe below)" data-slug="">Other (describe below)</option>      </select>
+    </div>
+    <div class="form-group">
+      <label>Select an Available Time</label>
+      <div id="slotPicker" style="max-height:260px;overflow-y:auto;border:1px solid rgba(26,107,114,0.2);border-radius:2px;background:var(--warm-white);">
+        <div style="padding:1rem;font-size:0.85rem;color:var(--mid-gray);text-align:center;">Loading available times...</div>
+      </div>
+      <input type="hidden" id="cf_datetime"/>
+      <div id="selectedSlotLabel" style="font-size:0.8rem;color:var(--teal);margin-top:0.4rem;min-height:1.2rem;"></div>
+    </div>
+    <div class="form-group">
+      <label>Anything you'd like me to know? (optional)</label>
+      <textarea id="cf_notes" placeholder="Brief description of your situation, how long you've had this fear, etc."></textarea>
+    </div>
+
+    <div style="margin-bottom:1.2rem;padding:1.2rem 1.5rem;background:rgba(26,107,114,0.04);border-left:3px solid var(--gold);border-radius:2px;">
+      <div style="font-size:0.72rem;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);margin-bottom:0.75rem;">Helpful Questions</div>
+      <p style="font-size:0.82rem;color:var(--mid-gray);margin-bottom:1.2rem;line-height:1.6;">These are questions I will ask you during our consultation anyway — feel free to answer any or all of them now. The more you share, the more I can tailor our session to your specific situation.</p>
+
+      <div class="form-group">
+        <label>How long has this fear been limiting you?</label>
+        <input type="text" id="cf_q1" placeholder="e.g. Since childhood, about 10 years, etc."/>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
+        <div class="form-group">
+          <label>Intensity of fear (1–10)</label>
+          <select id="cf_q2">
+            <option value="">Select...</option>
+            <option>1 — Very mild</option>
+            <option>2</option><option>3</option><option>4</option>
+            <option>5 — Moderate</option>
+            <option>6</option><option>7</option><option>8</option><option>9</option>
+            <option>10 — Completely debilitating</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Life interference (1–10)</label>
+          <select id="cf_q3">
+            <option value="">Select...</option>
+            <option>1 — Barely noticeable</option>
+            <option>2</option><option>3</option><option>4</option>
+            <option>5 — Significant impact</option>
+            <option>6</option><option>7</option><option>8</option><option>9</option>
+            <option>10 — Controls my life</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>What do you believe first triggered this response in you?</label>
+        <textarea id="cf_q4" style="min-height:70px;" placeholder="e.g. A specific event, gradual development, not sure..."></textarea>
+      </div>
+      <div class="form-group">
+        <label>Describe the ways this fear has been holding you back and how it makes you feel.</label>
+        <textarea id="cf_q5" style="min-height:70px;" placeholder="e.g. I avoid flying, I can't visit certain places, I feel embarrassed..."></textarea>
+      </div>
+      <div class="form-group">
+        <label>What has the price of this fear been — in relationships, opportunities, income, and experiences you haven't allowed yourself to have yet?</label>
+        <textarea id="cf_q8" style="min-height:70px;" placeholder="e.g. Missed promotions requiring travel, strained relationships, avoided experiences..."></textarea>
+      </div>
+      <div class="form-group">
+        <label>As you imagine your life completely free of this fear, what becomes possible for you?</label>
+        <textarea id="cf_q6" style="min-height:70px;" placeholder="e.g. I would travel freely, I would feel confident, I could finally..."></textarea>
+      </div>
+      <div class="form-group">
+        <label>What other approaches have you tried, and what was missing from those results?</label>
+        <textarea id="cf_q7" style="min-height:70px;" placeholder="e.g. Tried CBT with limited results, looked into medication, etc."></textarea>
+      </div>
+    </div>
+
+<div class="form-group" style="display:flex;align-items:flex-start;gap:0.5rem;margin-bottom:1rem;width:100%;overflow:hidden;">
+<input type="checkbox" id="sms_consent" name="sms_consent"/>
+  <label for="sms_consent" style="font-size:0.72rem;color:var(--mid-gray);line-height:1.5;cursor:pointer;flex:1;min-width:0;overflow-wrap:break-word;word-break:break-word;">
+    I agree to receive text messages from PhobiaFree.life regarding my consultation 
+    appointment, session reminders, and follow-up communications. 
+    Message and data rates may apply. Reply STOP to unsubscribe.
+  </label>
+</div>
+<button class="form-submit" id="consultSubmitBtn" onclick="submitConsultForm(event)">Request My Complimentary Consultation</button>    <div id="consultMsg" style="display:none;margin-top:1rem;padding:1rem 1.2rem;border-radius:2px;font-size:0.88rem;line-height:1.6;"></div>
+    <p class="form-note">By submitting, you agree to our <a href="/privacy.html" target="_blank">Privacy Policy</a>. Your information is never shared.</p>
+  </div>
+</div>
+
+<script>
+  // The current page's own slug (e.g. 'aerophobia'). Empty/'my-fear' on generic
+  // pages. Used to avoid a pointless reload when the chosen fear IS this page.
+  var PF_CURRENT_SLUG = 'astraphobia';
+
+  // Called by the X button, overlay click, and Escape. On ANY page, if a real
+  // fear is chosen that differs from the current page, go to that fear's page.
+  // "Select one...", "Other", or the current page's own fear -> just close.
+  function closeModalMaybeRedirect() {
+    if (window._postSubmitTimer) {
+      clearTimeout(window._postSubmitTimer);
+      window._postSubmitTimer = null;
+      window.location.href = '/' + window._postSubmitRedirectSlug;
+      return;
+    }
+    var sel = document.getElementById('cf_phobia');
+    if (sel && sel.selectedIndex >= 0) {
+      var slug = sel.options[sel.selectedIndex].getAttribute('data-slug') || '';
+      // Real fear has a slug; "Select one..." and "Other" have empty slug.
+      if (slug && slug !== PF_CURRENT_SLUG) {
+        window.location.href = '/' + slug;
+        return;
+      }
+    }
+    closeModal();
+  }
+
+  function handleOverlayClick(e) {
+    if (e.target === document.getElementById('consultModal')) closeModalMaybeRedirect();
+  }
+  document.addEventListener('keydown', function(e) { if (e.key === 'Escape') closeModalMaybeRedirect(); });
+
+  function loadSlots() {
+    var picker = document.getElementById('slotPicker');
+    picker.innerHTML = '<div style="padding:1rem;font-size:0.85rem;color:var(--mid-gray);text-align:center;">Loading available times...</div>';
+    document.getElementById('cf_datetime').value = '';
+    document.getElementById('selectedSlotLabel').textContent = '';
+
+    fetch('/api/consult/slots')
+      .then(function(r) { return r.json(); })
+      .then(function(res) {
+        if (!res.success || !res.days.length) {
+          picker.innerHTML = '<div style="padding:1rem;font-size:0.85rem;color:var(--mid-gray);text-align:center;">No available slots at this time. Please contact us directly.</div>';
+          return;
+        }
+        var html = '';
+        res.days.forEach(function(day) {
+          html += '<div style="padding:0.6rem 1rem 0.3rem;font-size:0.72rem;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--mid-gray);background:#fff;border-bottom:1px solid rgba(26,107,114,0.08);">' + day.label + '</div>';
+          html += '<div style="display:flex;flex-wrap:wrap;gap:6px;padding:0.6rem 0.75rem;">';
+          day.slots.forEach(function(slot) {
+            if (slot.available) {
+              html += '<button type="button" class="slot-btn" data-dt="' + slot.datetime + '" onclick="selectSlot(this,\'' + slot.datetime + '\',\'' + day.label + ' at ' + slot.label + '\')" style="padding:5px 12px;font-size:0.78rem;border:1px solid rgba(26,107,114,0.3);border-radius:2px;background:#fff;color:var(--teal);cursor:pointer;font-family:inherit;transition:all 0.15s;" onmouseover="this.style.background=\'var(--teal)\';this.style.color=\'#fff\';" onmouseout="if(!this.classList.contains(\'slot-selected\')){this.style.background=\'#fff\';this.style.color=\'var(--teal)\';}"> ' + slot.label + ' </button>';
+            } else {
+              html += '<button type="button" disabled style="padding:5px 12px;font-size:0.78rem;border:1px solid rgba(0,0,0,0.08);border-radius:2px;background:#f5f5f5;color:#bbb;cursor:not-allowed;font-family:inherit;text-decoration:line-through;">' + slot.label + '</button>';
+            }
+          });
+          html += '</div>';
+        });
+        picker.innerHTML = html;
+      })
+      .catch(function() {
+        picker.innerHTML = '<div style="padding:1rem;font-size:0.85rem;color:#8b2020;text-align:center;">Could not load times. Please refresh and try again.</div>';
+      });
+  }
+
+  function selectSlot(btn, datetime, label) {
+    document.getElementById('cf_datetime').value = datetime;
+    var picker = document.getElementById('slotPicker');
+    picker.style.maxHeight = 'none';
+    picker.style.overflow = 'visible';
+    picker.style.border = 'none';
+    picker.style.background = 'transparent';
+    picker.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;padding:0.75rem 1rem;background:rgba(26,107,114,0.06);border:1px solid rgba(26,107,114,0.2);border-radius:2px;"><span style="color:var(--teal);font-size:0.88rem;font-weight:500;">&#10003; &nbsp;' + label + '</span><span onclick="reopenSlotPicker()" style="font-size:0.75rem;color:var(--mid-gray);cursor:pointer;text-decoration:underline;">Change</span></div>';
+    document.getElementById('selectedSlotLabel').textContent = '';
+  }
+
+  function reopenSlotPicker() {
+    var picker = document.getElementById('slotPicker');
+    picker.style.maxHeight = '260px';
+    picker.style.overflow = 'auto';
+    picker.style.border = '1px solid rgba(26,107,114,0.2)';
+    picker.style.background = 'var(--warm-white)';
+    document.getElementById('cf_datetime').value = '';
+    loadSlots();
+  }
+
+function submitConsultForm(e) {
+    e.preventDefault();
+    var btn = document.getElementById('consultSubmitBtn');
+    var msg = document.getElementById('consultMsg');
+
+    var first_name     = document.getElementById('cf_first_name').value.trim();
+    var last_name      = document.getElementById('cf_last_name').value.trim();
+    var email          = document.getElementById('cf_email').value.trim();
+    var appointment_dt = document.getElementById('cf_datetime').value;
+
+    if (!first_name || !last_name || !email) {
+      showMsg(msg, 'Please fill in your first name, last name, and email address.', 'error');
+      return;
+    }
+    if (!appointment_dt) {
+      showMsg(msg, 'Please select an available time slot.', 'error');
+      return;
+    }
+if (!document.getElementById('sms_consent').checked) {
+      showMsg(msg, 'Please agree to receive text messages to continue.', 'error');
+      return;
+    }
+    var data = new FormData();
+    data.append('action',         'book');
+    data.append('first_name',     first_name);
+    data.append('last_name',      last_name);
+    data.append('email',          email);
+    data.append('phone',          document.getElementById('cf_phone').value.trim());
+    data.append('phobia',         document.getElementById('cf_phobia').value);
+    data.append('appointment_dt', appointment_dt);
+    data.append('notes',          document.getElementById('cf_notes').value.trim());
+    data.append('q_duration',     document.getElementById('cf_q1').value.trim());
+    data.append('q_intensity',    document.getElementById('cf_q2').value);
+    data.append('q_interference', document.getElementById('cf_q3').value);
+    data.append('q_cause',        document.getElementById('cf_q4').value.trim());
+    data.append('q_impact',       document.getElementById('cf_q5').value.trim());
+    data.append('q_cost',         document.getElementById('cf_q8').value.trim());
+    data.append('q_outcome',      document.getElementById('cf_q6').value.trim());
+    data.append('q_previous',     document.getElementById('cf_q7').value.trim());
+
+    btn.disabled = true;
+    btn.textContent = 'Booking...';
+    msg.style.display = 'none';
+
+    fetch('/api/consult/book', { method: 'POST', body: data })
+      .then(function(r) { return r.json(); })
+      .then(function(res) {
+        if (res.success) {
+          // Capture the chosen fear's slug BEFORE the form clears, so we can
+          // redirect to that fear's page after showing the confirmation.
+          var selBox = document.getElementById('cf_phobia');
+          var chosenSlug = (selBox && selBox.selectedIndex >= 0)
+            ? (selBox.options[selBox.selectedIndex].getAttribute('data-slug') || '')
+            : '';
+          logEvent('Booked');
+          gtag('event', 'conversion', {
+              send_to: 'AW-18237377845/HlAECNOLwb4cELWaofhD',
+              value: 299.0,
+              currency: 'USD'
+          });
+          showMsg(msg, res.message, 'success');
+          btn.style.display = 'none';
+          document.querySelector('.form-note').style.display = 'none';
+          ['cf_first_name','cf_last_name','cf_email','cf_phone','cf_notes','cf_q1','cf_q4','cf_q5','cf_q6','cf_q7','cf_q8'].forEach(function(id) {
+            document.getElementById(id).value = '';
+          });
+          document.getElementById('cf_phobia').selectedIndex = 0;
+          document.getElementById('cf_q2').selectedIndex = 0;
+          document.getElementById('cf_q3').selectedIndex = 0;
+          document.getElementById('cf_datetime').value = '';
+          document.getElementById('selectedSlotLabel').textContent = '';
+          var picker = document.getElementById('slotPicker');
+          picker.style.maxHeight = 'none';
+          picker.style.overflow = 'visible';
+          picker.style.border = 'none';
+          picker.style.background = 'transparent';
+          picker.innerHTML = '<div style="padding:0.75rem 1rem;background:rgba(26,107,114,0.06);border:1px solid rgba(26,107,114,0.2);border-radius:2px;color:var(--teal);font-size:0.88rem;">&#10003; &nbsp;Appointment booked</div>';
+          // After the confirmation is visible, send them to their fear's page
+          // (only if it differs from the page they're already on).
+          if (chosenSlug && chosenSlug !== PF_CURRENT_SLUG) {
+            window._postSubmitRedirectSlug = chosenSlug;
+            window._postSubmitTimer = setTimeout(function() { window.location.href = '/' + chosenSlug; }, 20000);
+          }
+        } else {
+          showMsg(msg, res.message, 'error');
+          btn.disabled = false;
+          btn.textContent = 'Request My Complimentary Consultation';
+          if (res.message.indexOf('slot was just taken') !== -1) loadSlots();
+        }
+      })
+      .catch(function() {
+        showMsg(msg, 'Something went wrong. Please try again or contact us directly.', 'error');
+        btn.disabled = false;
+        btn.textContent = 'Request My Complimentary Consultation';
+      });
+  }
+
+  function showMsg(el, text, type) {
+    el.textContent = text;
+    el.style.display = 'block';
+    el.style.background = type === 'success' ? 'rgba(26,107,114,0.08)' : 'rgba(200,50,50,0.08)';
+    el.style.border     = type === 'success' ? '1px solid rgba(26,107,114,0.25)' : '1px solid rgba(200,50,50,0.25)';
+    el.style.color      = type === 'success' ? '#124d52' : '#8b2020';
+  }
+
+  function toggleFaq(el) { el.classList.toggle('open'); }
+
+  var _scrollObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(e) {
+      if (e.isIntersecting) {
+        e.target.style.opacity = '1';
+        e.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, { threshold: 0.1 });
+
+  document.querySelectorAll('.problem-card, .step, .testi-card, .credential, .faq-item, .success-card, .failure-card').forEach(function(el) {
+    _scrollObserver.observe(el);
+  });
+function logEvent(label) {
+    var vid = sessionStorage.getItem('pfvid') || '';
+    console.log('VID found:', vid);
+    var fd = new FormData();
+    fd.append('event', label);
+    fd.append('vid', vid);
+    fetch('/track?event=1', { method: 'POST', body: fd })
+        .then(function(r){ return r.json(); })
+        .then(function(res){ console.log('event response:', res); })
+        .catch(function(err){ console.log('event error:', err); });
+}
+</script><!-- LIVE CHAT BUTTON -->
+<div id="liveBtn" style="display:none;position:fixed;bottom:1.75rem;right:1.75rem;z-index:900;">
+  <button onclick="startTextChat()" style="display:flex;align-items:center;gap:0.55rem;background:#124d52;color:#fff;border:none;border-radius:30px;padding:0.65rem 1.3rem;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:0.8rem;font-weight:500;letter-spacing:0.03em;box-shadow:0 4px 18px rgba(18,77,82,0.45);animation:btnPulse 3s ease-in-out infinite;">
+    <div style="width:8px;height:8px;background:#4caf50;border-radius:50%;flex-shrink:0;"></div>
+    Live Chat
+  </button>
+</div>
+
+<!-- CHAT CHOICE POPUP -->
+<div id="chatChoicePopup" style="display:none;position:fixed;bottom:5rem;right:1.75rem;z-index:901;background:#fff;border-radius:10px;box-shadow:0 8px 40px rgba(0,0,0,0.2);overflow:hidden;width:220px;font-family:'DM Sans',sans-serif;">
+  <div style="background:#124d52;padding:0.65rem 1rem;display:flex;align-items:center;justify-content:space-between;">
+    <span style="font-size:0.78rem;color:#fff;font-weight:500;">How would you like to connect?</span>
+    <button onclick="closeChatChoice()" style="background:none;border:none;color:rgba(255,255,255,0.7);cursor:pointer;font-size:1.1rem;line-height:1;padding:0 4px;">&times;</button>
+  </div>
+  <div style="padding:0.75rem;">
+    <button onclick="closeChatChoice();startTextChat();" style="width:100%;padding:0.75rem;background:#f9f6f1;color:#124d52;border:1px solid rgba(26,107,114,0.2);border-radius:6px;cursor:pointer;font-family:'DM Sans',sans-serif;font-size:0.82rem;display:flex;align-items:center;gap:0.6rem;">
+      <span style="font-size:1.1rem;">&#128172;</span>
+      <div style="text-align:left;"><div style="font-weight:500;">Text Chat</div><div style="font-size:0.68rem;color:#6b6b6b;">No camera required</div></div>
+    </button>
+  </div>
+</div>
+
+<!-- TEXT CHAT WINDOW -->
+<div id="textChatWin" style="position:fixed;bottom:1.75rem;right:1.75rem;z-index:900;width:280px;height:380px;background:#fff;border-radius:10px;box-shadow:0 8px 40px rgba(0,0,0,0.2);flex-direction:column;overflow:hidden;font-family:'DM Sans',sans-serif;display:none;">
+  <div style="background:#124d52;padding:0.5rem 0.75rem;display:flex;align-items:center;justify-content:space-between;flex-shrink:0;cursor:move;" id="textChatBar">
+    <div style="display:flex;align-items:center;gap:0.5rem;">
+      <div style="width:7px;height:7px;background:#4caf50;border-radius:50%;"></div>
+      <span style="font-size:0.75rem;color:#fff;font-weight:500;">Chat with Steven Shaw CCHP</span>
+    </div>
+    <button onclick="closeTextChat()" style="background:rgba(255,255,255,0.15);border:none;color:#fff;cursor:pointer;font-size:1rem;line-height:1;padding:4px 8px;border-radius:4px;">&times;</button>
+  </div>
+  <div id="textChatMessages" style="flex:1;overflow-y:auto;padding:0.75rem;display:flex;flex-direction:column;gap:0.5rem;background:#f9f6f1;"></div>
+  <div style="padding:0.5rem;background:#fff;border-top:1px solid rgba(26,107,114,0.1);display:flex;gap:0.4rem;flex-shrink:0;">
+    <input id="textChatInput" type="text" placeholder="Type a message..." style="flex:1;padding:0.5rem 0.75rem;border:1px solid rgba(26,107,114,0.2);border-radius:20px;font-family:'DM Sans',sans-serif;font-size:0.82rem;outline:none;"/>
+    <button onclick="sendTextMessage()" style="background:#124d52;color:#fff;border:none;border-radius:50%;width:34px;height:34px;cursor:pointer;font-size:1rem;flex-shrink:0;">&#10148;</button>
+  </div>
+</div>
+
+<script>
+var shownMsgIds = {};
+var isOnline = false;
+var textChatVid = null;
+var textChatDragInit = false;
+
+// ─── CHAT CHOICE ───
+function openChatChoice() {
+  document.getElementById('chatChoicePopup').style.display = 'block';
+}
+function closeChatChoice() {
+  document.getElementById('chatChoicePopup').style.display = 'none';
+}
+document.addEventListener('click', function(e) {
+  var popup = document.getElementById('chatChoicePopup');
+  var btn   = document.getElementById('liveBtn');
+  if (popup && popup.style.display !== 'none') {
+    if (!popup.contains(e.target) && !btn.contains(e.target)) closeChatChoice();
+  }
+});
+
+// ─── TEXT CHAT ───
+function startTextChat() {
+  textChatVid = sessionStorage.getItem('pfvid');
+  if (!textChatVid) {
+    textChatVid = 'v_' + Math.random().toString(36).substr(2,9) + '_' + Date.now().toString(36);
+    sessionStorage.setItem('pfvid', textChatVid);
+  }
+  document.getElementById('liveBtn').style.display = 'none';
+  var win = document.getElementById('textChatWin');
+  if (win.style.display === 'flex') return;
+  win.style.display = 'flex';
+  makeTextChatDraggable();
+  var msg = isOnline
+    ? "Hi, this is Steven. What brings you in today?"
+    : "Hi! I'm not available right this second but I'd love to connect. Feel free to leave your name and the best way to reach you — phone/SMS or email — and I'll get back to you very soon.";
+  appendTextMessage('steven', msg);
+  document.getElementById('textChatInput').onkeydown = function(e) { if (e.key === 'Enter') sendTextMessage(); };
+}
+
+function closeTextChat() {
+  document.getElementById('textChatWin').style.display = 'none';
+  document.getElementById('liveBtn').style.display = 'block';
+}
+
+function sendTextMessage() {
+  var input = document.getElementById('textChatInput');
+  var text  = input.value.trim();
+  if (!text || !textChatVid) return;
+  input.value = '';
+  appendTextMessage('visitor', text);
+  fetch('/api/chat', {
+    method: 'POST',
+    headers: {'Content-Type':'application/json'},
+    body: JSON.stringify({vid: textChatVid, from: 'visitor', text: text})
+  }).catch(function(){});
+}
+
+function appendTextLink(from, label, url, msgId) {
+  if (msgId && shownMsgIds[msgId]) return;
+  if (msgId) shownMsgIds[msgId] = true;
+  var box = document.getElementById('textChatMessages');
+  var div = document.createElement('div');
+  div.style.cssText = 'max-width:90%;padding:0.5rem 0.75rem;border-radius:12px 12px 12px 2px;background:#e8f4f5;align-self:flex-start;';
+  div.innerHTML = '<div style="font-size:0.72rem;color:#6b6b6b;margin-bottom:4px;">Steven shared:</div>'
+    + '<a href="' + url + '" target="_blank" style="display:block;background:#124d52;color:#fff;padding:0.5rem 0.75rem;border-radius:6px;font-size:0.78rem;text-decoration:none;">&#128279; ' + label + '</a>';
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+  showLinkPanel(url, label);
+}
+
+
+function appendTextImage(from, url, msgId, label) {
+  if (msgId && shownMsgIds[msgId]) return;
+  if (msgId) shownMsgIds[msgId] = true;
+  var box = document.getElementById('textChatMessages');
+  if (!box) return;
+  var div = document.createElement('div');
+  var isSteven = from === 'steven';
+  div.style.cssText = 'max-width:80%;padding:4px;border-radius:10px;'
+    + (isSteven
+      ? 'background:#e8f4f5;align-self:flex-start;border-radius:12px 12px 12px 2px;'
+      : 'background:#124d52;align-self:flex-end;margin-left:auto;border-radius:12px 12px 2px 12px;');
+  div.innerHTML = (isSteven ? '<div style="font-size:0.72rem;color:#6b6b6b;margin:2px 6px 4px;">Steven sent a photo</div>' : '')
+    + '<a href="' + url + '" target="_blank" rel="noopener"><img src="' + url + '" alt="" style="max-width:200px;border-radius:7px;display:block;"></a>';
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+}
+function appendTextFile(from, label, url, msgId) {
+  if (msgId && shownMsgIds[msgId]) return;
+  if (msgId) shownMsgIds[msgId] = true;
+  var box = document.getElementById('textChatMessages');
+  if (!box) return;
+  var div = document.createElement('div');
+  var isSteven = from === 'steven';
+  div.style.cssText = 'max-width:85%;padding:0.5rem 0.75rem;border-radius:12px;font-size:0.82rem;'
+    + (isSteven
+      ? 'background:#e8f4f5;color:#124d52;align-self:flex-start;border-radius:12px 12px 12px 2px;'
+      : 'background:#124d52;color:#fff;align-self:flex-end;margin-left:auto;border-radius:12px 12px 2px 12px;');
+  div.innerHTML = (isSteven ? '<div style="font-size:0.72rem;color:#6b6b6b;margin-bottom:4px;">Steven sent a file</div>' : '')
+    + '<a href="' + url + '" target="_blank" rel="noopener" style="color:inherit;">📎 ' + (label || 'file') + '</a>';
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+}
+function appendTextChatLink(from, label, url, msgId) {
+  if (msgId && shownMsgIds[msgId]) return;
+  if (msgId) shownMsgIds[msgId] = true;
+  var box = document.getElementById('textChatMessages');
+  if (!box) return;
+  var div = document.createElement('div');
+  var isSteven = from === 'steven';
+  div.style.cssText = 'max-width:90%;padding:0.5rem 0.75rem;border-radius:12px;font-size:0.82rem;'
+    + (isSteven
+      ? 'background:#e8f4f5;color:#124d52;align-self:flex-start;border-radius:12px 12px 12px 2px;'
+      : 'background:#124d52;color:#fff;align-self:flex-end;margin-left:auto;border-radius:12px 12px 2px 12px;');
+  div.innerHTML = (isSteven ? '<div style="font-size:0.72rem;color:#6b6b6b;margin-bottom:4px;">Steven shared:</div>' : '')
+    + '<a href="' + url + '" target="_blank" rel="noopener" style="display:block;background:#124d52;color:#fff;padding:0.5rem 0.75rem;border-radius:6px;font-size:0.78rem;text-decoration:none;">🔗 ' + (label || 'link') + '</a>';
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+}
+function appendTextMessage(from, text, msgId) {
+  if (msgId && shownMsgIds[msgId]) return;
+  if (msgId) shownMsgIds[msgId] = true;
+  var box = document.getElementById('textChatMessages');
+  var div = document.createElement('div');
+  var isSteven = from === 'steven';
+  div.style.cssText = 'max-width:85%;padding:0.5rem 0.75rem;border-radius:12px;font-size:0.82rem;line-height:1.5;word-break:break-word;'
+    + (isSteven
+      ? 'background:#e8f4f5;color:#124d52;border-radius:12px 12px 12px 2px;align-self:flex-start;'
+      : 'background:#124d52;color:#fff;border-radius:12px 12px 2px 12px;align-self:flex-end;margin-left:auto;');
+  div.textContent = text;
+  box.appendChild(div);
+  box.scrollTop = box.scrollHeight;
+}
+
+function makeTextChatDraggable() {
+  if (textChatDragInit) return;
+  textChatDragInit = true;
+  var el  = document.getElementById('textChatWin');
+  var bar = document.getElementById('textChatBar');
+  var mx = 0, my = 0;
+  bar.onmousedown = function(e) {
+    mx = e.clientX; my = e.clientY;
+    document.onmousemove = function(e) {
+      el.style.left   = (el.offsetLeft + e.clientX - mx) + 'px';
+      el.style.top    = (el.offsetTop  + e.clientY - my) + 'px';
+      el.style.right  = 'auto';
+      el.style.bottom = 'auto';
+      mx = e.clientX; my = e.clientY;
+    };
+    document.onmouseup = function() { document.onmousemove = null; document.onmouseup = null; };
+    e.preventDefault();
+  };
+}
+
+// ─── STATUS CHECK ───
+function checkStatus() {
+  fetch('/api/chat/status')
+    .then(function(r) { return r.json(); })
+    .then(function(d) {
+      var s   = d.status;
+      var btn = document.getElementById('liveBtn');
+      if (s === 'online' || s === 'online_cam') {
+        isOnline = true;
+        btn.style.display = 'block';
+        btn.querySelector('button').innerHTML = '<div style="width:8px;height:8px;background:#4caf50;border-radius:50%;flex-shrink:0;"></div> Live Chat';
+        btn.querySelector('button').onclick = function() { startTextChat(); };
+      } else {
+        isOnline = false;
+        btn.style.display = 'block';
+        btn.querySelector('button').innerHTML = '<div style="width:8px;height:8px;background:#c9a84c;border-radius:50%;flex-shrink:0;"></div> Let\'s Chat';
+        btn.querySelector('button').onclick = function() { startTextChat(); };
+      }
+    }).catch(function(){});
+}
+
+// ─── LINK PANELS ───
+var panelCount = 0;
+var topZ = 998;
+
+function bringToFront(el) { topZ++; el.style.zIndex = topZ; }
+
+function closePanel(id) { var p = document.getElementById(id); if (p) p.remove(); }
+
+document.addEventListener('click', function(e) {
+  if (e.target && e.target.classList.contains('panelCloseBtn')) {
+    var id = e.target.getAttribute('data-panelid');
+    if (id) closePanel(id);
+  }
+});
+document.addEventListener('touchend', function(e) {
+  if (e.target && e.target.classList.contains('panelCloseBtn')) {
+    var id = e.target.getAttribute('data-panelid');
+    if (id) { closePanel(id); e.preventDefault(); }
+  }
+});
+
+function showLinkPanel(url, label) {
+  if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) { window.open(url, '_blank'); return; }
+  panelCount++;
+  var id     = 'stevenPanel' + panelCount;
+  var offset = ((panelCount - 1) % 5) * 35;
+  var isPdf  = url.toLowerCase().indexOf('.pdf') !== -1;
+  var isDownload = isPdf || url.toLowerCase().indexOf('download') !== -1;
+  var panel  = document.createElement('div');
+  panel.id   = id;
+panel.style.cssText = 'position:fixed;top:' + Math.min(window.innerHeight - 440, 20 + offset) + 'px;left:' + Math.min(window.innerWidth - 360, 20 + offset) + 'px;;z-index:' + (998 + panelCount) + ';width:340px;height:420px;background:#fff;border-radius:8px;box-shadow:0 8px 40px rgba(0,0,0,0.2);display:flex;flex-direction:column;overflow:hidden;font-family:DM Sans,sans-serif;min-width:200px;min-height:200px;';
+  panel.addEventListener('mousedown', function() { bringToFront(panel); });
+  panel.addEventListener('touchstart', function() { bringToFront(panel); }, {passive:true});
+  panel.addEventListener('mouseenter', function() { document.documentElement.style.overflow = 'hidden'; document.body.style.overflow = 'hidden'; });
+  panel.addEventListener('mouseleave', function() { document.documentElement.style.overflow = ''; document.body.style.overflow = ''; });
+  var downloadBtn = isDownload
+    ? '<a href="' + url + '" download target="_blank" style="color:rgba(255,255,255,0.8);font-size:0.7rem;text-decoration:none;background:rgba(255,255,255,0.15);padding:4px 10px;border-radius:10px;margin-right:0.4rem;white-space:nowrap;">&#11015; Save</a>'
+    : '';
+  panel.innerHTML =
+    '<div id="bar_' + id + '" style="background:#124d52;padding:0.6rem 0.75rem;display:flex;align-items:center;justify-content:space-between;cursor:move;flex-shrink:0;user-select:none;-webkit-user-select:none;">'
+    + '<span style="font-size:0.72rem;color:#fff;font-weight:500;flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-right:0.5rem;">' + label + '</span>'
+    + '<div style="display:flex;align-items:center;gap:0.4rem;">'
+    + downloadBtn
+    + '<button data-panelid="' + id + '" class="panelCloseBtn" style="background:rgba(255,255,255,0.15);border:none;color:#fff;cursor:pointer;font-size:1.1rem;line-height:1;padding:4px 8px;border-radius:4px;min-width:30px;min-height:30px;display:flex;align-items:center;justify-content:center;">&times;</button>'
+    + '</div></div>'
+    + ((/\.(png|jpe?g|gif|webp)(\?|#|$)/i.test(url) || /\/file\/[^"']+\.(png|jpe?g|gif|webp)/i.test(url)) ? '<div style="flex:1;overflow:auto;display:flex;align-items:center;justify-content:center;background:#0d1117;"><img src="' + url + '" alt="" style="max-width:100%;max-height:100%;object-fit:contain;display:block;"></div>' : '<iframe src="' + url + '" style="flex:1;border:none;width:100%;display:block;" allow="camera;microphone;fullscreen"></iframe>')
+    + '<div class="resizeHandle" data-panelid="' + id + '" style="position:absolute;bottom:0;right:0;width:24px;height:24px;cursor:se-resize;z-index:20;display:flex;align-items:flex-end;justify-content:flex-end;padding:3px;"><svg width="12" height="12" viewBox="0 0 12 12"><path d="M11 1L1 11M11 6L6 11" stroke="rgba(0,0,0,0.3)" stroke-width="1.5" stroke-linecap="round"/></svg></div>';
+  document.body.appendChild(panel);
+  var closeBtn = panel.querySelector('.panelCloseBtn');
+  if (closeBtn) {
+    closeBtn.addEventListener('click', function(e) { closePanel(id); e.stopPropagation(); });
+    closeBtn.addEventListener('touchend', function(e) { closePanel(id); e.preventDefault(); e.stopPropagation(); });
+  }
+  makePanelDraggable(panel, 'bar_' + id);
+  makePanelResizable(panel, id);
+}
+
+function makePanelDraggable(el, barId) {
+  var bar = document.getElementById(barId);
+  if (!bar) return;
+  var mx = 0, my = 0;
+  var shield = document.createElement('div');
+  shield.style.cssText = 'position:absolute;left:0;right:0;bottom:0;top:36px;z-index:10;display:none;cursor:move;';
+  el.appendChild(shield);
+  bar.addEventListener('mousedown', function() { bringToFront(el); });
+  bar.addEventListener('touchstart', function() { bringToFront(el); }, {passive:true});
+  bar.onmousedown = dragStart;
+  bar.ontouchstart = function(e) {
+    var t = e.touches[0]; mx = t.clientX; my = t.clientY;
+    shield.style.display = 'block';
+    document.ontouchmove = dragTouchMove;
+    document.ontouchend  = dragEnd;
+    e.preventDefault();
+  };
+  function dragStart(e) { mx = e.clientX; my = e.clientY; shield.style.display = 'block'; document.onmousemove = dragMove; document.onmouseup = dragEnd; e.preventDefault(); }
+  function dragMove(e) {
+    var dx = e.clientX - mx, dy = e.clientY - my; mx = e.clientX; my = e.clientY;
+    var nl = Math.max(-(el.offsetWidth-60), Math.min(window.innerWidth-60, el.offsetLeft+dx));
+    var nt = Math.max(0, Math.min(window.innerHeight-40, el.offsetTop+dy));
+    el.style.left = nl+'px'; el.style.top = nt+'px'; el.style.right = 'auto'; el.style.bottom = 'auto';
+  }
+  function dragTouchMove(e) {
+    var t = e.touches[0], dx = t.clientX-mx, dy = t.clientY-my; mx = t.clientX; my = t.clientY;
+    var nl = Math.max(-(el.offsetWidth-60), Math.min(window.innerWidth-60, el.offsetLeft+dx));
+    var nt = Math.max(0, Math.min(window.innerHeight-40, el.offsetTop+dy));
+    el.style.left = nl+'px'; el.style.top = nt+'px'; el.style.right = 'auto'; el.style.bottom = 'auto';
+    e.preventDefault();
+  }
+  function dragEnd() { shield.style.display = 'none'; document.onmousemove = null; document.onmouseup = null; document.ontouchmove = null; document.ontouchend = null; }
+  el.addEventListener('touchcancel', function() { shield.style.display = 'none'; });
+}
+
+function makePanelResizable(el, id) {
+  var handle = el.querySelector('.resizeHandle[data-panelid="' + id + '"]');
+  if (!handle) return;
+  var startX, startY, startW, startH;
+  function resizeStart(cx, cy) {
+    startX = cx; startY = cy; startW = el.offsetWidth; startH = el.offsetHeight;
+    document.onmousemove = resizeMove; document.onmouseup = resizeEnd;
+    document.ontouchmove = function(e) { resizeMove({clientX:e.touches[0].clientX, clientY:e.touches[0].clientY}); e.preventDefault(); };
+    document.ontouchend = resizeEnd;
+  }
+  handle.onmousedown = function(e) { resizeStart(e.clientX, e.clientY); e.preventDefault(); e.stopPropagation(); };
+  handle.addEventListener('touchstart', function(e) { resizeStart(e.touches[0].clientX, e.touches[0].clientY); e.preventDefault(); e.stopPropagation(); }, {passive:false});
+  function resizeMove(e) {
+    el.style.width  = Math.max(200, Math.min(window.innerWidth  - el.offsetLeft - 10, startW + (e.clientX - startX))) + 'px';
+    el.style.height = Math.max(200, Math.min(window.innerHeight - el.offsetTop  - 10, startH + (e.clientY - startY))) + 'px';
+  }
+  function resizeEnd() { document.onmousemove = null; document.onmouseup = null; document.ontouchmove = null; document.ontouchend = null; }
+}
+
+checkStatus();
+setInterval(checkStatus, 3000);
+</script>
+
+<!-- BACKGROUND POLL — receives messages from Steven.
+     FIX: the "since" cursor now always comes from the SERVER's clock.
+     A priming request (since=0) records existing message ids without
+     rendering them, and takes the server's ts as the starting cursor.
+     This makes delivery immune to any client/server clock skew. -->
+<script>
+(function() {
+  var bgLastTs = null;
+  var bgPrimed = false;
+
+  function getVid() { return sessionStorage.getItem('pfvid'); }
+
+  function openTextChatWindow() {
+    var win = document.getElementById('textChatWin');
+    if (!win) return;
+    win.style.setProperty('display', 'flex', 'important');
+    window.textChatVid = getVid();
+    if (typeof textChatVid !== 'undefined') textChatVid = getVid();
+    if (typeof makeTextChatDraggable === 'function') makeTextChatDraggable();
+    var liveBtn = document.getElementById('liveBtn');
+    if (liveBtn) liveBtn.style.display = 'none';
+  }
+
+  function isTextChatOpen() {
+    var win = document.getElementById('textChatWin');
+    if (!win) return false;
+    return win.offsetParent !== null || win.style.display === 'flex';
+  }
+
+  function bgPoll() {
+    var vid = getVid();
+    if (!vid) return;
+
+    // ── Priming request: learn the server's clock, mark history as seen ──
+    if (!bgPrimed) {
+      fetch('/api/chat?vid=' + vid + '&since=0')
+        .then(function(r) { return r.json(); })
+        .then(function(data) {
+          bgPrimed = true;
+          bgLastTs = data.ts || 0;
+          window.chatTs = bgLastTs;
+          if (data.messages) {
+            data.messages.forEach(function(m) { if (m.id) shownMsgIds[m.id] = true; });
+          }
+        }).catch(function(){});
+      return;
+    }
+
+    fetch('/api/chat?vid=' + vid + '&since=' + bgLastTs)
+      .then(function(r) { return r.json(); })
+      .then(function(data) {
+        if (data.ts) { bgLastTs = data.ts; window.chatTs = data.ts; }
+        if (!data.messages || !data.messages.length) return;
+        data.messages.forEach(function(m) {
+          if (m.from !== 'steven') return;
+          if (!isTextChatOpen()) openTextChatWindow();
+          if (m.type === 'image') {
+            if (typeof appendTextImage === 'function') appendTextImage('steven', m.url, m.id, m.text);
+          } else if (m.type === 'file') {
+            if (typeof appendTextFile === 'function') appendTextFile('steven', m.text, m.url, m.id);
+          } else if (m.type === 'chat_link') {
+            if (typeof appendTextChatLink === 'function') appendTextChatLink('steven', m.text, m.url, m.id);
+          } else if (m.type === 'link') {
+            if (typeof appendTextLink === 'function') appendTextLink('steven', m.text, m.url, m.id);
+          } else {
+            if (typeof appendTextMessage === 'function') appendTextMessage('steven', m.text, m.id);
+          }
+        });
+      }).catch(function(){});
+  }
+
+  setTimeout(function() { bgPoll(); setInterval(bgPoll, 3000); }, 1000);
+})();
+</script><!-- VISITOR TRACKER -->
+<script>
+(function() {
+  if (window.self !== window.top) return;
+  if (window.location.search.indexOf('notrack=1') !== -1) return;
+
+  var params = new URLSearchParams(window.location.search);
+  var vid = params.get('vid') || sessionStorage.getItem('pfvid');
+  if (!vid) {
+    vid = 'v_' + Math.random().toString(36).substr(2,9) + '_' + Date.now().toString(36);
+  }
+  sessionStorage.setItem('pfvid', vid);
+
+  // ── first_load: fresh timestamp on every page load ──
+  window._pageLoadTs = Math.floor(Date.now() / 1000);
+
+  var sectionIds = ['hero','aspirational','problem','guide','process','differentiator','testimonials','faq','failure','success','final-cta'];
+  var mouseX = 0.5, mouseY = 0.5;
+  var lastSent = 0;
+  var pendingEvents = [];
+  var ua = navigator.userAgent;
+  var device = 'Desktop';
+  if      (/iPhone|iPod/.test(ua))                   device = 'iPhone';
+  else if (/iPad/.test(ua))                          device = 'iPad';
+  else if (/Android/.test(ua) && /Mobile/.test(ua)) device = 'Android Phone';
+  else if (/Android/.test(ua))                       device = 'Android Tablet';
+  else if (/Macintosh/.test(ua))                     device = 'Mac';
+  else if (/Windows/.test(ua))                       device = 'Windows';
+
+  document.addEventListener('mousemove', function(e) {
+    mouseX = e.clientX / window.innerWidth;
+    mouseY = e.clientY / window.innerHeight;
+  });
+document.addEventListener('touchmove', function(e) {
+    if (e.touches.length > 0) {
+      var vp = window.visualViewport || {width:window.innerWidth, height:window.innerHeight};
+      // clientY is already relative to the visual viewport, so we do NOT add
+      // offsetTop — adding it double-counts the scroll and shifts the iPhone
+      // cursor down in replay. Plain clientY/height matches the desktop math.
+      mouseX = e.touches[0].clientX / vp.width;
+      mouseY = e.touches[0].clientY / vp.height;
+    }
+  }, {passive:true});
+
+  // ── Click capture ──
+  document.addEventListener('click', function(e) {
+    var vp = getViewport();
+    var cx = e.clientX / vp.w;
+    var cy = e.clientY / vp.h;
+    var isModal = false;
+    var selector = '';
+    try {
+      var t = e.target;
+      if (t) {
+        var oc = t.getAttribute('onclick') || '';
+        isModal = oc.indexOf('openModal') !== -1;
+        if (t.id) selector = '#' + t.id;
+        else if (t.className && typeof t.className === 'string') selector = t.tagName.toLowerCase() + '.' + t.className.trim().split(/\s+/)[0];
+        else selector = t.tagName.toLowerCase();
+      }
+    } catch(e2) {}
+    pendingEvents.push({
+      type:     'click',
+      x:        Math.round(cx * 1000) / 1000,
+      y:        Math.round(Math.max(0, Math.min(1, cy)) * 1000) / 1000,
+      modal:    isModal,
+      selector: selector
+    });
+  });
+
+  function getViewport() {
+    if (window.visualViewport) {
+      return {w:Math.round(window.visualViewport.width), h:Math.round(window.visualViewport.height)};
+    }
+    return {w:window.innerWidth, h:window.innerHeight};
+  }
+
+  function getCurrentSection() {
+    if (window._welcomeScene !== undefined && window._welcomeScene !== null) {
+      var scene = window._welcomeScene || 'home';
+      var item  = window._welcomeItem  || '';
+      return item ? 'welcome-' + scene + ':' + item : 'welcome-' + scene;
+    }
+    var current = '', best = Infinity;
+    sectionIds.forEach(function(id) {
+      var el = document.getElementById(id);
+      if (!el) return;
+      var rect = el.getBoundingClientRect();
+      if (rect.top <= window.innerHeight/2 && Math.abs(rect.top) < best) {
+        best = Math.abs(rect.top); current = id;
+      }
+    });
+    return current;
+  }
+
+  // ── Page identity, read from the actual URL at runtime ──
+  // This is the reliable fix: the visitor's address bar IS the truth, so we
+  // never depend on a PHP variable being set before this script is printed.
+  // Handles clean URLs (/aerophobia) and extension URLs (/aerophobia.php).
+  // Homepage (/ or /index.php) reports as the interactive welcome page.
+  function getPage() {
+    // If the page is showing the interactive welcome/fear-cloud, that wins.
+    if (window._welcomeScene !== undefined && window._welcomeScene !== null) return 'welcome';
+
+    var path = window.location.pathname || '/';
+    // Strip trailing slash, take the last path segment.
+    var seg = path.replace(/\/+$/,'').split('/').pop() || '';
+    // Drop a .php extension if present.
+    seg = seg.replace(/\.php$/i, '').toLowerCase();
+
+    // Root or index → home (visitors.php maps 'home' to the site root).
+    if (seg === '' || seg === 'index') return 'home';
+
+    // Otherwise the slug IS the page (e.g. 'aerophobia', 'dentophobia',
+    // 'my_fear'). visitors.php builds its iframe URL straight from this.
+    return seg;
+  }
+
+  function sendData() {
+    var now = Date.now();
+    if (now - lastSent < 150) return;
+    lastSent = now;
+    var vp = getViewport();
+    var scrollH   = document.documentElement.scrollHeight - window.innerHeight;
+    var scrollPct = scrollH > 0 ? Math.round((window.scrollY / scrollH) * 1000) / 1000 : 0;
+    var eventsToSend = pendingEvents.splice(0);
+    fetch('/track', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({
+        vid:        vid,
+        x:          Math.round(mouseX * 1000) / 1000,
+        y:          Math.round(Math.max(0, Math.min(1, mouseY)) * 1000) / 1000,
+        scrollY:    window.scrollY,
+        scrollPct:  scrollPct,
+        vw:         vp.w,
+        vh:         vp.h,
+        section:    getCurrentSection(),
+        page:       getPage(),
+        device:     device,
+        first_load: window._pageLoadTs,
+        events:     eventsToSend
+      })
+    }).catch(function(){});
+  }
+
+  document.addEventListener('mousemove', sendData);
+  document.addEventListener('scroll',    sendData, {passive:true});
+  document.addEventListener('touchmove', sendData, {passive:true});
+  function leaveNow() {
+    try {
+      var payload = JSON.stringify({ vid: vid });
+      if (navigator.sendBeacon) {
+        navigator.sendBeacon('/track?leave=1', new Blob([payload], { type: 'application/json' }));
+      } else {
+        fetch('/track?leave=1', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: payload,
+          keepalive: true
+        }).catch(function () {});
+      }
+    } catch (e) {}
+  }
+  window.addEventListener('pagehide', leaveNow);
+  window.addEventListener('beforeunload', leaveNow);
+  setInterval(sendData, 5000);
+  setTimeout(sendData, 500);
+})();
+</script><!-- FOOTER -->
+<footer>
+  <a href="/" class="footer-logo">Phobia<span>Free</span>.life</a>
+  <div class="footer-links">
+<a href="/privacy.html">Privacy Policy</a>
+<a href="/terms.html">Terms of Service</a>
+<a href="/contact.html">Contact</a>
+  </div>
+  <div class="footer-stripe">🔒 Payments by Stripe &nbsp;·&nbsp; © 2026 PhobiaFree.life</div>
+</footer>
+
+<script src="section_reorder_listener.js"></script>
+
+<script>
+  window.addEventListener('scroll', () => {
+    document.getElementById('navbar').classList.toggle('scrolled', window.scrollY > 40);
+  });
+  function toggleFaq(el) { el.classList.toggle('open'); }
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(e => {
+      if (e.isIntersecting) {
+        e.target.style.opacity = '1';
+        e.target.style.transform = 'translateY(0)';
+      }
+    });
+  }, { threshold: 0.1 });
+  document.querySelectorAll('.problem-card, .step, .credential, .faq-item, .success-stat, .failure-card').forEach(el => observer.observe(el));
+
+  // ─── AUTO-OPEN BOOKING MODAL FROM ?modal=1 SITELINK ───
+  // Lands the visitor on this phobia page with the booking modal already open,
+  // then strips ?modal=1 so refresh / close / bookmark behave normally.
+  window.addEventListener('load', function() {
+    if (new URLSearchParams(window.location.search).get('modal') === '1') {
+      if (typeof openModal === 'function') openModal();
+      if (window.history.replaceState) {
+        var clean = window.location.pathname + window.location.hash;
+        window.history.replaceState(null, '', clean);
+      }
+    }
+  });
+</script>
+
+
+<script src="section_reorder_listener.js"></script>
+</body>
+
+</html>

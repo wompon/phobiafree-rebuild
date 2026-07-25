@@ -1,0 +1,17 @@
+{
+  "slug": "fear-of-germs",
+  "title": "Fear of Germs — Relief in One Session | PhobiaFree.life",
+  "description": "Overcome fear of germs in one peaceful Zoom session. No trance, no exposure, no long-term therapy.",
+  "cssHref": "/fear-of-germs/styles.css",
+  "photoUrl": "/fear-of-germs/img/germs.png",
+  "pfCurrentSlug": "fear-of-germs",
+  "pfSamePageSlugs": {
+    "fear-of-germs": true,
+    "mysophobia": true
+  },
+  "selectedPhobiaSlug": "fear-of-germs",
+  "assetDir": "fear-of-germs",
+  "latinSlug": "mysophobia",
+  "label": "Fear of Germs",
+  "image": "germs.png"
+}

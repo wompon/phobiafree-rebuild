@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex,nofollow">
+  <title>PhobiaFree Editor</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,600&family=Sora:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    :root,
+    [data-theme="coastal"] {
+      --ink: #0c1b24;
+      --muted: #5a7280;
+      --accent: #0d5c63;
+      --accent-soft: rgba(13, 92, 99, 0.12);
+      --accent-mid: rgba(13, 92, 99, 0.3);
+      --line: rgba(12, 27, 36, 0.1);
+      --bg: #eef3f6;
+      --card: #fff;
+      --field: #fff;
+      --glow-a: rgba(126, 184, 201, 0.35);
+      --glow-b: rgba(13, 92, 99, 0.12);
+      --danger: #8b2e2e;
+      --ok: #2a7a4b;
+      --err: #b33;
+      --thumb: #d5e0e6;
+      --side: 260px;
+      color-scheme: light;
+    }
+    [data-theme="midnight"] {
+      --ink: #e8eef2;
+      --muted: #9aafbb;
+      --accent: #5eb8c4;
+      --accent-soft: rgba(94, 184, 196, 0.16);
+      --accent-mid: rgba(94, 184, 196, 0.35);
+      --line: rgba(232, 238, 242, 0.12);
+      --bg: #0b1419;
+      --card: #132029;
+      --field: #0f1a21;
+      --glow-a: rgba(94, 184, 196, 0.18);
+      --glow-b: rgba(30, 80, 96, 0.35);
+      --danger: #c45b5b;
+      --ok: #6fbf8a;
+      --err: #e08080;
+      --thumb: #1a2c36;
+      color-scheme: dark;
+    }
+    [data-theme="olive"] {
+      --ink: #1c2416;
+      --muted: #66705c;
+      --accent: #4a5d2e;
+      --accent-soft: rgba(74, 93, 46, 0.12);
+      --accent-mid: rgba(74, 93, 46, 0.3);
+      --line: rgba(28, 36, 22, 0.12);
+      --bg: #eef0e6;
+      --card: #f7f8f2;
+      --field: #fff;
+      --glow-a: rgba(160, 176, 110, 0.35);
+      --glow-b: rgba(74, 93, 46, 0.12);
+      --danger: #8b3a2e;
+      --ok: #3d6b3a;
+      --err: #a33;
+      --thumb: #d8ddc8;
+      color-scheme: light;
+    }
+    [data-theme="slate"] {
+      --ink: #1a222c;
+      --muted: #62707e;
+      --accent: #3a4f63;
+      --accent-soft: rgba(58, 79, 99, 0.12);
+      --accent-mid: rgba(58, 79, 99, 0.3);
+      --line: rgba(26, 34, 44, 0.12);
+      --bg: #e9eef3;
+      --card: #fff;
+      --field: #fff;
+      --glow-a: rgba(140, 164, 184, 0.3);
+      --glow-b: rgba(58, 79, 99, 0.12);
+      --danger: #8b2e2e;
+      --ok: #2a6a4b;
+      --err: #b33;
+      --thumb: #d4dde6;
+      color-scheme: light;
+    }
+    [data-theme="ember"] {
+      --ink: #1a120e;
+      --muted: #7a6558;
+      --accent: #9a4a28;
+      --accent-soft: rgba(154, 74, 40, 0.12);
+      --accent-mid: rgba(154, 74, 40, 0.3);
+      --line: rgba(26, 18, 14, 0.12);
+      --bg: #f3ebe4;
+      --card: #fffaf6;
+      --field: #fff;
+      --glow-a: rgba(220, 160, 110, 0.3);
+      --glow-b: rgba(154, 74, 40, 0.12);
+      --danger: #8b2e2e;
+      --ok: #3d6b3a;
+      --err: #b33;
+      --thumb: #e6d6c8;
+      color-scheme: light;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Sora", system-ui, sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(ellipse 80% 50% at 10% -10%, var(--glow-a), transparent),
+        radial-gradient(ellipse 60% 40% at 100% 0%, var(--glow-b), transparent),
+        var(--bg);
+      min-height: 100vh;
+      transition: background 0.25s ease, color 0.2s ease;
+    }
+    h1, h2, h3 { font-family: "Fraunces", Georgia, serif; letter-spacing: -0.02em; }
+    .wrap { max-width: 1280px; margin: 0 auto; padding: 1.25rem; }
+    .top {
+      display: flex; flex-wrap: wrap; gap: 0.75rem;
+      align-items: center; justify-content: space-between; margin-bottom: 1rem;
+    }
+    .top-actions { display: flex; flex-wrap: wrap; gap: 0.55rem; align-items: center; }
+    .theme-picker {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      font-size: 0.78rem; color: var(--muted);
+    }
+    .theme-picker label { margin: 0; font-weight: 550; white-space: nowrap; }
+    .theme-picker select {
+      width: auto; min-width: 8.5rem; margin: 0;
+      padding: 0.45rem 0.7rem; border-radius: 999px;
+      font-size: 0.8rem; font-weight: 550;
+    }
+    .top h1 { margin: 0; font-size: 1.55rem; }
+    .sub { color: var(--muted); margin: 0; font-size: 0.88rem; }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 1.15rem;
+      box-shadow: 0 12px 40px rgba(8, 24, 36, 0.06);
+      transition: background 0.2s ease, border-color 0.2s ease;
+    }
+    label { display: block; font-size: 0.78rem; font-weight: 550; margin: 0.65rem 0 0.3rem; }
+    input[type="password"], input[type="text"], textarea, select {
+      width: 100%;
+      padding: 0.65rem 0.75rem;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      font: inherit;
+      color: var(--ink);
+      background: var(--field);
+    }
+    textarea {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.82rem;
+      line-height: 1.45;
+      resize: vertical;
+      min-height: 7rem;
+    }
+    textarea.copy-field { font-family: inherit; font-size: 0.9rem; min-height: 2.6rem; }
+    .btn {
+      display: inline-flex; align-items: center; justify-content: center;
+      border: 0; border-radius: 999px; padding: 0.65rem 1.15rem;
+      font: inherit; font-weight: 600; font-size: 0.88rem; cursor: pointer;
+      background: var(--accent); color: #fff;
+    }
+    .btn:disabled { opacity: 0.55; cursor: wait; }
+    .btn.ghost { background: transparent; color: var(--accent); border: 1px solid var(--accent-mid); }
+    .btn.danger { background: var(--danger); }
+    .msg { margin-top: 0.7rem; font-size: 0.86rem; color: var(--err); }
+    .msg.ok { color: var(--ok); }
+    .login-row { display: flex; flex-wrap: wrap; gap: 0.75rem; align-items: flex-end; }
+    .login-row input { max-width: 320px; }
+    .shell { display: grid; grid-template-columns: var(--side) 1fr; gap: 1rem; min-height: 70vh; }
+    @media (max-width: 860px) { .shell { grid-template-columns: 1fr; } }
+    .side { max-height: 78vh; overflow: auto; padding: 0.5rem; }
+    .side button.page {
+      display: block; width: 100%; text-align: left;
+      border: 0; background: transparent; padding: 0.55rem 0.65rem;
+      border-radius: 10px; cursor: pointer; font: inherit; font-size: 0.86rem; color: var(--ink);
+    }
+    .side button.page:hover { background: var(--accent-soft); }
+    .side button.page.active { background: var(--accent-soft); font-weight: 600; }
+    .tabs { display: flex; flex-wrap: wrap; gap: 0.35rem; margin-bottom: 1rem; }
+    .tabs button {
+      border: 1px solid var(--line); background: var(--field); color: var(--ink);
+      border-radius: 999px; padding: 0.4rem 0.85rem; font: inherit; font-size: 0.8rem; cursor: pointer;
+    }
+    .tabs button.active { background: var(--accent); color: #fff; border-color: var(--accent); }
+    .panel { display: none; }
+    .panel.active { display: block; }
+    .thumb {
+      aspect-ratio: 16/9; border-radius: 12px; border: 1px solid var(--line);
+      background: var(--thumb) center/cover no-repeat; margin-bottom: 0.75rem;
+    }
+    .row { display: flex; flex-wrap: wrap; gap: 0.6rem; align-items: center; margin-top: 0.75rem; }
+    .hint { color: var(--muted); font-size: 0.8rem; }
+    .fields { display: grid; gap: 0.15rem; }
+    .color-block {
+      margin-top: 1.25rem; padding-top: 1rem;
+      border-top: 1px solid var(--line);
+    }
+    .color-block h3 { margin: 0 0 0.35rem; font-size: 1.05rem; }
+    .color-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(9.5rem, 1fr));
+      gap: 0.75rem;
+      margin: 0.85rem 0 0.5rem;
+    }
+    .color-field label { margin-top: 0; }
+    .color-field .swatch-row {
+      display: flex; align-items: center; gap: 0.45rem;
+    }
+    .color-field input[type="color"] {
+      width: 2.6rem; height: 2.6rem; padding: 0; border: 1px solid var(--line);
+      border-radius: 10px; background: var(--field); cursor: pointer;
+    }
+    .color-field input[type="text"] {
+      flex: 1; font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: 0.82rem; text-transform: lowercase;
+    }
+    .presets { display: flex; flex-wrap: wrap; gap: 0.4rem; margin: 0.65rem 0 0.25rem; }
+    .presets button {
+      width: 1.85rem; height: 1.85rem; border-radius: 999px; border: 2px solid var(--line);
+      cursor: pointer; padding: 0;
+      box-shadow: inset 0 0 0 2px var(--card);
+    }
+    .presets button:hover { transform: scale(1.08); }
+    .presets button[aria-pressed="true"] { border-color: var(--accent); }
+    .theme-studio {
+      display: grid;
+      grid-template-columns: minmax(0, 1.15fr) minmax(11rem, 0.85fr);
+      gap: 1rem;
+      align-items: start;
+      margin: 0.85rem 0 0.5rem;
+    }
+    @media (max-width: 720px) {
+      .theme-studio { grid-template-columns: 1fr; }
+    }
+    .site-preview {
+      --pv-teal: #0d5c63;
+      --pv-teal-bright: #127a84;
+      --pv-bg: #e8eef3;
+      --pv-sky: #7eb8c9;
+      --pv-gold: #c9922a;
+      position: relative;
+      border-radius: 14px;
+      border: 1px solid var(--line);
+      overflow: hidden;
+      background: var(--pv-bg);
+      min-height: 220px;
+      box-shadow: 0 10px 28px rgba(8, 24, 36, 0.08);
+    }
+    .site-preview .sp-nav {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 0.45rem 0.65rem;
+      background: rgba(255,255,255,0.92);
+      border-bottom: 1px solid rgba(12,27,36,0.06);
+      font-size: 0.62rem; font-weight: 600; color: #0c1b24;
+    }
+    .site-preview .sp-nav span:last-child {
+      background: var(--pv-teal); color: #fff;
+      padding: 0.2rem 0.45rem; border-radius: 999px; font-size: 0.55rem;
+    }
+    .site-preview .sp-hero {
+      position: relative;
+      height: 108px;
+      background: var(--pv-sky) center/cover no-repeat;
+    }
+    .site-preview .sp-hero::after {
+      content: "";
+      position: absolute; inset: 0;
+      background: linear-gradient(105deg, color-mix(in srgb, var(--pv-teal) 72%, transparent), transparent 70%);
+    }
+    .site-preview .sp-hero-text {
+      position: relative; z-index: 1;
+      padding: 0.7rem 0.65rem 0;
+      color: #fff; font-family: "Fraunces", Georgia, serif;
+      font-size: 0.95rem; line-height: 1.15; max-width: 70%;
+      text-shadow: 0 4px 14px rgba(8,24,36,0.35);
+    }
+    .site-preview .sp-tiles {
+      display: grid; grid-template-columns: 1.6fr 1fr; gap: 0.4rem;
+      padding: 0.5rem; margin-top: -1.1rem; position: relative; z-index: 2;
+    }
+    .site-preview .sp-guarantee {
+      background: linear-gradient(
+        135deg,
+        color-mix(in srgb, var(--pv-teal) 78%, transparent),
+        color-mix(in srgb, var(--pv-teal-bright) 65%, transparent),
+        color-mix(in srgb, var(--pv-sky) 55%, transparent)
+      );
+      color: #fff; border-radius: 10px; padding: 0.55rem 0.6rem;
+      font-size: 0.58rem; line-height: 1.35; min-height: 3.4rem;
+    }
+    .site-preview .sp-guarantee strong {
+      display: block; font-size: 0.72rem; margin-bottom: 0.2rem;
+      font-family: "Fraunces", Georgia, serif;
+    }
+    .site-preview .sp-stat {
+      background: rgba(255,255,255,0.85); border-radius: 10px;
+      display: grid; place-items: center; text-align: center;
+      font-size: 0.55rem; color: #3d5360; padding: 0.4rem;
+    }
+    .site-preview .sp-stat b {
+      display: block; font-size: 1rem; color: var(--pv-teal);
+      font-family: "Fraunces", Georgia, serif;
+    }
+    .site-preview .sp-cta {
+      margin: 0 0.5rem 0.55rem;
+      background: linear-gradient(180deg, #b8f000 0%, #8fd400 55%, #6fbe00 100%);
+      color: #143010; text-align: center; border-radius: 999px;
+      font-size: 0.62rem; font-weight: 700; padding: 0.4rem 0.6rem;
+      border: 1px solid rgba(255, 255, 255, 0.45);
+    }
+    .theme-controls {
+      display: flex; flex-direction: column; gap: 0.55rem;
+      padding: 0.15rem 0;
+    }
+    .theme-controls .seed-row {
+      display: flex; align-items: center; gap: 0.65rem;
+    }
+    .theme-controls input[type="color"] {
+      width: 4.25rem; height: 4.25rem; padding: 0;
+      border: 1px solid var(--line); border-radius: 16px;
+      background: var(--field); cursor: pointer;
+      flex: 0 0 auto;
+    }
+    .theme-controls .seed-meta { min-width: 0; }
+    .theme-controls .seed-meta code {
+      display: block; margin-top: 0.2rem;
+      font-size: 0.78rem; color: var(--ink);
+    }
+    .palette-dots {
+      display: flex; flex-wrap: wrap; gap: 0.35rem; margin-top: 0.15rem;
+    }
+    .palette-dots span {
+      width: 1.35rem; height: 1.35rem; border-radius: 999px;
+      border: 1px solid var(--line);
+      box-shadow: inset 0 0 0 1px rgba(255,255,255,0.35);
+    }
+    [hidden] { display: none !important; }
+  </style>
+  <script>
+    (function () {
+      var key = 'pf-editor-theme';
+      var t = localStorage.getItem(key) || 'coastal';
+      document.documentElement.setAttribute('data-theme', t);
+    })();
+  </script>
+</head>
+<body>
+  <div class="wrap">
+    <div class="top">
+      <div>
+        <h1>PhobiaFree editor</h1>
+        <p class="sub">Photos · page copy · body HTML · shared includes · CSS. Passcode from admin Credentials (+ph).</p>
+      </div>
+      <div class="top-actions">
+        <div class="theme-picker">
+          <label for="theme-select">Theme</label>
+          <select id="theme-select" aria-label="Editor color theme">
+            <option value="coastal">Coastal</option>
+            <option value="midnight">Midnight</option>
+            <option value="olive">Olive</option>
+            <option value="slate">Slate</option>
+            <option value="ember">Ember</option>
+          </select>
+        </div>
+        <button type="button" class="btn ghost" id="logout-btn" hidden>Lock</button>
+      </div>
+    </div>
+
+    <section id="login-panel" class="card">
+      <label for="passcode">Editor passcode</label>
+      <div class="login-row">
+        <input id="passcode" type="password" autocomplete="current-password" placeholder="Site password ending in ph">
+        <button type="button" class="btn" id="login-btn">Unlock</button>
+      </div>
+      <p id="login-msg" class="msg" hidden></p>
+    </section>
+
+    <section id="editor-panel" hidden>
+      <div class="shell">
+        <aside class="card side">
+          <div class="hint" style="padding:0.35rem 0.65rem 0.5rem">Fear pages</div>
+          <div id="page-list"></div>
+          <hr style="border:0;border-top:1px solid var(--line);margin:0.75rem 0">
+          <button type="button" class="page" data-mode="includes" id="nav-includes">Shared includes</button>
+          <button type="button" class="page" data-mode="css" id="nav-css">Shared CSS</button>
+        </aside>
+
+        <main class="card" id="workspace">
+          <p class="hint">Select a page or includes / CSS.</p>
+        </main>
+      </div>
+    </section>
+  </div>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const state = { catalog: null, slug: null, mode: 'page', tab: 'copy' };
+
+    async function api(path, opts = {}) {
+      const res = await fetch(path, {
+        credentials: 'same-origin',
+        ...opts,
+        headers: opts.body instanceof FormData
+          ? (opts.headers || {})
+          : { 'Content-Type': 'application/json', ...(opts.headers || {}) },
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok || data.ok === false) throw new Error(data.error || res.statusText || 'Request failed');
+      return data;
+    }
+
+    function bust(url) { return url + (url.includes('?') ? '&' : '?') + 't=' + Date.now(); }
+
+    function showLogin(err) {
+      $('login-panel').hidden = false;
+      $('editor-panel').hidden = true;
+      $('logout-btn').hidden = true;
+      const msg = $('login-msg');
+      if (err) { msg.hidden = false; msg.textContent = err; msg.className = 'msg'; }
+      else msg.hidden = true;
+    }
+
+    function renderPageList() {
+      const root = $('page-list');
+      root.innerHTML = (state.catalog.pages || []).map((p) =>
+        `<button type="button" class="page${state.slug === p.slug && state.mode === 'page' ? ' active' : ''}" data-slug="${p.slug}">${p.label}</button>`
+      ).join('');
+      root.querySelectorAll('button[data-slug]').forEach((btn) => {
+        btn.onclick = () => openPage(btn.dataset.slug);
+      });
+      $('nav-includes').classList.toggle('active', state.mode === 'includes');
+      $('nav-css').classList.toggle('active', state.mode === 'css');
+    }
+
+    async function openEditor() {
+      state.catalog = await api('/api/editor/catalog');
+      $('login-panel').hidden = true;
+      $('editor-panel').hidden = false;
+      $('logout-btn').hidden = false;
+      renderPageList();
+      if (state.catalog.pages?.[0]) await openPage(state.catalog.pages[0].slug);
+    }
+
+    async function openPage(slug) {
+      state.mode = 'page';
+      state.slug = slug;
+      renderPageList();
+      const data = await api('/api/editor/page/' + slug);
+      const meta = state.catalog.pages.find((p) => p.slug === slug) || {};
+      const ws = $('workspace');
+      ws.innerHTML = `
+        <div class="top" style="margin:0 0 0.75rem">
+          <div>
+            <h2 style="margin:0;font-size:1.25rem">${data.page.label || slug}</h2>
+            <p class="sub"><a href="/${slug}" target="_blank" rel="noopener">Open live page ↗</a></p>
+          </div>
+        </div>
+        <div class="tabs">
+          <button type="button" data-tab="photo" class="${state.tab==='photo'?'active':''}">Photo</button>
+          <button type="button" data-tab="colors" class="${state.tab==='colors'?'active':''}">Colors</button>
+          <button type="button" data-tab="copy" class="${state.tab==='copy'?'active':''}">Copy</button>
+          <button type="button" data-tab="html" class="${state.tab==='html'?'active':''}">Body HTML</button>
+        </div>
+        <div class="panel ${state.tab==='photo'?'active':''}" id="tab-photo">
+          <div class="thumb" id="thumb" style="background-image:url('${bust('/' + slug + '/img/' + (data.page.image||''))}')"></div>
+          <input type="file" id="photo-file" accept="image/jpeg,image/png,image/webp,image/gif">
+          <p class="hint" style="margin-top:0.5rem">Saved as <code>${data.page.image || ''}</code> — filename you upload does not matter.</p>
+          <p id="photo-msg" class="msg" hidden></p>
+        </div>
+        <div class="panel ${state.tab==='colors'?'active':''}" id="tab-colors">
+          <h3 style="margin:0 0 0.35rem;font-size:1.05rem">Page theme</h3>
+          <p class="hint">Pick any color — we build a complementary palette for this fear page.</p>
+          <div class="theme-studio" id="theme-studio"></div>
+          <div class="row">
+            <button type="button" class="btn" id="save-colors">Save theme</button>
+            <button type="button" class="btn ghost" id="reset-colors">Reset default</button>
+            <span class="hint">Hard-refresh the live page after saving.</span>
+          </div>
+          <p id="colors-msg" class="msg" hidden></p>
+        </div>
+        <div class="panel ${state.tab==='copy'?'active':''}" id="tab-copy">
+          <div class="fields" id="copy-fields"></div>
+          <div class="row">
+            <button type="button" class="btn" id="save-copy">Save copy</button>
+            <span class="hint">Rebuilds the page body from the template.</span>
+          </div>
+          <p id="copy-msg" class="msg" hidden></p>
+        </div>
+        <div class="panel ${state.tab==='html'?'active':''}" id="tab-html">
+          <label for="body-html">body.html (advanced)</label>
+          <textarea id="body-html" style="min-height:28rem">${escapeHtml(data.body || '')}</textarea>
+          <div class="row">
+            <button type="button" class="btn" id="save-html">Save HTML</button>
+            <span class="hint">Skips template rebuild — raw body only.</span>
+          </div>
+          <p id="html-msg" class="msg" hidden></p>
+        </div>
+      `;
+
+      const fields = $('copy-fields');
+      fields.innerHTML = (data.copyFields || state.catalog.copyFields || []).map((f) => `
+        <label for="cf-${f.key}">${f.label}</label>
+        <textarea class="copy-field" id="cf-${f.key}" rows="${f.rows || 2}">${escapeHtml(data.copy?.[f.key] || '')}</textarea>
+      `).join('');
+
+      ws.querySelectorAll('.tabs button').forEach((b) => {
+        b.onclick = () => {
+          state.tab = b.dataset.tab;
+          ws.querySelectorAll('.tabs button').forEach((x) => x.classList.toggle('active', x.dataset.tab === state.tab));
+          ws.querySelectorAll('.panel').forEach((p) => p.classList.toggle('active', p.id === 'tab-' + state.tab));
+        };
+      });
+
+      $('photo-file').onchange = async () => {
+        const file = $('photo-file').files?.[0];
+        if (!file) return;
+        const msg = $('photo-msg');
+        msg.hidden = false; msg.className = 'msg'; msg.textContent = 'Uploading…';
+        try {
+          const fd = new FormData();
+          fd.append('slug', slug);
+          fd.append('file', file);
+          const res = await api('/api/editor/upload', { method: 'POST', body: fd });
+          $('thumb').style.backgroundImage = `url('${bust(res.path)}')`;
+          msg.className = 'msg ok'; msg.textContent = 'Live.';
+        } catch (e) {
+          msg.className = 'msg'; msg.textContent = e.message;
+        }
+        $('photo-file').value = '';
+      };
+
+      bindColorEditor(data.page?.colors || {}, {
+        slug,
+        label: data.page.label || slug,
+        image: data.page.image || '',
+        photoUrl: data.page.photoUrl || ('/' + slug + '/img/' + (data.page.image || '')),
+      });
+
+      $('save-copy').onclick = async () => {
+        const copy = { ...(data.copy || {}), slug };
+        (data.copyFields || []).forEach((f) => {
+          copy[f.key] = $('cf-' + f.key).value;
+        });
+        const msg = $('copy-msg');
+        msg.hidden = false; msg.className = 'msg'; msg.textContent = 'Saving…';
+        try {
+          await api('/api/editor/page/' + slug, {
+            method: 'PUT',
+            body: JSON.stringify({ copy, rebuildBody: true }),
+          });
+          msg.className = 'msg ok';
+          msg.textContent = 'Saved — hard-refresh the live page.';
+        } catch (e) {
+          msg.className = 'msg'; msg.textContent = e.message;
+        }
+      };
+
+      $('save-html').onclick = async () => {
+        const msg = $('html-msg');
+        msg.hidden = false; msg.className = 'msg'; msg.textContent = 'Saving…';
+        try {
+          await api('/api/editor/page/' + slug, {
+            method: 'PUT',
+            body: JSON.stringify({ body: $('body-html').value, rebuildBody: false }),
+          });
+          msg.className = 'msg ok'; msg.textContent = 'Saved.';
+        } catch (e) {
+          msg.className = 'msg'; msg.textContent = e.message;
+        }
+      };
+    }
+
+    async function openIncludes() {
+      state.mode = 'includes';
+      state.slug = null;
+      renderPageList();
+      const names = state.catalog.includes || [];
+      const ws = $('workspace');
+      ws.innerHTML = `
+        <h2 style="margin:0 0 0.75rem;font-size:1.25rem">Shared includes</h2>
+        <p class="sub">These wrap every fear page (nav, modal, footer, consult script…).</p>
+        <label for="include-sel">Include</label>
+        <select id="include-sel">${names.map((n) => `<option value="${n}">${n}</option>`).join('')}</select>
+        <label for="include-body">HTML</label>
+        <textarea id="include-body" style="min-height:26rem"></textarea>
+        <div class="row">
+          <button type="button" class="btn" id="save-include">Save include</button>
+          <span class="hint" id="include-flag"></span>
+        </div>
+        <p id="include-msg" class="msg" hidden></p>
+      `;
+      async function loadInc() {
+        const name = $('include-sel').value;
+        const data = await api('/api/editor/include/' + name);
+        $('include-body').value = data.content || '';
+        $('include-flag').textContent = data.overridden ? 'Custom override active' : 'Using deployed default';
+      }
+      $('include-sel').onchange = loadInc;
+      await loadInc();
+      $('save-include').onclick = async () => {
+        const name = $('include-sel').value;
+        const msg = $('include-msg');
+        msg.hidden = false; msg.className = 'msg'; msg.textContent = 'Saving…';
+        try {
+          await api('/api/editor/include/' + name, {
+            method: 'PUT',
+            body: JSON.stringify({ content: $('include-body').value }),
+          });
+          msg.className = 'msg ok'; msg.textContent = 'Saved — applies to all fear pages.';
+          $('include-flag').textContent = 'Custom override active';
+        } catch (e) {
+          msg.className = 'msg'; msg.textContent = e.message;
+        }
+      };
+    }
+
+    async function openCss() {
+      state.mode = 'css';
+      state.slug = null;
+      renderPageList();
+      const data = await api('/api/editor/css');
+      const ws = $('workspace');
+      ws.innerHTML = `
+        <h2 style="margin:0 0 0.75rem;font-size:1.25rem">Shared CSS</h2>
+        <p class="sub">One stylesheet for all fear pages. Photo URL is injected per page automatically.</p>
+        <textarea id="css-body" style="min-height:32rem">${escapeHtml(data.content || '')}</textarea>
+        <div class="row">
+          <button type="button" class="btn" id="save-css">Save CSS</button>
+          <span class="hint">${data.overridden ? 'Custom override active' : 'Using deployed default'}</span>
+        </div>
+        <p id="css-msg" class="msg" hidden></p>
+      `;
+      $('save-css').onclick = async () => {
+        const msg = $('css-msg');
+        msg.hidden = false; msg.className = 'msg'; msg.textContent = 'Saving…';
+        try {
+          await api('/api/editor/css', {
+            method: 'PUT',
+            body: JSON.stringify({ content: $('css-body').value }),
+          });
+          msg.className = 'msg ok'; msg.textContent = 'Saved — hard-refresh fear pages.';
+        } catch (e) {
+          msg.className = 'msg'; msg.textContent = e.message;
+        }
+      };
+    }
+
+    function escapeHtml(s) {
+      return String(s)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;');
+    }
+
+    const DEFAULT_COLORS = {
+      seed: '#0d5c63',
+      teal: '#0d5c63',
+      tealBright: '#127a84',
+      bg: '#e8eef3',
+      sky: '#7eb8c9',
+      gold: '#c9922a',
+    };
+
+    function normHex(v, fallback) {
+      let s = String(v || '').trim();
+      if (!s.startsWith('#')) s = '#' + s;
+      if (/^#[0-9a-fA-F]{3}$/.test(s)) {
+        s = '#' + s[1] + s[1] + s[2] + s[2] + s[3] + s[3];
+      }
+      if (/^#[0-9a-fA-F]{6}$/.test(s)) return s.toLowerCase();
+      return fallback;
+    }
+
+    function hexToRgb(hex) {
+      const h = normHex(hex, '#000000').slice(1);
+      return {
+        r: parseInt(h.slice(0, 2), 16),
+        g: parseInt(h.slice(2, 4), 16),
+        b: parseInt(h.slice(4, 6), 16),
+      };
+    }
+
+    function rgbToHex(r, g, b) {
+      const to = (n) => Math.max(0, Math.min(255, Math.round(n))).toString(16).padStart(2, '0');
+      return '#' + to(r) + to(g) + to(b);
+    }
+
+    function hexToHsl(hex) {
+      let { r, g, b } = hexToRgb(hex);
+      r /= 255; g /= 255; b /= 255;
+      const max = Math.max(r, g, b), min = Math.min(r, g, b);
+      const l = (max + min) / 2;
+      if (max === min) return { h: 0, s: 0, l };
+      const d = max - min;
+      const s = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+      let h = 0;
+      if (max === r) h = ((g - b) / d + (g < b ? 6 : 0)) / 6;
+      else if (max === g) h = ((b - r) / d + 2) / 6;
+      else h = ((r - g) / d + 4) / 6;
+      return { h: h * 360, s, l };
+    }
+
+    function hslToHex(h, s, l) {
+      h = ((h % 360) + 360) % 360;
+      s = Math.max(0, Math.min(1, s));
+      l = Math.max(0, Math.min(1, l));
+      const c = (1 - Math.abs(2 * l - 1)) * s;
+      const x = c * (1 - Math.abs(((h / 60) % 2) - 1));
+      const m = l - c / 2;
+      let r = 0, g = 0, b = 0;
+      if (h < 60) { r = c; g = x; }
+      else if (h < 120) { r = x; g = c; }
+      else if (h < 180) { g = c; b = x; }
+      else if (h < 240) { g = x; b = c; }
+      else if (h < 300) { r = x; b = c; }
+      else { r = c; b = x; }
+      return rgbToHex((r + m) * 255, (g + m) * 255, (b + m) * 255);
+    }
+
+    /** One seed → accent family + complementary gold. */
+    function paletteFromSeed(seedHex) {
+      const seed = normHex(seedHex, DEFAULT_COLORS.seed);
+      const { h, s } = hexToHsl(seed);
+      const sat = Math.max(0.42, Math.min(0.72, s < 0.12 ? 0.55 : s));
+      const comp = (h + 180) % 360;
+      return {
+        seed,
+        teal: hslToHex(h, sat, 0.24),
+        tealBright: hslToHex(h, Math.min(0.75, sat + 0.05), 0.35),
+        sky: hslToHex(h, Math.max(0.28, sat - 0.15), 0.68),
+        bg: hslToHex(h, Math.max(0.08, sat * 0.22), 0.93),
+        gold: hslToHex(comp, 0.52, 0.46),
+      };
+    }
+
+    function seedFromColors(colors) {
+      if (colors?.seed) return normHex(colors.seed, DEFAULT_COLORS.seed);
+      if (colors?.teal) return normHex(colors.teal, DEFAULT_COLORS.seed);
+      return DEFAULT_COLORS.seed;
+    }
+
+    function bindColorEditor(initial, meta) {
+      const studio = $('theme-studio');
+      if (!studio) return;
+
+      let palette = paletteFromSeed(seedFromColors(initial));
+      const photo = bust(meta.photoUrl || ('/' + meta.slug + '/img/' + (meta.image || '')));
+      const label = escapeHtml(meta.label || meta.slug || 'Fear page');
+
+      studio.innerHTML = `
+        <div class="site-preview" id="site-preview">
+          <div class="sp-nav"><span>Phobia<em>Free</em></span><span>Book</span></div>
+          <div class="sp-hero" id="sp-hero" style="background-image:url('${photo}')">
+            <div class="sp-hero-text">${label}</div>
+          </div>
+          <div class="sp-tiles">
+            <div class="sp-guarantee"><strong>The PhobiaFree Guarantee</strong>If you’re not satisfied after your first session, you don’t pay.</div>
+            <div class="sp-stat"><b>1</b>Session</div>
+          </div>
+          <div class="sp-cta">Book Consultation</div>
+        </div>
+        <div class="theme-controls">
+          <label for="theme-seed">Theme color</label>
+          <div class="seed-row">
+            <input type="color" id="theme-seed" value="${palette.seed}" aria-label="Theme color wheel">
+            <div class="seed-meta">
+              <span class="hint">Drag for infinite choices</span>
+              <code id="theme-seed-hex">${palette.seed}</code>
+            </div>
+          </div>
+          <div class="palette-dots" id="palette-dots" title="Generated complementary palette"></div>
+          <p class="hint" style="margin:0">Accent, hover, sky, background, and complementary gold update together.</p>
+        </div>
+      `;
+
+      function paint() {
+        const preview = $('site-preview');
+        preview.style.setProperty('--pv-teal', palette.teal);
+        preview.style.setProperty('--pv-teal-bright', palette.tealBright);
+        preview.style.setProperty('--pv-bg', palette.bg);
+        preview.style.setProperty('--pv-sky', palette.sky);
+        preview.style.setProperty('--pv-gold', palette.gold);
+        $('theme-seed-hex').textContent = palette.seed;
+        $('palette-dots').innerHTML = [palette.teal, palette.tealBright, palette.sky, palette.bg, palette.gold]
+          .map((c) => `<span style="background:${c}" title="${c}"></span>`).join('');
+      }
+
+      paint();
+
+      $('theme-seed').oninput = () => {
+        palette = paletteFromSeed($('theme-seed').value);
+        paint();
+      };
+
+      $('save-colors').onclick = async () => {
+        const msg = $('colors-msg');
+        msg.hidden = false; msg.className = 'msg'; msg.textContent = 'Saving…';
+        try {
+          await api('/api/editor/page/' + state.slug + '/colors', {
+            method: 'PUT',
+            body: JSON.stringify({ colors: palette, seed: palette.seed }),
+          });
+          msg.className = 'msg ok';
+          msg.textContent = 'Saved — hard-refresh the live page.';
+        } catch (e) {
+          msg.className = 'msg'; msg.textContent = e.message;
+        }
+      };
+
+      $('reset-colors').onclick = () => {
+        palette = paletteFromSeed(DEFAULT_COLORS.seed);
+        $('theme-seed').value = palette.seed;
+        paint();
+      };
+    }
+
+    $('login-btn').onclick = async () => {
+      const btn = $('login-btn');
+      btn.disabled = true;
+      try {
+        await api('/api/editor/login', {
+          method: 'POST',
+          body: JSON.stringify({ passcode: $('passcode').value }),
+        });
+        $('passcode').value = '';
+        await openEditor();
+      } catch (e) {
+        showLogin(e.message);
+      } finally {
+        btn.disabled = false;
+      }
+    };
+    $('passcode').addEventListener('keydown', (e) => { if (e.key === 'Enter') $('login-btn').click(); });
+    $('logout-btn').onclick = async () => {
+      try { await api('/api/editor/logout', { method: 'POST', body: '{}' }); } catch (_) {}
+      showLogin();
+    };
+    $('nav-includes').onclick = () => openIncludes();
+    $('nav-css').onclick = () => openCss();
+
+    (function initTheme() {
+      const key = 'pf-editor-theme';
+      const sel = $('theme-select');
+      const saved = localStorage.getItem(key) || 'coastal';
+      sel.value = saved;
+      document.documentElement.setAttribute('data-theme', saved);
+      sel.onchange = () => {
+        const t = sel.value;
+        document.documentElement.setAttribute('data-theme', t);
+        localStorage.setItem(key, t);
+      };
+    })();
+
+    (async () => {
+      try {
+        const me = await api('/api/editor/me');
+        if (me.authenticated) await openEditor();
+        else showLogin();
+      } catch { showLogin(); }
+    })();
+  </script>
+</body>
+</html>

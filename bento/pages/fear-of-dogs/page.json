@@ -1,0 +1,17 @@
+{
+  "slug": "fear-of-dogs",
+  "title": "Fear of Dogs — Relief in One Session | PhobiaFree.life",
+  "description": "Overcome fear of dogs in one peaceful Zoom session. No trance, no exposure, no long-term therapy.",
+  "cssHref": "/fear-of-dogs/styles.css",
+  "photoUrl": "/fear-of-dogs/img/dogs.png",
+  "pfCurrentSlug": "fear-of-dogs",
+  "pfSamePageSlugs": {
+    "fear-of-dogs": true,
+    "cynophobia": true
+  },
+  "selectedPhobiaSlug": "fear-of-dogs",
+  "assetDir": "fear-of-dogs",
+  "latinSlug": "cynophobia",
+  "label": "Fear of Dogs",
+  "image": "dogs.png"
+}

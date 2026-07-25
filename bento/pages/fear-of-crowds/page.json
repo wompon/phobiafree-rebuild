@@ -1,0 +1,17 @@
+{
+  "slug": "fear-of-crowds",
+  "title": "Fear of Crowds — Relief in One Session | PhobiaFree.life",
+  "description": "Overcome fear of crowds in one peaceful Zoom session. No trance, no exposure, no long-term therapy.",
+  "cssHref": "/fear-of-crowds/styles.css",
+  "photoUrl": "/fear-of-crowds/img/crowds.png",
+  "pfCurrentSlug": "fear-of-crowds",
+  "pfSamePageSlugs": {
+    "fear-of-crowds": true,
+    "enochlophobia": true
+  },
+  "selectedPhobiaSlug": "fear-of-crowds",
+  "assetDir": "fear-of-crowds",
+  "latinSlug": "enochlophobia",
+  "label": "Fear of Crowds",
+  "image": "crowds.png"
+}

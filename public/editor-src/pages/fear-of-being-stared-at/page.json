@@ -1,0 +1,17 @@
+{
+  "slug": "fear-of-being-stared-at",
+  "title": "Fear of Being Stared At — Relief in One Session | PhobiaFree.life",
+  "description": "Overcome fear of being stared at in one peaceful Zoom session. No trance, no exposure, no long-term therapy.",
+  "cssHref": "/fear-of-being-stared-at/styles.css",
+  "photoUrl": "/fear-of-being-stared-at/img/being-stared-at.png",
+  "pfCurrentSlug": "fear-of-being-stared-at",
+  "pfSamePageSlugs": {
+    "fear-of-being-stared-at": true,
+    "scopophobia": true
+  },
+  "selectedPhobiaSlug": "fear-of-being-stared-at",
+  "assetDir": "fear-of-being-stared-at",
+  "latinSlug": "scopophobia",
+  "label": "Fear of Being Stared At",
+  "image": "being-stared-at.png"
+}

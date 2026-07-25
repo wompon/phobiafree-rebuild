@@ -1,0 +1,17 @@
+{
+  "slug": "fear-of-water",
+  "title": "Fear of Water — Feel at Ease in One Session | PhobiaFree.life",
+  "description": "Overcome fear of water in one peaceful Zoom session. No trance, no exposure.",
+  "cssHref": "/fear-of-water/styles.css",
+  "photoUrl": "/fear-of-water/img/water.png",
+  "pfCurrentSlug": "fear-of-water",
+  "pfSamePageSlugs": {
+    "fear-of-water": true,
+    "aquaphobia": true
+  },
+  "selectedPhobiaSlug": "fear-of-water",
+  "assetDir": "fear-of-water",
+  "latinSlug": "aquaphobia",
+  "label": "Fear of Water",
+  "image": "water.png"
+}

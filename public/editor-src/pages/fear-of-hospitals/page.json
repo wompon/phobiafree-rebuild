@@ -1,0 +1,17 @@
+{
+  "slug": "fear-of-hospitals",
+  "title": "Fear of Hospitals — Relief in One Session | PhobiaFree.life",
+  "description": "Overcome fear of hospitals in one peaceful Zoom session. No trance, no exposure, no long-term therapy.",
+  "cssHref": "/fear-of-hospitals/styles.css",
+  "photoUrl": "/fear-of-hospitals/img/hospitals.png",
+  "pfCurrentSlug": "fear-of-hospitals",
+  "pfSamePageSlugs": {
+    "fear-of-hospitals": true,
+    "nosocomephobia": true
+  },
+  "selectedPhobiaSlug": "fear-of-hospitals",
+  "assetDir": "fear-of-hospitals",
+  "latinSlug": "nosocomephobia",
+  "label": "Fear of Hospitals",
+  "image": "hospitals.png"
+}

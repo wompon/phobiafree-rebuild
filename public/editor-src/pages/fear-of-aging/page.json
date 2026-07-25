@@ -1,0 +1,17 @@
+{
+  "slug": "fear-of-aging",
+  "title": "Fear of Aging — Relief in One Session | PhobiaFree.life",
+  "description": "Overcome fear of aging in one peaceful Zoom session. No trance, no exposure, no long-term therapy.",
+  "cssHref": "/fear-of-aging/styles.css",
+  "photoUrl": "/fear-of-aging/img/aging.png",
+  "pfCurrentSlug": "fear-of-aging",
+  "pfSamePageSlugs": {
+    "fear-of-aging": true,
+    "gerascophobia": true
+  },
+  "selectedPhobiaSlug": "fear-of-aging",
+  "assetDir": "fear-of-aging",
+  "latinSlug": "gerascophobia",
+  "label": "Fear of Aging",
+  "image": "aging.png"
+}

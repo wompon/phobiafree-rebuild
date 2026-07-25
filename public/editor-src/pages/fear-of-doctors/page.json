@@ -1,0 +1,17 @@
+{
+  "slug": "fear-of-doctors",
+  "title": "Fear of Doctors — Relief in One Session | PhobiaFree.life",
+  "description": "Overcome fear of doctors in one peaceful Zoom session. No trance, no exposure, no long-term therapy.",
+  "cssHref": "/fear-of-doctors/styles.css",
+  "photoUrl": "/fear-of-doctors/img/doctors.png",
+  "pfCurrentSlug": "fear-of-doctors",
+  "pfSamePageSlugs": {
+    "fear-of-doctors": true,
+    "iatrophobia": true
+  },
+  "selectedPhobiaSlug": "fear-of-doctors",
+  "assetDir": "fear-of-doctors",
+  "latinSlug": "iatrophobia",
+  "label": "Fear of Doctors",
+  "image": "doctors.png"
+}

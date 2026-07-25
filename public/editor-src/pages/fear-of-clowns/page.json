@@ -1,0 +1,17 @@
+{
+  "slug": "fear-of-clowns",
+  "title": "Fear of Clowns — Relief in One Session | PhobiaFree.life",
+  "description": "Overcome fear of clowns in one peaceful Zoom session. No trance, no exposure, no long-term therapy.",
+  "cssHref": "/fear-of-clowns/styles.css",
+  "photoUrl": "/fear-of-clowns/img/clowns.png",
+  "pfCurrentSlug": "fear-of-clowns",
+  "pfSamePageSlugs": {
+    "fear-of-clowns": true,
+    "coulrophobia": true
+  },
+  "selectedPhobiaSlug": "fear-of-clowns",
+  "assetDir": "fear-of-clowns",
+  "latinSlug": "coulrophobia",
+  "label": "Fear of Clowns",
+  "image": "clowns.png"
+}

@@ -1,0 +1,17 @@
+{
+  "slug": "fear-of-sales-calls",
+  "title": "Sales Call Anxiety — Relief in One Session | PhobiaFree.life",
+  "description": "Overcome sales call anxiety in one peaceful Zoom session. No trance, no exposure, no long-term therapy.",
+  "cssHref": "/fear-of-sales-calls/styles.css",
+  "photoUrl": "/fear-of-sales-calls/img/sales-calls.png",
+  "pfCurrentSlug": "fear-of-sales-calls",
+  "pfSamePageSlugs": {
+    "fear-of-sales-calls": true,
+    "sales-call-anxiety": true
+  },
+  "selectedPhobiaSlug": "fear-of-sales-calls",
+  "assetDir": "fear-of-sales-calls",
+  "latinSlug": "sales-call-anxiety",
+  "label": "Sales Call Anxiety",
+  "image": "sales-calls.png"
+}

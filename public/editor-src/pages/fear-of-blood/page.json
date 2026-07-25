@@ -1,0 +1,17 @@
+{
+  "slug": "fear-of-blood",
+  "title": "Fear of Blood — Relief in One Session | PhobiaFree.life",
+  "description": "Overcome fear of blood in one peaceful Zoom session. No trance, no exposure, no long-term therapy.",
+  "cssHref": "/fear-of-blood/styles.css",
+  "photoUrl": "/fear-of-blood/img/blood.png",
+  "pfCurrentSlug": "fear-of-blood",
+  "pfSamePageSlugs": {
+    "fear-of-blood": true,
+    "hemophobia": true
+  },
+  "selectedPhobiaSlug": "fear-of-blood",
+  "assetDir": "fear-of-blood",
+  "latinSlug": "hemophobia",
+  "label": "Fear of Blood",
+  "image": "blood.png"
+}

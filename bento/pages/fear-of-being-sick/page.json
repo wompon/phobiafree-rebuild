@@ -1,0 +1,17 @@
+{
+  "slug": "fear-of-being-sick",
+  "title": "Fear of Being Sick — Relief in One Session | PhobiaFree.life",
+  "description": "Overcome fear of being sick in one peaceful Zoom session. No trance, no exposure, no long-term therapy.",
+  "cssHref": "/fear-of-being-sick/styles.css",
+  "photoUrl": "/fear-of-being-sick/img/being-sick.png",
+  "pfCurrentSlug": "fear-of-being-sick",
+  "pfSamePageSlugs": {
+    "fear-of-being-sick": true,
+    "emetophobia": true
+  },
+  "selectedPhobiaSlug": "fear-of-being-sick",
+  "assetDir": "fear-of-being-sick",
+  "latinSlug": "emetophobia",
+  "label": "Fear of Being Sick",
+  "image": "being-sick.png"
+}

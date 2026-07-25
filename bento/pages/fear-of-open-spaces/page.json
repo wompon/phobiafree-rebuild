@@ -1,0 +1,17 @@
+{
+  "slug": "fear-of-open-spaces",
+  "title": "Fear of Open Spaces — Step Out with Ease in One Session | PhobiaFree.life",
+  "description": "Overcome agoraphobia / fear of open spaces in one peaceful Zoom session.",
+  "cssHref": "/fear-of-open-spaces/styles.css",
+  "photoUrl": "/fear-of-open-spaces/img/open-spaces.png",
+  "pfCurrentSlug": "fear-of-open-spaces",
+  "pfSamePageSlugs": {
+    "fear-of-open-spaces": true,
+    "agoraphobia": true
+  },
+  "selectedPhobiaSlug": "fear-of-open-spaces",
+  "assetDir": "fear-of-open-spaces",
+  "latinSlug": "agoraphobia",
+  "label": "Fear of Open Spaces",
+  "image": "open-spaces.png"
+}

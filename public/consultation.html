@@ -1,0 +1,262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-title" content="Phobia Free Life" />
+<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Schedule Your Free Consultation — PhobiaFree.life</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=DM+Sans:wght@300;400;500&family=Cinzel:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{--teal:#1a6b72;--teal-dark:#124d52;--gold:#c9a84c;--warm-white:#f9f6f1;--charcoal:#2c2c2c;--mid-gray:#6b6b6b;--divider:rgba(26,107,114,0.12);}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'DM Sans',sans-serif;background:var(--warm-white);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:2rem 1rem 4rem;}
+
+/* LOGO — above card, same as coupon */
+.logo{font-family:'Cinzel',serif;font-size:1rem;color:var(--teal-dark);margin-bottom:2rem;text-align:center;text-decoration:none;display:block;}
+.logo span{color:var(--gold);}
+
+/* CARD — same as coupon */
+.card{width:100%;max-width:620px;background:#fff;border-radius:6px;box-shadow:0 4px 40px rgba(18,77,82,0.12);overflow:hidden;position:relative;}
+
+/* GRADIENT STRIPE */
+.confetti{height:4px;background:linear-gradient(90deg,var(--teal) 0%,var(--gold) 33%,var(--teal) 66%,var(--gold) 100%);}
+
+/* DARK TEAL HEADER — same as coupon-header */
+.card-header{background:var(--teal-dark);padding:1.75rem 2rem 1.5rem;text-align:center;}
+.card-eyebrow{font-size:0.68rem;letter-spacing:0.2em;text-transform:uppercase;color:rgba(255,255,255,0.6);margin-bottom:0.4rem;}
+.card-title{font-family:'Cinzel',serif;font-size:1.3rem;color:#fff;margin-bottom:0.25rem;}
+.card-sub{font-size:0.78rem;color:rgba(255,255,255,0.65);}
+
+/* WHITE BODY */
+.card-body{padding:2rem;}
+
+.badge-row{display:flex;gap:0.75rem;flex-wrap:wrap;margin-bottom:1.75rem;}
+.badge{display:inline-flex;align-items:center;gap:0.4rem;font-size:0.75rem;color:var(--mid-gray);background:var(--warm-white);border:1px solid var(--divider);border-radius:20px;padding:0.3rem 0.75rem;}
+
+/* FORM */
+.form-row{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+@media(max-width:500px){.form-row{grid-template-columns:1fr;}}
+.form-group{margin-bottom:1.2rem;}
+.form-group label{display:block;font-size:0.78rem;font-weight:500;letter-spacing:0.04em;color:var(--teal-dark);margin-bottom:0.4rem;}
+.form-group input,.form-group select,.form-group textarea{width:100%;padding:0.65rem 0.85rem;border:1px solid rgba(26,107,114,0.2);border-radius:2px;font-family:'DM Sans',sans-serif;font-size:0.88rem;background:var(--warm-white);color:var(--charcoal);outline:none;transition:border-color 0.2s;}
+.form-group input:focus,.form-group select:focus,.form-group textarea:focus{border-color:var(--teal);}
+.form-group textarea{min-height:80px;resize:vertical;}
+#slotPicker{max-height:260px;overflow-y:auto;border:1px solid rgba(26,107,114,0.2);border-radius:2px;background:var(--warm-white);}
+
+.q-section{margin:1.5rem 0;padding:1.2rem 1.5rem;background:rgba(26,107,114,0.04);border-left:3px solid var(--gold);border-radius:2px;}
+.q-title{font-size:0.72rem;font-weight:500;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);margin-bottom:0.5rem;}
+.q-note{font-size:0.82rem;color:var(--mid-gray);margin-bottom:1.2rem;line-height:1.6;}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:1rem;}
+@media(max-width:500px){.two-col{grid-template-columns:1fr;}}
+
+.form-submit{width:100%;padding:1rem;background:var(--teal);color:#fff;border:none;border-radius:2px;font-family:'Cinzel',serif;font-size:0.88rem;letter-spacing:0.1em;cursor:pointer;transition:background 0.2s;margin-bottom:0.75rem;}
+.form-submit:hover{background:var(--teal-dark);}
+.form-submit:disabled{opacity:0.6;cursor:not-allowed;}
+.form-note{font-size:0.72rem;color:var(--mid-gray);text-align:center;}
+.form-note a{color:var(--teal);}
+#consultMsg{display:none;margin-top:1rem;padding:1rem 1.2rem;border-radius:2px;font-size:0.88rem;line-height:1.6;}
+.msg-success{background:rgba(26,107,114,0.08);border:1px solid rgba(26,107,114,0.2);color:var(--teal-dark);display:block;}
+.msg-error{background:rgba(139,32,32,0.06);border:1px solid rgba(139,32,32,0.15);color:#8b2020;display:block;}
+</style>
+</head>
+<body>
+
+<a href="" class="logo">Phobia<span>Free</span>.life</a>
+
+<div class="card">
+  <div class="confetti"></div>
+
+  <div class="card-header">
+    <div class="card-eyebrow">PhobiaFree.life</div>
+    <div class="card-title">Schedule Your Free Consultation</div>
+    <div class="card-sub">Free &nbsp;·&nbsp; 30 minutes &nbsp;·&nbsp; No obligation &nbsp;·&nbsp; No credit card required</div>
+  </div>
+
+  <div class="card-body">
+    <div class="badge-row">
+      <span class="badge">✓ Completely Free</span>
+      <span class="badge">✓ No Pressure</span>
+    </div>
+
+    <div class="form-row">
+      <div class="form-group">
+        <label>First Name</label>
+        <input type="text" id="cf_first_name" placeholder="Jane"/>
+      </div>
+      <div class="form-group">
+        <label>Last Name</label>
+        <input type="text" id="cf_last_name" placeholder="Smith"/>
+      </div>
+    </div>
+    <div class="form-group">
+      <label>Email Address</label>
+      <input type="email" id="cf_email" placeholder="jane@example.com"/>
+    </div>
+    <div class="form-group">
+      <label>Phone (optional)</label>
+      <input type="tel" id="cf_phone" placeholder="+1 (555) 000-0000"/>
+    </div>
+    <div class="form-group">
+      <label>What is your phobia or fear?</label>
+      <select id="cf_phobia">
+        <option value="">Select one...</option>
+        <option>Fear of Flying</option>
+        <option>Fear of Heights</option>
+        <option>Fear of Water</option>
+        <option>Fear of Driving</option>
+        <option>Fear of Enclosed Spaces</option>
+        <option>Fear of Public Speaking</option>
+        <option>Other (describe below)</option>
+      </select>
+    </div>
+    <div class="form-group">
+      <label>Select an Available Time</label>
+      <div id="slotPicker">
+        <div style="padding:1rem;font-size:0.85rem;color:var(--mid-gray);text-align:center;">Loading available times...</div>
+      </div>
+      <input type="hidden" id="cf_datetime"/>
+    </div>
+    <div class="form-group">
+      <label>Anything you'd like me to know? (optional)</label>
+      <textarea id="cf_notes" placeholder="Brief description of your situation, how long you've had this fear, etc."></textarea>
+    </div>
+
+    <div class="q-section">
+      <div class="q-title">Helpful Questions</div>
+      <p class="q-note">These are questions I will ask you during our consultation anyway — feel free to answer any or all of them now. The more you share, the more I can tailor our session to your specific situation.</p>
+      <div class="form-group">
+        <label>How long has this fear been limiting you?</label>
+        <input type="text" id="cf_q1" placeholder="e.g. Since childhood, about 10 years, etc."/>
+      </div>
+      <div class="two-col">
+        <div class="form-group">
+          <label>Intensity of fear (1–10)</label>
+          <select id="cf_q2">
+            <option value="">Select...</option>
+            <option>1 — Very mild</option>
+            <option>2</option><option>3</option><option>4</option>
+            <option>5 — Moderate</option>
+            <option>6</option><option>7</option><option>8</option><option>9</option>
+            <option>10 — Completely debilitating</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Life interference (1–10)</label>
+          <select id="cf_q3">
+            <option value="">Select...</option>
+            <option>1 — Barely noticeable</option>
+            <option>2</option><option>3</option><option>4</option>
+            <option>5 — Significant impact</option>
+            <option>6</option><option>7</option><option>8</option><option>9</option>
+            <option>10 — Controls my life</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>What do you believe first triggered this response in you?</label>
+        <textarea id="cf_q4" style="min-height:70px;" placeholder="e.g. A specific event, gradual development, not sure..."></textarea>
+      </div>
+      <div class="form-group">
+        <label>Describe the ways this fear has been holding you back and how it makes you feel.</label>
+        <textarea id="cf_q5" style="min-height:70px;" placeholder="e.g. I avoid flying, I can't visit certain places, I feel embarrassed..."></textarea>
+      </div>
+      <div class="form-group">
+        <label>What has the price of this fear been — in relationships, opportunities, income, and experiences you haven't allowed yourself to have yet?</label>
+        <textarea id="cf_q8" style="min-height:70px;" placeholder="e.g. Missed promotions requiring travel, strained relationships..."></textarea>
+      </div>
+      <div class="form-group">
+        <label>As you imagine your life completely free of this fear, what becomes possible for you?</label>
+        <textarea id="cf_q6" style="min-height:70px;" placeholder="e.g. I would travel freely, I would feel confident..."></textarea>
+      </div>
+      <div class="form-group">
+        <label>What other approaches have you tried, and what was missing from those results?</label>
+        <textarea id="cf_q7" style="min-height:70px;" placeholder="e.g. Tried CBT with limited results, looked into medication, etc."></textarea>
+      </div>
+    </div>
+
+    <button class="form-submit" id="consultSubmitBtn" onclick="submitConsultForm(event)">Request My Free Consultation</button>
+    <div id="consultMsg"></div>
+    <p class="form-note">By submitting, you agree to our <a href="/privacy.html">Privacy Policy</a>. Your information is never shared.</p>
+  </div>
+</div>
+
+<script>
+function loadSlots() {
+  const picker = document.getElementById('slotPicker');
+  picker.innerHTML = '<div style="padding:1rem;font-size:0.85rem;color:var(--mid-gray);text-align:center;">Loading available times...</div>';
+  document.getElementById('cf_datetime').value = '';
+  fetch('//api/consult/slots')
+    .then(r => r.json())
+    .then(res => {
+      if (!res.success || !res.days.length) {
+        picker.innerHTML = '<div style="padding:1rem;font-size:0.85rem;color:var(--mid-gray);text-align:center;">No available slots. Please contact us directly.</div>';
+        return;
+      }
+      let html = '';
+      res.days.forEach(day => {
+        html += `<div style="padding:0.6rem 1rem 0.3rem;font-size:0.72rem;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--mid-gray);background:#fff;border-bottom:1px solid rgba(26,107,114,0.08);">${day.label}</div>`;
+        html += '<div style="display:flex;flex-wrap:wrap;gap:6px;padding:0.6rem 0.75rem;">';
+        day.slots.forEach(slot => {
+          if (slot.available) {
+            html += `<button type="button" onclick="selectSlot(this,'${slot.datetime}','${day.label} at ${slot.label}')" style="padding:5px 12px;font-size:0.78rem;border:1px solid rgba(26,107,114,0.3);border-radius:2px;background:#fff;color:var(--teal);cursor:pointer;font-family:inherit;">${slot.label}</button>`;
+          } else {
+            html += `<button type="button" disabled style="padding:5px 12px;font-size:0.78rem;border:1px solid rgba(0,0,0,0.08);border-radius:2px;background:#f5f5f5;color:#bbb;cursor:not-allowed;font-family:inherit;text-decoration:line-through;">${slot.label}</button>`;
+          }
+        });
+        html += '</div>';
+      });
+      picker.innerHTML = html;
+    })
+    .catch(() => { picker.innerHTML = '<div style="padding:1rem;font-size:0.85rem;color:#8b2020;text-align:center;">Could not load times. Please refresh and try again.</div>'; });
+}
+
+function selectSlot(btn, datetime, label) {
+  document.getElementById('cf_datetime').value = datetime;
+  const picker = document.getElementById('slotPicker');
+  picker.style.cssText = 'max-height:none;overflow:visible;border:none;background:transparent;';
+  picker.innerHTML = '<div style="display:flex;align-items:center;justify-content:space-between;padding:0.75rem 1rem;background:rgba(26,107,114,0.06);border:1px solid rgba(26,107,114,0.2);border-radius:2px;"><span style="color:var(--teal);font-size:0.88rem;font-weight:500;">✓ &nbsp;'+label+'</span><span onclick="loadSlots();document.getElementById(\'slotPicker\').style.cssText=\'max-height:260px;overflow-y:auto;border:1px solid rgba(26,107,114,0.2);border-radius:2px;background:var(--warm-white)\';" style="font-size:0.75rem;color:var(--mid-gray);cursor:pointer;text-decoration:underline;">Change</span></div>';
+}
+
+function submitConsultForm(e) {
+  e.preventDefault();
+  const btn = document.getElementById('consultSubmitBtn');
+  const msg = document.getElementById('consultMsg');
+  const first_name = document.getElementById('cf_first_name').value.trim();
+  const last_name  = document.getElementById('cf_last_name').value.trim();
+  const email      = document.getElementById('cf_email').value.trim();
+  const appt_dt    = document.getElementById('cf_datetime').value;
+  if (!first_name || !last_name || !email) { showMsg(msg,'Please fill in your first name, last name, and email.','error'); return; }
+  if (!appt_dt) { showMsg(msg,'Please select an available time slot.','error'); return; }
+  const data = new FormData();
+  data.append('action','book'); data.append('first_name',first_name); data.append('last_name',last_name);
+  data.append('email',email); data.append('phone',document.getElementById('cf_phone').value.trim());
+  data.append('phobia',document.getElementById('cf_phobia').value);
+  data.append('appointment_dt',appt_dt); data.append('notes',document.getElementById('cf_notes').value.trim());
+  data.append('q_duration',document.getElementById('cf_q1').value.trim());
+  data.append('q_intensity',document.getElementById('cf_q2').value);
+  data.append('q_interference',document.getElementById('cf_q3').value);
+  data.append('q_cause',document.getElementById('cf_q4').value.trim());
+  data.append('q_impact',document.getElementById('cf_q5').value.trim());
+  data.append('q_cost',document.getElementById('cf_q8').value.trim());
+  data.append('q_outcome',document.getElementById('cf_q6').value.trim());
+  data.append('q_previous',document.getElementById('cf_q7').value.trim());
+  btn.disabled=true; btn.textContent='Booking...'; msg.style.display='none';
+  fetch('//api/consult/book',{method:'POST',body:data})
+    .then(r=>r.json())
+    .then(res=>{
+      if(res.success){showMsg(msg,res.message,'success');btn.style.display='none';}
+      else{showMsg(msg,res.message,'error');btn.disabled=false;btn.textContent='Request My Free Consultation';}
+    })
+    .catch(()=>{showMsg(msg,'Something went wrong. Please try again.','error');btn.disabled=false;btn.textContent='Request My Free Consultation';});
+}
+
+function showMsg(el,text,type){el.textContent=text;el.className=type==='success'?'msg-success':'msg-error';}
+
+loadSlots();
+</script>
+</body>
+</html>

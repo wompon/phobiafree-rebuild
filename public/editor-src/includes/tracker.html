@@ -1,0 +1,349 @@
+<script>
+(function () {
+  if (window.location.search.indexOf('notrack=1') !== -1) return;
+  // Automation/headless browsers (Selenium, Playwright, Puppeteer, most crawlers)
+  // set navigator.webdriver. Never track them — they're bots, not visitors.
+  if (navigator.webdriver) return;
+
+  var vid = sessionStorage.getItem('pfvid') || '';
+  if (!vid) {
+    vid = 'v_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now().toString(36);
+  }
+  sessionStorage.setItem('pfvid', vid);
+
+  var path = (window.location.pathname || '/').replace(/\.html$/i, '').replace(/\/$/, '') || '/';
+  var parts = path.split('/').filter(Boolean);
+  var page = parts.length ? parts[parts.length - 1] : 'home';
+
+  var mx = 0.5, my = 0.5, lastSent = 0, pendingEvents = [];
+  // Idle detection: a tab left open with no interaction shouldn't stay "live"
+  // on /visitors forever. After IDLE_MS of no mouse/scroll/touch/keyboard, we
+  // stop pinging and drop the visitor; any real interaction brings them back.
+  var IDLE_MS = 120000;
+  var lastActivity = Date.now();
+  var idleLeft = false;
+  // A visitor doesn't count as "live" until they actually do something (move,
+  // scroll, tap, click, type) — OR until they've already done that earlier in
+  // this browser tab session. Once proven human on any page, later pages in the
+  // same session (e.g. switching phobias via the consult modal) start pinging
+  // immediately so a quiet stare still shows on /visitors. Cold bots, prerenders,
+  // and first-ever landings still need a real interaction.
+  var INTERACT_KEY = 'pf_interacted';
+  var hasInteracted = false;
+  try { hasInteracted = sessionStorage.getItem(INTERACT_KEY) === '1'; } catch (e) {}
+  function markActivity() {
+    lastActivity = Date.now();
+    idleLeft = false;
+    hasInteracted = true;
+    try { sessionStorage.setItem(INTERACT_KEY, '1'); } catch (e) {}
+  }
+  var ua = navigator.userAgent, device = 'Desktop';
+  if (/iPhone|iPod/.test(ua)) device = 'iPhone';
+  else if (/iPad/.test(ua)) device = 'iPad';
+  else if (/Android/.test(ua) && /Mobile/.test(ua)) device = 'Android Phone';
+  else if (/Android/.test(ua)) device = 'Android Tablet';
+  else if (/Macintosh/.test(ua)) device = 'Mac';
+  else if (/Windows/.test(ua)) device = 'Windows';
+
+  function getViewport() {
+    if (window.visualViewport) {
+      return {
+        w: Math.round(window.visualViewport.width),
+        h: Math.round(window.visualViewport.height)
+      };
+    }
+    return { w: window.innerWidth, h: window.innerHeight };
+  }
+
+  function isModalTarget(el) {
+    var t = el;
+    while (t && t !== document && t !== document.body) {
+      try {
+        var oc = (t.getAttribute && t.getAttribute('onclick')) || '';
+        if (oc.indexOf('openModal') !== -1) return true;
+        if (t.classList && (t.classList.contains('btn-book') || t.classList.contains('nav-cta'))) {
+          if (oc.indexOf('openModal') !== -1 || (t.getAttribute('href') || '').indexOf('modal=1') !== -1) {
+            return true;
+          }
+        }
+      } catch (e) {}
+      t = t.parentElement;
+    }
+    return false;
+  }
+
+  function selectorFor(el) {
+    try {
+      if (!el) return '';
+      if (el.id) return '#' + el.id;
+      if (el.className && typeof el.className === 'string') {
+        return el.tagName.toLowerCase() + '.' + el.className.trim().split(/\s+/)[0];
+      }
+      return el.tagName ? el.tagName.toLowerCase() : '';
+    } catch (e) {
+      return '';
+    }
+  }
+
+  window.pfTrackPush = function (ev) {
+    if (!ev || typeof ev !== 'object') return;
+    pendingEvents.push(ev);
+    send();
+  };
+
+  document.addEventListener('mousemove', function (e) {
+    mx = e.clientX / window.innerWidth;
+    my = e.clientY / window.innerHeight;
+    markActivity();
+  });
+
+  document.addEventListener('click', function (e) {
+    markActivity();
+    var vp = getViewport();
+    pendingEvents.push({
+      type: 'click',
+      x: Math.round((e.clientX / vp.w) * 1000) / 1000,
+      y: Math.round(Math.max(0, Math.min(1, e.clientY / vp.h)) * 1000) / 1000,
+      modal: isModalTarget(e.target),
+      selector: selectorFor(e.target)
+    });
+    send();
+  });
+
+  var firstLoad = Math.floor(Date.now() / 1000);
+  var modalScrollBound = false;
+
+  function getModalBox() {
+    var modal = document.getElementById('consultModal');
+    if (!modal || !modal.classList.contains('active')) return null;
+    return modal.querySelector('.modal-box');
+  }
+
+  function getScrollMetrics() {
+    var box = getModalBox();
+    if (box) {
+      var sh = box.scrollHeight - box.clientHeight;
+      var sp = sh > 0 ? Math.round((box.scrollTop / sh) * 1000) / 1000 : 0;
+      return {
+        scrollY: Math.round(box.scrollTop || 0),
+        scrollPct: sp,
+        modalScroll: true,
+        section: 'consult-modal'
+      };
+    }
+    var pageSh = document.documentElement.scrollHeight - window.innerHeight;
+    var pageSp = pageSh > 0 ? Math.round((window.scrollY / pageSh) * 1000) / 1000 : 0;
+    return {
+      scrollY: window.scrollY,
+      scrollPct: pageSp,
+      modalScroll: false,
+      section: page
+    };
+  }
+
+  function bindModalScroll() {
+    var box = getModalBox();
+    if (!box || box._pfScrollBound) return;
+    box._pfScrollBound = true;
+    box.addEventListener('scroll', send, { passive: true });
+    modalScrollBound = true;
+  }
+
+  window.pfTrackAttachModalScroll = function () {
+    bindModalScroll();
+    send();
+  };
+
+  // Force an immediate ping, bypassing the 150ms throttle. Called when the modal
+  // opens/closes so the live mirror reflects that state change right away instead
+  // of waiting for the next heartbeat.
+  window.pfTrackFlush = function () {
+    markActivity();
+    lastSent = 0;
+    send();
+  };
+
+  // FAQ accordions (<details class="faq">): send which ones are open so /visitors
+  // can mirror the dropdown state the same way it mirrors the booking modal.
+  function getOpenFaqs() {
+    var open = [];
+    var faqs = document.querySelectorAll('details.faq');
+    for (var i = 0; i < faqs.length; i++) {
+      if (faqs[i].open) open.push(i);
+    }
+    return open;
+  }
+
+  document.addEventListener('toggle', function (e) {
+    var t = e.target;
+    if (!t || !t.classList || !t.classList.contains('faq')) return;
+    markActivity();
+    if (typeof window.pfTrackFlush === 'function') window.pfTrackFlush();
+    else send();
+  }, true);
+
+  // Chrome may PRERENDER this page (speculative load when a link is hovered or
+  // the URL is typed). A prerender runs all our JS/timers invisibly, so without
+  // this guard it pings /track and shows up as a "phantom" visitor on /visitors
+  // until Chrome discards it. Never ping while prerendering; we ping on activation.
+  function isPrerendering() {
+    return document.prerendering === true || document.visibilityState === 'prerender';
+  }
+
+  function adsMeta() {
+    var q = new URLSearchParams(window.location.search || '');
+    return {
+      gclid: q.get('gclid') || '',
+      utm_source: q.get('utm_source') || '',
+      utm_medium: q.get('utm_medium') || '',
+      utm_campaign: q.get('utm_campaign') || '',
+      utm_term: q.get('utm_term') || '',
+      utm_content: q.get('utm_content') || '',
+      referrer: document.referrer || '',
+      path: window.location.pathname || '/'
+    };
+  }
+
+  // Record EVERY landing once — even if they never move the mouse — so Ads
+  // clicks can be reconciled against real page loads (ghost hits included).
+  var hitSent = false;
+  function sendPageHit(interactedFlag) {
+    if (isPrerendering()) return;
+    if (hitSent) return;
+    hitSent = true;
+    var payload = Object.assign({
+      vid: vid,
+      page: page,
+      device: device,
+      hit: 1,
+      interacted: interactedFlag ? 1 : 0
+    }, adsMeta());
+    try {
+      var body = JSON.stringify(payload);
+      if (navigator.sendBeacon) {
+        navigator.sendBeacon('/track?hit=1', new Blob([body], { type: 'application/json' }));
+      } else {
+        fetch('/track?hit=1', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: body,
+          keepalive: true
+        }).catch(function () {});
+      }
+    } catch (e) {}
+  }
+
+  function send() {
+    if (isPrerendering()) return;
+    if (!hasInteracted) return;
+    var now = Date.now();
+    if (now - lastSent < 150) return;
+    lastSent = now;
+    bindModalScroll();
+    var vp = getViewport();
+    var sm = getScrollMetrics();
+    var eventsToSend = pendingEvents.splice(0);
+    var chat = (typeof window.pfGetChatState === 'function') ? window.pfGetChatState() : null;
+    fetch('/track', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        vid: vid,
+        x: Math.round(mx * 1000) / 1000,
+        y: Math.round(my * 1000) / 1000,
+        scrollY: sm.scrollY,
+        scrollPct: sm.scrollPct,
+        modalScroll: sm.modalScroll,
+        openFaqs: getOpenFaqs(),
+        chatOpen: !!(chat && chat.open),
+        chatLeftPct: chat && chat.leftPct != null ? chat.leftPct : null,
+        chatTopPct: chat && chat.topPct != null ? chat.topPct : null,
+        chatMsgs: chat && Array.isArray(chat.msgs) ? chat.msgs : [],
+        vw: vp.w,
+        vh: vp.h,
+        page: page,
+        section: sm.section,
+        device: device,
+        first_load: firstLoad,
+        interacted: 1,
+        events: eventsToSend
+      })
+    }).catch(function () {});
+  }
+
+  function activeSend() { markActivity(); send(); }
+  document.addEventListener('mousemove', activeSend);
+  document.addEventListener('scroll', activeSend, { passive: true });
+  document.addEventListener('touchmove', activeSend, { passive: true });
+  document.addEventListener('touchstart', activeSend, { passive: true });
+  document.addEventListener('keydown', activeSend);
+  document.addEventListener('visibilitychange', function () {
+    if (!document.hidden) activeSend();
+  });
+  // Phone rotate / browser resize — flush so vw/vh land in the next snapshot
+  // quickly (replay applies these dims frame-by-frame).
+  var resizeFlushTimer = null;
+  function onViewportChange() {
+    if (resizeFlushTimer) clearTimeout(resizeFlushTimer);
+    resizeFlushTimer = setTimeout(function () {
+      resizeFlushTimer = null;
+      if (typeof window.pfTrackFlush === 'function') window.pfTrackFlush();
+      else activeSend();
+    }, 120);
+  }
+  window.addEventListener('resize', onViewportChange);
+  window.addEventListener('orientationchange', onViewportChange);
+  if (window.visualViewport) {
+    window.visualViewport.addEventListener('resize', onViewportChange);
+  }
+
+  function leaveNow() {
+    try {
+      var payload = JSON.stringify({ vid: vid });
+      if (navigator.sendBeacon) {
+        navigator.sendBeacon('/track?leave=1', new Blob([payload], { type: 'application/json' }));
+      } else {
+        fetch('/track?leave=1', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: payload,
+          keepalive: true
+        }).catch(function () {});
+      }
+    } catch (e) {}
+  }
+  window.addEventListener('pagehide', leaveNow);
+  window.addEventListener('beforeunload', leaveNow);
+  // When a prerendered page is actually activated (user navigates to it), reset
+  // the session clock and start pinging — this is the first moment it's a real visit.
+  document.addEventListener('prerenderingchange', function () {
+    firstLoad = Math.floor(Date.now() / 1000);
+    sendPageHit(false);
+    markActivity();
+    send();
+  });
+  // Heartbeat: keep the visitor live only while they're actually interacting.
+  // Once idle past IDLE_MS, drop them (send leave once) until activity resumes.
+  // Exception: an open on-site chat counts as active (iPhone keyboard otherwise
+  // throttles timers and the visitor vanishes mid-conversation on /visitors).
+  setInterval(function () {
+    var chatOpen = false;
+    try {
+      var cs = typeof window.pfGetChatState === 'function' ? window.pfGetChatState() : null;
+      chatOpen = !!(cs && cs.open);
+    } catch (e) {}
+    if (chatOpen) markActivity();
+    if (Date.now() - lastActivity > IDLE_MS) {
+      if (!idleLeft) { idleLeft = true; leaveNow(); }
+      return;
+    }
+    send();
+  }, 4000);
+  // Always record the landing hit (Ads reconciliation). Live /visitors still
+  // waits for real interaction so bots don't flood the board.
+  if (!isPrerendering()) setTimeout(function () { sendPageHit(!!hasInteracted); }, 50);
+  // Already proven in this tab session (came from another page) → ping ASAP.
+  // First-ever landing still waits for a real interaction via the listeners above.
+  if (hasInteracted) setTimeout(send, 200);
+})();
+</script>
