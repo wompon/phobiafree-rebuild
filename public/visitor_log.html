@@ -200,6 +200,11 @@ body{font-family:'DM Sans',sans-serif;background:#f0f2f5;color:var(--charcoal);m
 .evolve-cursor-row textarea:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(26,107,114,0.08);}
 .evolve-turn.agent .evolve-bubble.status{opacity:0.88;font-style:italic;}
 .evolve-turn.agent .evolve-bubble.error{border-color:rgba(200,50,50,0.25);color:#8b2020;}
+.evolve-cursor-box.focus-here{border-color:var(--teal);box-shadow:0 0 0 3px rgba(26,107,114,0.12);animation:evolveChatPulse 1.2s ease-out 1;}
+@keyframes evolveChatPulse{
+  0%{box-shadow:0 0 0 0 rgba(26,107,114,0.28);}
+  100%{box-shadow:0 0 0 3px rgba(26,107,114,0);}
+}
 @media(max-width:900px){
   .main.evolve-mode{padding:3.25rem 0.65rem 0.75rem;}
   .evolve-chat-msgs{min-height:220px;}
@@ -506,6 +511,7 @@ var EVOLVE_POLL_TIMER = null;
 var EVOLVE_GENES_OPEN = false;
 var EVOLVE_FORCE_SCROLL = true;
 var EVOLVE_SYNCING = false;
+var EVOLVE_FOCUS_REPLY_ID = null;
 var ARK = { adsPanels: [], adsPanelCatalog: [], adsImports: [], adsRows: [], semrushImports: [], semrushKeywords: [], semrushFilters: {}, cursorCloudReady: false };
 var STATS = { todayCount: 0, weekCount: 0, totalClients: 0, totalRevenue: 0, pendingCount: 0 };
 
@@ -1182,9 +1188,30 @@ function bindEvolveComposer(opts) {
         keep.setSelectionRange(pos, pos);
       } catch (e) {}
     }
+  } else if (EVOLVE_FOCUS_REPLY_ID) {
+    focusEvolveCursorBox(EVOLVE_FOCUS_REPLY_ID);
+    EVOLVE_FOCUS_REPLY_ID = null;
   }
   scrollEvolveChat(forceScroll || EVOLVE_FORCE_SCROLL);
   EVOLVE_FORCE_SCROLL = false;
+}
+
+function focusEvolveCursorBox(id) {
+  var box = document.getElementById('evolveReply_' + id);
+  var wrap = document.querySelector('.evolve-cursor-box[data-idea="' + id + '"]');
+  if (wrap) {
+    wrap.classList.add('focus-here');
+    try { wrap.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch (e) {
+      try { wrap.scrollIntoView(false); } catch (e2) {}
+    }
+  }
+  if (box) {
+    try {
+      box.focus();
+      var pos = box.value.length;
+      box.setSelectionRange(pos, pos);
+    } catch (e) {}
+  }
 }
 
 function renderEvolve() {
@@ -1386,13 +1413,18 @@ async function runEvolveIdea(id) {
   var r = await ajax({ action: 'run_evolve_idea', id: id });
   if (r.error) { toast(r.error, 6000); return; }
   if (r.cloud && r.cloud.ok) {
-    toast('Cursor chatbox ready — reply below the thought');
+    EVOLVE_FOCUS_REPLY_ID = id;
+    toast('Cursor chatbox ready — reply here');
   } else if (r.cloud && r.cloud.note) {
     toast(r.cloud.note, 7000);
   } else {
     toast('Queued');
   }
   await loadDashboard();
+  if (EVOLVE_FOCUS_REPLY_ID) {
+    focusEvolveCursorBox(EVOLVE_FOCUS_REPLY_ID);
+    EVOLVE_FOCUS_REPLY_ID = null;
+  }
 }
 
 async function replyEvolveIdea(id) {
