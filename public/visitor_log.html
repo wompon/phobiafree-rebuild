@@ -162,6 +162,40 @@ body{font-family:'DM Sans',sans-serif;background:#f0f2f5;color:var(--charcoal);m
 .email-actions .btn{padding:0.25rem 0.55rem;font-size:0.68rem;}
 .email-move-select{padding:0.25rem 0.4rem;border:1px solid var(--divider);border-radius:2px;font-size:0.68rem;font-family:'DM Sans',sans-serif;background:#fff;}
 #tab-email.tab-content.active{display:flex;flex-direction:column;flex:1;min-height:0;}
+#tab-evolve.tab-content.active{display:flex;flex-direction:column;flex:1;min-height:0;}
+.main.evolve-mode{padding:1rem 1.25rem 1rem;display:flex;flex-direction:column;min-height:100vh;}
+.evolve-chat-shell{display:flex;flex-direction:column;flex:1;min-height:0;background:#fff;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.04);overflow:hidden;max-width:920px;width:100%;}
+.evolve-chat-head{padding:0.85rem 1.1rem;border-bottom:1px solid var(--divider);flex-shrink:0;display:flex;align-items:flex-start;justify-content:space-between;gap:0.75rem;flex-wrap:wrap;}
+.evolve-chat-head .page-title{font-size:1.45rem;margin:0;}
+.evolve-chat-msgs{flex:1;min-height:280px;overflow:auto;padding:1rem 1.1rem;background:linear-gradient(180deg,#f7f5f1 0%,#f0f2f5 100%);display:flex;flex-direction:column;gap:0.85rem;}
+.evolve-empty{margin:auto;text-align:center;color:var(--mid-gray);font-size:0.88rem;padding:2rem 1rem;line-height:1.5;}
+.evolve-turn{display:flex;flex-direction:column;gap:0.4rem;max-width:min(100%,640px);}
+.evolve-turn.you{align-self:flex-end;align-items:flex-end;}
+.evolve-turn.agent{align-self:flex-start;align-items:flex-start;}
+.evolve-bubble{padding:0.7rem 0.95rem;border-radius:14px;font-size:0.9rem;line-height:1.45;white-space:pre-wrap;word-break:break-word;}
+.evolve-turn.you .evolve-bubble{background:var(--teal-dark);color:#fff;border-bottom-right-radius:4px;}
+.evolve-turn.agent .evolve-bubble{background:#fff;color:var(--charcoal);border:1px solid rgba(26,107,114,0.12);border-bottom-left-radius:4px;box-shadow:0 1px 3px rgba(0,0,0,0.04);}
+.evolve-meta{font-size:0.68rem;color:var(--mid-gray);display:flex;flex-wrap:wrap;gap:0.35rem 0.55rem;align-items:center;}
+.evolve-turn.you .evolve-meta{justify-content:flex-end;}
+.evolve-status{display:inline-block;padding:1px 7px;border-radius:999px;background:rgba(26,107,114,0.1);color:var(--teal-dark);text-transform:uppercase;letter-spacing:0.04em;font-weight:600;}
+.evolve-status.doing,.evolve-status.queued{background:rgba(201,168,76,0.18);color:#8a6a1a;}
+.evolve-status.done{background:rgba(122,158,126,0.18);color:#3d6b42;}
+.evolve-status.blocked{background:rgba(200,50,50,0.1);color:#8b2020;}
+.evolve-actions{display:flex;flex-wrap:wrap;gap:0.3rem;}
+.evolve-actions .btn{font-size:0.68rem;padding:2px 8px;}
+.evolve-note{font-size:0.75rem;color:var(--mid-gray);max-width:100%;}
+.evolve-note a{color:var(--teal-dark);}
+.evolve-composer{flex-shrink:0;border-top:1px solid var(--divider);padding:0.75rem 1rem 0.9rem;background:#fff;display:flex;flex-direction:column;gap:0.55rem;}
+.evolve-composer-row{display:flex;gap:0.55rem;align-items:flex-end;flex-wrap:wrap;}
+.evolve-composer select{padding:0.45rem 0.55rem;border:1px solid rgba(26,107,114,0.2);border-radius:6px;font-family:'DM Sans',sans-serif;font-size:0.78rem;background:var(--warm-white);color:var(--charcoal);outline:none;min-width:120px;}
+.evolve-composer textarea{flex:1;min-width:220px;min-height:44px;max-height:160px;resize:vertical;padding:0.55rem 0.8rem;border:1px solid rgba(26,107,114,0.2);border-radius:18px;font-family:'DM Sans',sans-serif;font-size:0.88rem;outline:none;background:var(--warm-white);line-height:1.4;}
+.evolve-composer textarea:focus,.evolve-composer select:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(26,107,114,0.08);}
+.evolve-composer-hint{font-size:0.7rem;color:var(--mid-gray);}
+.evolve-genes{margin-top:1rem;max-width:920px;width:100%;}
+@media(max-width:900px){
+  .main.evolve-mode{padding:3.25rem 0.65rem 0.75rem;}
+  .evolve-chat-msgs{min-height:220px;}
+}
 @media(max-width:1100px){
   .email-layout{grid-template-columns:180px minmax(200px,280px) 1fr;}
 }
@@ -457,6 +491,10 @@ var VISITOR_LOGS = [];
 var PAGE_HITS = [];
 var EVOLVE_GENES = [];
 var EVOLVE_IDEAS = [];
+var EVOLVE_CHAT_DRAFT = '';
+var EVOLVE_CHAT_DOMAIN = 'general';
+var EVOLVE_POLL_TIMER = null;
+var EVOLVE_GENES_OPEN = false;
 var ARK = { adsPanels: [], adsPanelCatalog: [], adsImports: [], adsRows: [], semrushImports: [], semrushKeywords: [], semrushFilters: {}, cursorCloudReady: false };
 var STATS = { todayCount: 0, weekCount: 0, totalClients: 0, totalRevenue: 0, pendingCount: 0 };
 
@@ -667,9 +705,13 @@ async function loadDashboard() {
       if (tabEl) tabEl.classList.add('active');
       nav.classList.add('active');
       var main = document.querySelector('.main');
-      if (main) main.classList.toggle('email-mode', activeTab === 'email');
+      if (main) {
+        main.classList.toggle('email-mode', activeTab === 'email');
+        main.classList.toggle('evolve-mode', activeTab === 'evolve');
+      }
     }
   }
+  syncEvolvePoll();
 }
 
 function recomputeStats() {
@@ -703,6 +745,7 @@ function refreshViews() {
   else if (tab === 'payments') renderPayments();
   else if (tab === 'email') renderEmail();
   else if (tab === 'visitors') renderVisitors();
+  else if (tab === 'evolve') renderEvolve();
   else if (tab === 'settings') renderSettings();
 }
 
@@ -997,121 +1040,211 @@ function renderVisitors() {
   document.getElementById('tab-visitors').innerHTML = html;
 }
 
+function evolveDomainOptions(selected) {
+  var domains = ['general', 'ads', 'semrush', 'site', 'payments', 'visitors'];
+  var labels = { general: 'General', ads: 'Ads', semrush: 'SEMrush', site: 'Site', payments: 'Payments', visitors: 'Visitors' };
+  return domains.map(function(d) {
+    return '<option value="' + d + '"' + (d === selected ? ' selected' : '') + '>' + labels[d] + '</option>';
+  }).join('');
+}
+
+function evolveAgentUrl(idea) {
+  if (!idea || !idea.run_note) return '';
+  var m = String(idea.run_note).match(/https:\/\/cursor\.com\/agents[^\s]*/i);
+  return m ? m[0] : '';
+}
+
+function syncEvolvePoll() {
+  var active = document.querySelector('.tab-content.active');
+  var onEvolve = !!(active && active.id === 'tab-evolve');
+  var busy = (EVOLVE_IDEAS || []).some(function(i) {
+    return i.status === 'queued' || i.status === 'doing';
+  });
+  if (EVOLVE_POLL_TIMER) {
+    clearInterval(EVOLVE_POLL_TIMER);
+    EVOLVE_POLL_TIMER = null;
+  }
+  if (onEvolve && busy) {
+    EVOLVE_POLL_TIMER = setInterval(function() { loadDashboard(); }, 8000);
+  }
+}
+
+function scrollEvolveChat(force) {
+  var box = document.getElementById('evolveChatMsgs');
+  if (!box) return;
+  var nearBottom = (box.scrollHeight - box.scrollTop - box.clientHeight) < 120;
+  if (force || nearBottom) box.scrollTop = box.scrollHeight;
+}
+
+function bindEvolveComposer() {
+  var ta = document.getElementById('evolveIdeaBody');
+  var sel = document.getElementById('evolveDomain');
+  if (sel) {
+    sel.value = EVOLVE_CHAT_DOMAIN || 'general';
+    sel.onchange = function() { EVOLVE_CHAT_DOMAIN = sel.value || 'general'; };
+  }
+  if (ta) {
+    ta.value = EVOLVE_CHAT_DRAFT || '';
+    ta.oninput = function() { EVOLVE_CHAT_DRAFT = ta.value; };
+    ta.onkeydown = function(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        if (e.metaKey || e.ctrlKey) addEvolveIdeaAndRun();
+        else addEvolveIdea();
+      }
+    };
+    try { ta.focus(); } catch (e) {}
+  }
+  scrollEvolveChat(true);
+}
+
 function renderEvolve() {
   var genes = EVOLVE_GENES || [];
-  var ideas = EVOLVE_IDEAS || [];
-  var inbox = ideas.filter(function(i) { return i.status === 'inbox'; });
-  var allowed = ideas.filter(function(i) { return i.status === 'allowed'; });
-  var queued = ideas.filter(function(i) { return i.status === 'queued'; });
-  var doing = ideas.filter(function(i) { return i.status === 'doing'; });
-  var blocked = ideas.filter(function(i) { return i.status === 'blocked'; });
-  var done = ideas.filter(function(i) { return i.status === 'done'; });
-  var cloudReady = !!(ARK && ARK.cursorCloudReady);
-
-  var html = '<div class="page-header"><div class="page-title">Thoughts</div>';
-  html += '<div style="font-size:0.85rem;color:var(--mid-gray);margin-top:0.35rem;">Type a thought → <b>Run</b> launches a Cursor agent' + (cloudReady ? ' (cloud key ready)' : ' (needs CURSOR_API_KEY secret)') + '. Genes are the laws.</div></div>';
-
-  html += '<div class="card" style="margin-bottom:1.25rem;"><div class="card-header"><div class="card-title">New thought</div></div>';
-  html += '<div style="padding:1.25rem 1.5rem;">';
-  html += '<div class="form-row" style="align-items:end;gap:0.75rem;flex-wrap:wrap;">';
-  html += '<div class="form-group" style="flex:1;min-width:180px;"><label>Domain</label>';
-  html += '<select id="evolveDomain"><option value="ads">Ads</option><option value="semrush">SEMrush</option><option value="site">Site</option><option value="payments">Payments</option><option value="visitors">Visitors</option><option value="general" selected>General</option></select></div>';
-  html += '<div class="form-group" style="flex:3;min-width:280px;"><label>Thought</label>';
-  html += '<textarea id="evolveIdeaBody" rows="2" placeholder="What should we build or change?" style="width:100%;resize:vertical;"></textarea></div>';
-  html += '<button type="button" class="btn btn-teal" onclick="addEvolveIdea()">Add</button>';
-  html += '<button type="button" class="btn btn-teal" onclick="addEvolveIdeaAndRun()">Add + Run</button>';
-  html += '<button type="button" class="btn btn-ghost" onclick="addEvolveIdeaAndAllow()">Add + Allow</button>';
-  html += '</div></div></div>';
-
-  function ideaCard(i) {
-    var h = '<div style="border:1px solid rgba(0,0,0,0.08);border-radius:10px;padding:0.9rem 1rem;margin-bottom:0.65rem;background:#fff;">';
-    h += '<div style="display:flex;justify-content:space-between;gap:0.75rem;align-items:flex-start;flex-wrap:wrap;">';
-    h += '<div style="flex:1;min-width:200px;">';
-    h += '<div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.04em;color:var(--mid-gray);margin-bottom:0.35rem;">' + escapeHtml(i.domain || 'general') + ' · #' + i.id + ' · ' + escapeHtml(i.status || '') + '</div>';
-    h += '<div style="font-size:0.92rem;line-height:1.45;color:var(--charcoal);white-space:pre-wrap;">' + escapeHtml(i.body || '') + '</div>';
-    if (i.result) h += '<div style="margin-top:0.5rem;font-size:0.8rem;color:var(--teal-dark);">Result: ' + escapeHtml(i.result) + '</div>';
-    if (i.run_note) h += '<div style="margin-top:0.35rem;font-size:0.78rem;color:var(--mid-gray);">' + escapeHtml(i.run_note) + '</div>';
-    h += '</div>';
-    h += '<div style="display:flex;flex-wrap:wrap;gap:0.35rem;">';
-    if (i.status !== 'allowed' && i.status !== 'queued' && i.status !== 'doing') {
-      h += '<button class="btn btn-ghost" style="font-size:0.72rem;padding:3px 8px;" onclick="allowEvolveIdea(' + i.id + ')">Allow</button>';
-    }
-    h += '<button class="btn btn-teal" style="font-size:0.72rem;padding:3px 8px;" onclick="runEvolveIdea(' + i.id + ')">Run</button>';
-    if (i.run_note && /cursor\.com\/agents/i.test(i.run_note)) {
-      var m = i.run_note.match(/https:\/\/cursor\.com\/agents[^\s]*/i);
-      if (m) h += '<a class="btn btn-ghost" style="font-size:0.72rem;padding:3px 8px;" href="' + escapeHtml(m[0]) + '" target="_blank" rel="noopener">Open agent</a>';
-    }
-    if (i.agent_prompt) h += '<button class="btn btn-ghost" style="font-size:0.72rem;padding:3px 8px;" onclick="copyEvolvePrompt(' + i.id + ')">Copy prompt</button>';
-    if (i.status !== 'doing') h += '<button class="btn btn-ghost" style="font-size:0.72rem;padding:3px 8px;" onclick="setEvolveStatus(' + i.id + ',\'doing\')">Doing</button>';
-    if (i.status !== 'done') h += '<button class="btn btn-ghost" style="font-size:0.72rem;padding:3px 8px;" onclick="setEvolveStatus(' + i.id + ',\'done\')">Done</button>';
-    if (i.status !== 'blocked') h += '<button class="btn btn-ghost" style="font-size:0.72rem;padding:3px 8px;" onclick="setEvolveStatus(' + i.id + ',\'blocked\')">Block</button>';
-    if (i.status !== 'inbox') h += '<button class="btn btn-ghost" style="font-size:0.72rem;padding:3px 8px;" onclick="setEvolveStatus(' + i.id + ',\'inbox\')">Inbox</button>';
-    h += '<button class="btn btn-red" style="font-size:0.72rem;padding:3px 8px;" onclick="deleteEvolveIdea(' + i.id + ')">Del</button>';
-    h += '</div></div></div>';
-    return h;
-  }
-
-  html += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;margin-bottom:1.5rem;">';
-  [
-    ['Inbox', inbox],
-    ['Allowed', allowed],
-    ['Queued / Run', queued],
-    ['Doing', doing],
-    ['Blocked', blocked],
-    ['Done', done.slice(0, 20)]
-  ].forEach(function(col) {
-    html += '<div class="card"><div class="card-header"><div class="card-title">' + col[0] + ' <span style="color:var(--mid-gray);font-weight:500;">(' + col[1].length + ')</span></div></div>';
-    html += '<div style="padding:0.85rem 1rem;max-height:420px;overflow:auto;">';
-    if (!col[1].length) html += '<div style="font-size:0.82rem;color:var(--mid-gray);padding:0.5rem 0;">Empty</div>';
-    else col[1].forEach(function(i) { html += ideaCard(i); });
-    html += '</div></div>';
+  var ideas = (EVOLVE_IDEAS || []).slice().sort(function(a, b) {
+    return (Number(a.id) || 0) - (Number(b.id) || 0);
   });
-  html += '</div>';
+  var cloudReady = !!(ARK && ARK.cursorCloudReady);
+  var busy = ideas.filter(function(i) { return i.status === 'queued' || i.status === 'doing'; }).length;
+  var activeGenes = genes.filter(function(g) { return !!g.active; }).length;
 
-  html += '<div class="card"><div class="card-header" style="display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;">';
-  html += '<div class="card-title">Genes (laws)</div>';
-  html += '<button type="button" class="btn btn-ghost" style="font-size:0.78rem;" onclick="promptAddGene()">+ Add gene</button>';
-  html += '</div><div style="padding:1rem 1.5rem;">';
-  if (!genes.length) {
-    html += '<div style="color:var(--mid-gray);font-size:0.85rem;">No genes yet — first load seeds defaults.</div>';
+  var html = '<div class="evolve-chat-shell">';
+  html += '<div class="evolve-chat-head">';
+  html += '<div><div class="page-title">Thoughts</div>';
+  html += '<div style="font-size:0.8rem;color:var(--mid-gray);margin-top:0.25rem;">Chat a thought. Enter queues it · Ctrl/⌘+Enter runs an agent' + (cloudReady ? '' : ' (needs CURSOR_API_KEY)') + '.</div></div>';
+  html += '<div style="font-size:0.72rem;color:var(--mid-gray);text-align:right;">' + ideas.length + ' thoughts';
+  if (busy) html += ' · <span style="color:#8a6a1a;">' + busy + ' running</span>';
+  html += '<br/>' + activeGenes + ' active genes</div></div>';
+
+  html += '<div class="evolve-chat-msgs" id="evolveChatMsgs">';
+  if (!ideas.length) {
+    html += '<div class="evolve-empty">No thoughts yet.<br/>Type below — this chat is the inbox.</div>';
   } else {
-    genes.forEach(function(g) {
-      var on = !!g.active;
-      html += '<div style="padding:0.85rem 0;border-bottom:1px solid rgba(0,0,0,0.06);opacity:' + (on ? '1' : '0.45') + ';">';
-      html += '<div style="display:flex;justify-content:space-between;gap:0.75rem;align-items:flex-start;flex-wrap:wrap;">';
-      html += '<div style="flex:1;min-width:220px;">';
-      html += '<div style="font-weight:600;color:var(--charcoal);margin-bottom:0.25rem;">' + escapeHtml(g.title || '') + '</div>';
-      html += '<div style="font-size:0.85rem;line-height:1.5;color:var(--mid-gray);">' + escapeHtml(g.rule || '') + '</div>';
-      html += '</div>';
-      html += '<div style="display:flex;gap:0.35rem;">';
-      html += '<button class="btn btn-ghost" style="font-size:0.72rem;padding:3px 8px;" onclick="toggleEvolveGene(' + g.id + ',' + (on ? 'false' : 'true') + ')">' + (on ? 'Off' : 'On') + '</button>';
-      html += '<button class="btn btn-red" style="font-size:0.72rem;padding:3px 8px;" onclick="deleteEvolveGene(' + g.id + ')">Del</button>';
-      html += '</div></div></div>';
+    ideas.forEach(function(i) {
+      var st = i.status || 'inbox';
+      var agentUrl = evolveAgentUrl(i);
+      html += '<div class="evolve-turn you" data-idea="' + i.id + '">';
+      html += '<div class="evolve-bubble">' + escapeHtml(i.body || '') + '</div>';
+      html += '<div class="evolve-meta"><span class="evolve-status ' + escapeHtml(st) + '">' + escapeHtml(st) + '</span>';
+      html += '<span>' + escapeHtml(i.domain || 'general') + ' · #' + i.id + '</span></div>';
+      html += '<div class="evolve-actions">';
+      if (st !== 'allowed' && st !== 'queued' && st !== 'doing') {
+        html += '<button type="button" class="btn btn-ghost" onclick="allowEvolveIdea(' + i.id + ')">Allow</button>';
+      }
+      html += '<button type="button" class="btn btn-teal" onclick="runEvolveIdea(' + i.id + ')">Run</button>';
+      if (agentUrl) html += '<a class="btn btn-ghost" href="' + escapeHtml(agentUrl) + '" target="_blank" rel="noopener">Open agent</a>';
+      if (i.agent_prompt) html += '<button type="button" class="btn btn-ghost" onclick="copyEvolvePrompt(' + i.id + ')">Copy prompt</button>';
+      if (st !== 'done') html += '<button type="button" class="btn btn-ghost" onclick="setEvolveStatus(' + i.id + ',\'done\')">Done</button>';
+      if (st !== 'blocked') html += '<button type="button" class="btn btn-ghost" onclick="setEvolveStatus(' + i.id + ',\'blocked\')">Block</button>';
+      if (st !== 'inbox') html += '<button type="button" class="btn btn-ghost" onclick="setEvolveStatus(' + i.id + ',\'inbox\')">Inbox</button>';
+      html += '<button type="button" class="btn btn-red" onclick="deleteEvolveIdea(' + i.id + ')">Del</button>';
+      html += '</div></div>';
+
+      if (i.run_note || i.result || st === 'doing' || st === 'queued') {
+        html += '<div class="evolve-turn agent">';
+        if (i.result) {
+          html += '<div class="evolve-bubble">' + escapeHtml(i.result) + '</div>';
+        } else if (st === 'doing' || st === 'queued') {
+          html += '<div class="evolve-bubble">Agent ' + escapeHtml(st) + '…</div>';
+        } else {
+          html += '<div class="evolve-bubble" style="opacity:0.85;">No result note yet.</div>';
+        }
+        if (i.run_note) {
+          var noteHtml = escapeHtml(i.run_note);
+          if (agentUrl) {
+            noteHtml = noteHtml.replace(escapeHtml(agentUrl), '<a href="' + escapeHtml(agentUrl) + '" target="_blank" rel="noopener">' + escapeHtml(agentUrl) + '</a>');
+          }
+          html += '<div class="evolve-note">' + noteHtml + '</div>';
+        }
+        html += '</div>';
+      }
     });
   }
+  html += '</div>';
+
+  html += '<div class="evolve-composer">';
+  html += '<div class="evolve-composer-row">';
+  html += '<select id="evolveDomain" aria-label="Domain">' + evolveDomainOptions(EVOLVE_CHAT_DOMAIN || 'general') + '</select>';
+  html += '<textarea id="evolveIdeaBody" rows="2" placeholder="What should we build or change?"></textarea>';
+  html += '<button type="button" class="btn btn-ghost" onclick="addEvolveIdea()">Queue</button>';
+  html += '<button type="button" class="btn btn-teal" onclick="addEvolveIdeaAndRun()">Run</button>';
+  html += '</div>';
+  html += '<div class="evolve-composer-hint">Enter = queue to inbox · Ctrl/⌘+Enter = queue + run · Shift+Enter = newline</div>';
   html += '</div></div>';
 
-  document.getElementById('tab-evolve').innerHTML = html;
+  html += '<div class="evolve-genes card">';
+  html += '<div class="card-header" style="cursor:pointer;" onclick="toggleEvolveGenesPanel()">';
+  html += '<div class="card-title">Genes (laws) <span style="color:var(--mid-gray);font-weight:500;">(' + genes.length + ')</span></div>';
+  html += '<div style="display:flex;gap:0.35rem;align-items:center;">';
+  html += '<button type="button" class="btn btn-ghost" style="font-size:0.72rem;" onclick="event.stopPropagation();promptAddGene()">+ Add</button>';
+  html += '<span style="font-size:0.72rem;color:var(--mid-gray);">' + (EVOLVE_GENES_OPEN ? 'Hide' : 'Show') + '</span>';
+  html += '</div></div>';
+  if (EVOLVE_GENES_OPEN) {
+    html += '<div style="padding:1rem 1.5rem;">';
+    if (!genes.length) {
+      html += '<div style="color:var(--mid-gray);font-size:0.85rem;">No genes yet — first load seeds defaults.</div>';
+    } else {
+      genes.forEach(function(g) {
+        var on = !!g.active;
+        html += '<div style="padding:0.85rem 0;border-bottom:1px solid rgba(0,0,0,0.06);opacity:' + (on ? '1' : '0.45') + ';">';
+        html += '<div style="display:flex;justify-content:space-between;gap:0.75rem;align-items:flex-start;flex-wrap:wrap;">';
+        html += '<div style="flex:1;min-width:220px;">';
+        html += '<div style="font-weight:600;color:var(--charcoal);margin-bottom:0.25rem;">' + escapeHtml(g.title || '') + '</div>';
+        html += '<div style="font-size:0.85rem;line-height:1.5;color:var(--mid-gray);">' + escapeHtml(g.rule || '') + '</div>';
+        html += '</div>';
+        html += '<div style="display:flex;gap:0.35rem;">';
+        html += '<button class="btn btn-ghost" style="font-size:0.72rem;padding:3px 8px;" onclick="toggleEvolveGene(' + g.id + ',' + (on ? 'false' : 'true') + ')">' + (on ? 'Off' : 'On') + '</button>';
+        html += '<button class="btn btn-red" style="font-size:0.72rem;padding:3px 8px;" onclick="deleteEvolveGene(' + g.id + ')">Del</button>';
+        html += '</div></div></div>';
+      });
+    }
+    html += '</div>';
+  }
+  html += '</div>';
+
+  var tab = document.getElementById('tab-evolve');
+  tab.innerHTML = html;
+  var main = document.querySelector('.main');
+  if (main && tab.classList.contains('active')) main.classList.add('evolve-mode');
+  bindEvolveComposer();
+  syncEvolvePoll();
+}
+
+function toggleEvolveGenesPanel() {
+  EVOLVE_GENES_OPEN = !EVOLVE_GENES_OPEN;
+  renderEvolve();
+}
+
+function readEvolveComposer() {
+  var domainEl = document.getElementById('evolveDomain');
+  var bodyEl = document.getElementById('evolveIdeaBody');
+  var domain = (domainEl && domainEl.value) || EVOLVE_CHAT_DOMAIN || 'general';
+  var body = ((bodyEl && bodyEl.value) || EVOLVE_CHAT_DRAFT || '').trim();
+  EVOLVE_CHAT_DOMAIN = domain;
+  return { domain: domain, body: body };
+}
+
+function clearEvolveComposer() {
+  EVOLVE_CHAT_DRAFT = '';
+  var bodyEl = document.getElementById('evolveIdeaBody');
+  if (bodyEl) bodyEl.value = '';
 }
 
 async function addEvolveIdea() {
-  var body = (document.getElementById('evolveIdeaBody') || {}).value || '';
-  var domain = (document.getElementById('evolveDomain') || {}).value || 'general';
-  body = body.trim();
-  if (!body) { toast('Write a thought first'); return; }
-  var r = await ajax({ action: 'add_evolve_idea', domain: domain, body: body });
+  var c = readEvolveComposer();
+  if (!c.body) { toast('Write a thought first'); return; }
+  var r = await ajax({ action: 'add_evolve_idea', domain: c.domain, body: c.body });
   if (r.error) { toast(r.error); return; }
+  clearEvolveComposer();
   toast('Thought queued');
   await loadDashboard();
 }
 
 async function addEvolveIdeaAndAllow() {
-  var body = (document.getElementById('evolveIdeaBody') || {}).value || '';
-  var domain = (document.getElementById('evolveDomain') || {}).value || 'general';
-  body = body.trim();
-  if (!body) { toast('Write a thought first'); return; }
-  var r = await ajax({ action: 'add_evolve_idea', domain: domain, body: body });
+  var c = readEvolveComposer();
+  if (!c.body) { toast('Write a thought first'); return; }
+  var r = await ajax({ action: 'add_evolve_idea', domain: c.domain, body: c.body });
   if (r.error) { toast(r.error); return; }
+  clearEvolveComposer();
   if (r.id) {
     var a = await ajax({ action: 'allow_evolve_idea', id: r.id });
     if (a.error) { toast(a.error); return; }
@@ -1128,12 +1261,11 @@ async function allowEvolveIdea(id) {
 }
 
 async function addEvolveIdeaAndRun() {
-  var domain = (document.getElementById('evolveDomain') || {}).value || 'general';
-  var body = ((document.getElementById('evolveIdeaBody') || {}).value || '').trim();
-  if (!body) { toast('Write a thought first'); return; }
-  var r = await ajax({ ajax_action: 'add_evolve_idea', domain: domain, body: body });
+  var c = readEvolveComposer();
+  if (!c.body) { toast('Write a thought first'); return; }
+  var r = await ajax({ ajax_action: 'add_evolve_idea', domain: c.domain, body: c.body });
   if (r.error) { toast(r.error); return; }
-  if (document.getElementById('evolveIdeaBody')) document.getElementById('evolveIdeaBody').value = '';
+  clearEvolveComposer();
   if (!r.id) { toast('Saved but missing id'); await loadDashboard(); return; }
   await runEvolveIdea(r.id);
 }
@@ -3545,11 +3677,21 @@ function switchTab(tab, el) {
     if (nav) nav.classList.add('active');
   }
   var main = document.querySelector('.main');
-  if (main) main.classList.toggle('email-mode', tab === 'email');
+  if (main) {
+    main.classList.toggle('email-mode', tab === 'email');
+    main.classList.toggle('evolve-mode', tab === 'evolve');
+  }
   if (tab === 'schedule') renderSchedule();
   if (tab === 'email') loadEmailInbox();
   if (tab === 'semrush') renderSemrush();
   if (tab === 'ads') renderAds();
+  if (tab === 'evolve') {
+    renderEvolve();
+    bindEvolveComposer();
+  } else if (EVOLVE_POLL_TIMER) {
+    clearInterval(EVOLVE_POLL_TIMER);
+    EVOLVE_POLL_TIMER = null;
+  }
   if (window.innerWidth <= 900) {
     var sb = document.getElementById('sidebar');
     if (sb && sb.classList.contains('open')) toggleSidebar();
