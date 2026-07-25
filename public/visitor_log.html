@@ -162,12 +162,12 @@ body{font-family:'DM Sans',sans-serif;background:#f0f2f5;color:var(--charcoal);m
 .email-actions .btn{padding:0.25rem 0.55rem;font-size:0.68rem;}
 .email-move-select{padding:0.25rem 0.4rem;border:1px solid var(--divider);border-radius:2px;font-size:0.68rem;font-family:'DM Sans',sans-serif;background:#fff;}
 #tab-email.tab-content.active{display:flex;flex-direction:column;flex:1;min-height:0;}
-#tab-evolve.tab-content.active{display:flex;flex-direction:column;flex:1;min-height:0;}
-.main.evolve-mode{padding:1rem 1.25rem 1rem;display:flex;flex-direction:column;min-height:100vh;}
+#tab-evolve.tab-content.active{display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden;gap:0.65rem;}
+.main.evolve-mode{padding:1rem 1.25rem 1rem;display:flex;flex-direction:column;height:100vh;max-height:100vh;overflow:hidden;}
 .evolve-chat-shell{display:flex;flex-direction:column;flex:1;min-height:0;background:#fff;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.04);overflow:hidden;max-width:920px;width:100%;}
 .evolve-chat-head{padding:0.85rem 1.1rem;border-bottom:1px solid var(--divider);flex-shrink:0;display:flex;align-items:flex-start;justify-content:space-between;gap:0.75rem;flex-wrap:wrap;}
 .evolve-chat-head .page-title{font-size:1.45rem;margin:0;}
-.evolve-chat-msgs{flex:1;min-height:280px;overflow:auto;padding:1rem 1.1rem;background:linear-gradient(180deg,#f7f5f1 0%,#f0f2f5 100%);display:flex;flex-direction:column;gap:0.85rem;}
+.evolve-chat-msgs{flex:1;min-height:160px;overflow:auto;padding:1rem 1.1rem;background:linear-gradient(180deg,#f7f5f1 0%,#f0f2f5 100%);display:flex;flex-direction:column;gap:0.85rem;}
 .evolve-empty{margin:auto;text-align:center;color:var(--mid-gray);font-size:0.88rem;padding:2rem 1rem;line-height:1.5;}
 .evolve-turn{display:flex;flex-direction:column;gap:0.4rem;max-width:min(100%,640px);}
 .evolve-turn.you{align-self:flex-end;align-items:flex-end;}
@@ -185,13 +185,13 @@ body{font-family:'DM Sans',sans-serif;background:#f0f2f5;color:var(--charcoal);m
 .evolve-actions .btn{font-size:0.68rem;padding:2px 8px;}
 .evolve-note{font-size:0.75rem;color:var(--mid-gray);max-width:100%;}
 .evolve-note a{color:var(--teal-dark);}
-.evolve-composer{flex-shrink:0;border-top:1px solid var(--divider);padding:0.75rem 1rem 0.9rem;background:#fff;display:flex;flex-direction:column;gap:0.55rem;}
+.evolve-composer{flex-shrink:0;border-top:1px solid var(--divider);padding:0.75rem 1rem 0.9rem;background:#fff;display:flex;flex-direction:column;gap:0.55rem;position:sticky;bottom:0;z-index:2;}
 .evolve-composer-row{display:flex;gap:0.55rem;align-items:flex-end;flex-wrap:wrap;}
 .evolve-composer select{padding:0.45rem 0.55rem;border:1px solid rgba(26,107,114,0.2);border-radius:6px;font-family:'DM Sans',sans-serif;font-size:0.78rem;background:var(--warm-white);color:var(--charcoal);outline:none;min-width:120px;}
 .evolve-composer textarea{flex:1;min-width:220px;min-height:44px;max-height:160px;resize:vertical;padding:0.55rem 0.8rem;border:1px solid rgba(26,107,114,0.2);border-radius:18px;font-family:'DM Sans',sans-serif;font-size:0.88rem;outline:none;background:var(--warm-white);line-height:1.4;}
 .evolve-composer textarea:focus,.evolve-composer select:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(26,107,114,0.08);}
 .evolve-composer-hint{font-size:0.7rem;color:var(--mid-gray);}
-.evolve-genes{margin-top:1rem;max-width:920px;width:100%;}
+.evolve-genes{flex-shrink:0;max-width:920px;width:100%;max-height:40%;overflow:auto;margin:0;}
 .evolve-cursor-box{align-self:stretch;max-width:min(100%,640px);margin-top:0.15rem;padding:0.65rem 0.75rem;background:#fff;border:1px solid rgba(26,107,114,0.16);border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,0.04);}
 .evolve-cursor-box-label{font-size:0.68rem;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:var(--teal-dark);margin-bottom:0.45rem;display:flex;justify-content:space-between;gap:0.5rem;align-items:center;}
 .evolve-cursor-box-label a{color:var(--teal-dark);text-transform:none;letter-spacing:0;font-weight:500;}
@@ -206,8 +206,9 @@ body{font-family:'DM Sans',sans-serif;background:#f0f2f5;color:var(--charcoal);m
   100%{box-shadow:0 0 0 3px rgba(26,107,114,0);}
 }
 @media(max-width:900px){
-  .main.evolve-mode{padding:3.25rem 0.65rem 0.75rem;}
-  .evolve-chat-msgs{min-height:220px;}
+  .main.evolve-mode{padding:3.25rem 0.65rem 0.75rem;height:100dvh;max-height:100dvh;}
+  .evolve-chat-msgs{min-height:120px;}
+  .evolve-genes{max-height:32%;}
 }
 @media(max-width:1100px){
   .email-layout{grid-template-columns:180px minmax(200px,280px) 1fr;}
@@ -1214,6 +1215,39 @@ function focusEvolveCursorBox(id) {
   }
 }
 
+function renderEvolveGenesPanel(genes) {
+  var html = '<div class="evolve-genes card">';
+  html += '<div class="card-header" style="cursor:pointer;" onclick="toggleEvolveGenesPanel()">';
+  html += '<div class="card-title">Genes (laws) <span style="color:var(--mid-gray);font-weight:500;">(' + genes.length + ')</span></div>';
+  html += '<div style="display:flex;gap:0.35rem;align-items:center;">';
+  html += '<button type="button" class="btn btn-ghost" style="font-size:0.72rem;" onclick="event.stopPropagation();promptAddGene()">+ Add</button>';
+  html += '<span style="font-size:0.72rem;color:var(--mid-gray);">' + (EVOLVE_GENES_OPEN ? 'Hide' : 'Show') + '</span>';
+  html += '</div></div>';
+  if (EVOLVE_GENES_OPEN) {
+    html += '<div style="padding:1rem 1.5rem;">';
+    if (!genes.length) {
+      html += '<div style="color:var(--mid-gray);font-size:0.85rem;">No genes yet — first load seeds defaults.</div>';
+    } else {
+      genes.forEach(function(g) {
+        var on = !!g.active;
+        html += '<div style="padding:0.85rem 0;border-bottom:1px solid rgba(0,0,0,0.06);opacity:' + (on ? '1' : '0.45') + ';">';
+        html += '<div style="display:flex;justify-content:space-between;gap:0.75rem;align-items:flex-start;flex-wrap:wrap;">';
+        html += '<div style="flex:1;min-width:220px;">';
+        html += '<div style="font-weight:600;color:var(--charcoal);margin-bottom:0.25rem;">' + escapeHtml(g.title || '') + '</div>';
+        html += '<div style="font-size:0.85rem;line-height:1.5;color:var(--mid-gray);">' + escapeHtml(g.rule || '') + '</div>';
+        html += '</div>';
+        html += '<div style="display:flex;gap:0.35rem;">';
+        html += '<button class="btn btn-ghost" style="font-size:0.72rem;padding:3px 8px;" onclick="toggleEvolveGene(' + g.id + ',' + (on ? 'false' : 'true') + ')">' + (on ? 'Off' : 'On') + '</button>';
+        html += '<button class="btn btn-red" style="font-size:0.72rem;padding:3px 8px;" onclick="deleteEvolveGene(' + g.id + ')">Del</button>';
+        html += '</div></div></div>';
+      });
+    }
+    html += '</div>';
+  }
+  html += '</div>';
+  return html;
+}
+
 function renderEvolve() {
   var genes = EVOLVE_GENES || [];
   var ideas = (EVOLVE_IDEAS || []).slice().sort(function(a, b) {
@@ -1223,17 +1257,20 @@ function renderEvolve() {
   var busy = ideas.filter(function(i) { return i.status === 'queued' || i.status === 'doing'; }).length;
   var activeGenes = genes.filter(function(g) { return !!g.active; }).length;
 
-  var html = '<div class="evolve-chat-shell">';
+  // Genes above; chat shell fills the rest with composer pinned at the bottom of the page.
+  var html = renderEvolveGenesPanel(genes);
+
+  html += '<div class="evolve-chat-shell">';
   html += '<div class="evolve-chat-head">';
   html += '<div><div class="page-title">Thoughts</div>';
-  html += '<div style="font-size:0.8rem;color:var(--mid-gray);margin-top:0.25rem;">Cursor chatbox on this page — Enter queues · Ctrl/⌘+Enter runs' + (cloudReady ? '' : ' (needs CURSOR_API_KEY)') + '.</div></div>';
+  html += '<div style="font-size:0.8rem;color:var(--mid-gray);margin-top:0.25rem;">Chat lives at the bottom — Enter queues · Ctrl/⌘+Enter runs' + (cloudReady ? '' : ' (needs CURSOR_API_KEY)') + '.</div></div>';
   html += '<div style="font-size:0.72rem;color:var(--mid-gray);text-align:right;">' + ideas.length + ' thoughts';
   if (busy) html += ' · <span style="color:#8a6a1a;">' + busy + ' running</span>';
   html += '<br/>' + activeGenes + ' active genes</div></div>';
 
   html += '<div class="evolve-chat-msgs" id="evolveChatMsgs">';
   if (!ideas.length) {
-    html += '<div class="evolve-empty">No thoughts yet.<br/>Type below — Run opens a Cursor chatbox here.</div>';
+    html += '<div class="evolve-empty">No thoughts yet.<br/>Type in the chat box at the bottom to start.</div>';
   } else {
     ideas.forEach(function(i) {
       var st = i.status || 'inbox';
@@ -1304,38 +1341,8 @@ function renderEvolve() {
   html += '<button type="button" class="btn btn-ghost" onclick="addEvolveIdea()">Queue</button>';
   html += '<button type="button" class="btn btn-teal" onclick="addEvolveIdeaAndRun()">Run</button>';
   html += '</div>';
-  html += '<div class="evolve-composer-hint">Enter = queue · Ctrl/⌘+Enter = run Cursor agent · reply boxes appear under live agents</div>';
+  html += '<div class="evolve-composer-hint">Composer stays at the bottom · Enter = queue · Ctrl/⌘+Enter = run · reply under live agents</div>';
   html += '</div></div>';
-
-  html += '<div class="evolve-genes card">';
-  html += '<div class="card-header" style="cursor:pointer;" onclick="toggleEvolveGenesPanel()">';
-  html += '<div class="card-title">Genes (laws) <span style="color:var(--mid-gray);font-weight:500;">(' + genes.length + ')</span></div>';
-  html += '<div style="display:flex;gap:0.35rem;align-items:center;">';
-  html += '<button type="button" class="btn btn-ghost" style="font-size:0.72rem;" onclick="event.stopPropagation();promptAddGene()">+ Add</button>';
-  html += '<span style="font-size:0.72rem;color:var(--mid-gray);">' + (EVOLVE_GENES_OPEN ? 'Hide' : 'Show') + '</span>';
-  html += '</div></div>';
-  if (EVOLVE_GENES_OPEN) {
-    html += '<div style="padding:1rem 1.5rem;">';
-    if (!genes.length) {
-      html += '<div style="color:var(--mid-gray);font-size:0.85rem;">No genes yet — first load seeds defaults.</div>';
-    } else {
-      genes.forEach(function(g) {
-        var on = !!g.active;
-        html += '<div style="padding:0.85rem 0;border-bottom:1px solid rgba(0,0,0,0.06);opacity:' + (on ? '1' : '0.45') + ';">';
-        html += '<div style="display:flex;justify-content:space-between;gap:0.75rem;align-items:flex-start;flex-wrap:wrap;">';
-        html += '<div style="flex:1;min-width:220px;">';
-        html += '<div style="font-weight:600;color:var(--charcoal);margin-bottom:0.25rem;">' + escapeHtml(g.title || '') + '</div>';
-        html += '<div style="font-size:0.85rem;line-height:1.5;color:var(--mid-gray);">' + escapeHtml(g.rule || '') + '</div>';
-        html += '</div>';
-        html += '<div style="display:flex;gap:0.35rem;">';
-        html += '<button class="btn btn-ghost" style="font-size:0.72rem;padding:3px 8px;" onclick="toggleEvolveGene(' + g.id + ',' + (on ? 'false' : 'true') + ')">' + (on ? 'Off' : 'On') + '</button>';
-        html += '<button class="btn btn-red" style="font-size:0.72rem;padding:3px 8px;" onclick="deleteEvolveGene(' + g.id + ')">Del</button>';
-        html += '</div></div></div>';
-      });
-    }
-    html += '</div>';
-  }
-  html += '</div>';
 
   var tab = document.getElementById('tab-evolve');
   tab.innerHTML = html;
@@ -1400,7 +1407,7 @@ async function allowEvolveIdea(id) {
 async function addEvolveIdeaAndRun() {
   var c = readEvolveComposer();
   if (!c.body) { toast('Write a thought first'); return; }
-  var r = await ajax({ ajax_action: 'add_evolve_idea', domain: c.domain, body: c.body });
+  var r = await ajax({ action: 'add_evolve_idea', domain: c.domain, body: c.body });
   if (r.error) { toast(r.error); return; }
   clearEvolveComposer();
   if (!r.id) { toast('Saved but missing id'); await loadDashboard(); return; }
