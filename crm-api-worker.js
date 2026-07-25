@@ -513,6 +513,16 @@ async function ensureEvolveSchema(env) {
       updated_at TEXT DEFAULT CURRENT_TIMESTAMP
     )
   `).run();
+  for (const sql of [
+    'ALTER TABLE evolve_ideas ADD COLUMN allowed INTEGER DEFAULT 0',
+    'ALTER TABLE evolve_ideas ADD COLUMN agent_prompt TEXT',
+    'ALTER TABLE evolve_ideas ADD COLUMN run_note TEXT',
+    'ALTER TABLE evolve_ideas ADD COLUMN agent_id TEXT',
+    'ALTER TABLE evolve_ideas ADD COLUMN run_id TEXT',
+    'ALTER TABLE evolve_ideas ADD COLUMN chat_json TEXT',
+  ]) {
+    try { await env.phobiafree_db.prepare(sql).run(); } catch (_) { /* exists */ }
+  }
   const count = await env.phobiafree_db.prepare('SELECT COUNT(*) AS c FROM evolve_genes').first();
   if (!count || !count.c) {
     const seeds = [
