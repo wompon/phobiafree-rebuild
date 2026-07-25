@@ -102,6 +102,8 @@ async function handleDashboard(request, env) {
     semrushKeywords: [],
     semrushFilters: {},
     cursorCloudReady: false,
+    githubAutopilotReady: false,
+    adminChat: { messages: [], agentId: '', runId: '' },
   };
   try {
     ark = await loadArkBundle(env);

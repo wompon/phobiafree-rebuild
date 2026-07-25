@@ -162,12 +162,12 @@ body{font-family:'DM Sans',sans-serif;background:#f0f2f5;color:var(--charcoal);m
 .email-actions .btn{padding:0.25rem 0.55rem;font-size:0.68rem;}
 .email-move-select{padding:0.25rem 0.4rem;border:1px solid var(--divider);border-radius:2px;font-size:0.68rem;font-family:'DM Sans',sans-serif;background:#fff;}
 #tab-email.tab-content.active{display:flex;flex-direction:column;flex:1;min-height:0;}
-#tab-evolve.tab-content.active{display:flex;flex-direction:column;flex:1;min-height:0;overflow:hidden;gap:0.65rem;}
-.main.evolve-mode{padding:1rem 1.25rem 1rem;display:flex;flex-direction:column;height:100vh;max-height:100vh;overflow:hidden;}
+#tab-evolve.tab-content.active{display:flex;flex-direction:column;flex:1;min-height:0;}
+.main.evolve-mode{padding:1rem 1.25rem 1rem;display:flex;flex-direction:column;min-height:100vh;}
 .evolve-chat-shell{display:flex;flex-direction:column;flex:1;min-height:0;background:#fff;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.04);overflow:hidden;max-width:920px;width:100%;}
 .evolve-chat-head{padding:0.85rem 1.1rem;border-bottom:1px solid var(--divider);flex-shrink:0;display:flex;align-items:flex-start;justify-content:space-between;gap:0.75rem;flex-wrap:wrap;}
 .evolve-chat-head .page-title{font-size:1.45rem;margin:0;}
-.evolve-chat-msgs{flex:1;min-height:160px;overflow:auto;padding:1rem 1.1rem;background:linear-gradient(180deg,#f7f5f1 0%,#f0f2f5 100%);display:flex;flex-direction:column;gap:0.85rem;}
+.evolve-chat-msgs{flex:1;min-height:280px;overflow:auto;padding:1rem 1.1rem;background:linear-gradient(180deg,#f7f5f1 0%,#f0f2f5 100%);display:flex;flex-direction:column;gap:0.85rem;}
 .evolve-empty{margin:auto;text-align:center;color:var(--mid-gray);font-size:0.88rem;padding:2rem 1rem;line-height:1.5;}
 .evolve-turn{display:flex;flex-direction:column;gap:0.4rem;max-width:min(100%,640px);}
 .evolve-turn.you{align-self:flex-end;align-items:flex-end;}
@@ -185,13 +185,13 @@ body{font-family:'DM Sans',sans-serif;background:#f0f2f5;color:var(--charcoal);m
 .evolve-actions .btn{font-size:0.68rem;padding:2px 8px;}
 .evolve-note{font-size:0.75rem;color:var(--mid-gray);max-width:100%;}
 .evolve-note a{color:var(--teal-dark);}
-.evolve-composer{flex-shrink:0;border-top:1px solid var(--divider);padding:0.75rem 1rem 0.9rem;background:#fff;display:flex;flex-direction:column;gap:0.55rem;position:sticky;bottom:0;z-index:2;}
+.evolve-composer{flex-shrink:0;border-top:1px solid var(--divider);padding:0.75rem 1rem 0.9rem;background:#fff;display:flex;flex-direction:column;gap:0.55rem;}
 .evolve-composer-row{display:flex;gap:0.55rem;align-items:flex-end;flex-wrap:wrap;}
 .evolve-composer select{padding:0.45rem 0.55rem;border:1px solid rgba(26,107,114,0.2);border-radius:6px;font-family:'DM Sans',sans-serif;font-size:0.78rem;background:var(--warm-white);color:var(--charcoal);outline:none;min-width:120px;}
 .evolve-composer textarea{flex:1;min-width:220px;min-height:44px;max-height:160px;resize:vertical;padding:0.55rem 0.8rem;border:1px solid rgba(26,107,114,0.2);border-radius:18px;font-family:'DM Sans',sans-serif;font-size:0.88rem;outline:none;background:var(--warm-white);line-height:1.4;}
 .evolve-composer textarea:focus,.evolve-composer select:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(26,107,114,0.08);}
 .evolve-composer-hint{font-size:0.7rem;color:var(--mid-gray);}
-.evolve-genes{flex-shrink:0;max-width:920px;width:100%;max-height:40%;overflow:auto;margin:0;}
+.evolve-genes{margin-top:1rem;max-width:920px;width:100%;}
 .evolve-cursor-box{align-self:stretch;max-width:min(100%,640px);margin-top:0.15rem;padding:0.65rem 0.75rem;background:#fff;border:1px solid rgba(26,107,114,0.16);border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,0.04);}
 .evolve-cursor-box-label{font-size:0.68rem;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:var(--teal-dark);margin-bottom:0.45rem;display:flex;justify-content:space-between;gap:0.5rem;align-items:center;}
 .evolve-cursor-box-label a{color:var(--teal-dark);text-transform:none;letter-spacing:0;font-weight:500;}
@@ -206,9 +206,8 @@ body{font-family:'DM Sans',sans-serif;background:#f0f2f5;color:var(--charcoal);m
   100%{box-shadow:0 0 0 3px rgba(26,107,114,0);}
 }
 @media(max-width:900px){
-  .main.evolve-mode{padding:3.25rem 0.65rem 0.75rem;height:100dvh;max-height:100dvh;}
-  .evolve-chat-msgs{min-height:120px;}
-  .evolve-genes{max-height:32%;}
+  .main.evolve-mode{padding:3.25rem 0.65rem 0.75rem;}
+  .evolve-chat-msgs{min-height:220px;}
 }
 @media(max-width:1100px){
   .email-layout{grid-template-columns:180px minmax(200px,280px) 1fr;}
@@ -362,18 +361,18 @@ tr:hover td{background:rgba(26,107,114,0.02);}
 <div class="sidebar" id="sidebar">
   <div class="sidebar-logo">Phobia<span>Free</span>.life<small>Admin</small></div>
   <nav style="margin-top:0.5rem;" id="sidebarNav">
-    <a class="nav-item active" onclick="switchTab('dashboard',this)"><span class="nav-icon">⊞</span><span>Dashboard</span></a>
-    <a class="nav-item" onclick="switchTab('evolve',this)"><span class="nav-icon">∞</span><span>Thoughts</span></a>
-    <a class="nav-item" onclick="switchTab('ads',this)"><span class="nav-icon">A</span><span>Google Ads</span></a>
-    <a class="nav-item" onclick="switchTab('semrush',this)"><span class="nav-icon">SR</span><span>SEMrush</span></a>
-    <a class="nav-item" onclick="switchTab('consultations',this)"><span class="nav-icon">C</span><span>Consultations</span><span class="nav-badge" id="pendingBadge" style="display:none"></span></a>
-    <a class="nav-item" onclick="switchTab('sessions',this)"><span class="nav-icon">T</span><span>Therapy Sessions</span></a>
-    <a class="nav-item" onclick="switchTab('schedule',this)"><span class="nav-icon">S</span><span>Schedule</span></a>
-    <a class="nav-item" onclick="switchTab('clients',this)"><span class="nav-icon">P</span><span>Clients</span></a>
-    <a class="nav-item" onclick="switchTab('payments',this)"><span class="nav-icon">$</span><span>Payments</span></a>
-    <a class="nav-item" onclick="switchTab('email',this)"><span class="nav-icon">✉</span><span>Email</span><span class="nav-badge" id="emailBadge" style="display:none"></span></a>
-    <a class="nav-item" onclick="switchTab('visitors',this)"><span class="nav-icon">👁</span><span>Visitor Log</span></a>
-    <a class="nav-item" onclick="switchTab('settings',this)"><span class="nav-icon">⚙</span><span>Settings</span></a>
+    <a class="nav-item active" onclick="switchTab('dashboard',this)">Dashboard</a>
+    <a class="nav-item" onclick="switchTab('evolve',this)">Thoughts</a>
+    <a class="nav-item" onclick="switchTab('ads',this)">Google Ads</a>
+    <a class="nav-item" onclick="switchTab('semrush',this)">SEMrush</a>
+    <a class="nav-item" onclick="switchTab('consultations',this)">Consultations<span class="nav-badge" id="pendingBadge" style="display:none"></span></a>
+    <a class="nav-item" onclick="switchTab('sessions',this)">Therapy Sessions</a>
+    <a class="nav-item" onclick="switchTab('schedule',this)">Schedule</a>
+    <a class="nav-item" onclick="switchTab('clients',this)">Clients</a>
+    <a class="nav-item" onclick="switchTab('payments',this)">Payments</a>
+    <a class="nav-item" onclick="switchTab('email',this)">Email<span class="nav-badge" id="emailBadge" style="display:none"></span></a>
+    <a class="nav-item" onclick="switchTab('visitors',this)">Visitor Log</a>
+    <a class="nav-item" onclick="switchTab('settings',this)">Settings</a>
     <div class="nav-account">
       <button type="button" class="logout-btn" onclick="showChangePassword()">Change password</button>
       <button type="button" class="logout-btn" onclick="doLogout()">Sign Out</button>
@@ -475,7 +474,7 @@ tr:hover td{background:rgba(26,107,114,0.02);}
     </div>
     <div class="form-group">
       <label>Note on invoice (optional)</label>
-      <textarea id="pm_price_reason" maxlength="500" rows="3" placeholder="Note the client will see on their invoice…" oninput="syncInvoicePreview()" style="width:100%;padding:0.65rem 0.75rem;border:1px solid rgba(26,107,114,0.2);border-radius:2px;font:inherit;resize:vertical;min-height:4.5rem;"></textarea>
+      <textarea id="pm_price_reason" maxlength="500" rows="3" placeholder="Note the client will see on their invoice..." oninput="syncInvoicePreview()" style="width:100%;padding:0.65rem 0.75rem;border:1px solid rgba(26,107,114,0.2);border-radius:2px;font:inherit;resize:vertical;min-height:4.5rem;"></textarea>
     </div>
     <div id="pm_invoice_preview" style="margin-bottom:1rem;padding:0.9rem 1rem;background:rgba(26,107,114,0.05);border:1px solid rgba(26,107,114,0.18);border-radius:2px;">
       <div style="font-size:0.7rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--mid-gray);margin-bottom:0.45rem;">Client will see</div>
@@ -505,15 +504,14 @@ var VISITOR_LOGS = [];
 var PAGE_HITS = [];
 var EVOLVE_GENES = [];
 var EVOLVE_IDEAS = [];
-var EVOLVE_CHAT_DRAFT = '';
-var EVOLVE_CHAT_DOMAIN = 'general';
-var EVOLVE_REPLY_DRAFTS = {};
+var ADMIN_CHAT = { messages: [], agentId: '', runId: '' };
+var ADMIN_CHAT_DRAFT = '';
+var ADMIN_CHAT_POLL = null;
+var ADMIN_CHAT_BUSY = false;
+var EVOLVE_THOUGHT_DRAFT = '';
+var EVOLVE_THOUGHT_DOMAIN = 'general';
 var EVOLVE_POLL_TIMER = null;
-var EVOLVE_GENES_OPEN = false;
-var EVOLVE_FORCE_SCROLL = true;
-var EVOLVE_SYNCING = false;
-var EVOLVE_FOCUS_REPLY_ID = null;
-var ARK = { adsPanels: [], adsPanelCatalog: [], adsImports: [], adsRows: [], semrushImports: [], semrushKeywords: [], semrushFilters: {}, cursorCloudReady: false };
+var ARK = { adsPanels: [], adsPanelCatalog: [], adsImports: [], adsRows: [], semrushImports: [], semrushKeywords: [], semrushFilters: {}, cursorCloudReady: false, githubAutopilotReady: false, adminChat: null };
 var STATS = { todayCount: 0, weekCount: 0, totalClients: 0, totalRevenue: 0, pendingCount: 0 };
 
 function escapeHtml(str) {
@@ -709,6 +707,13 @@ async function loadDashboard() {
   EVOLVE_GENES = d.evolveGenes || [];
   EVOLVE_IDEAS = d.evolveIdeas || [];
   ARK = d.ark || ARK;
+  if (ARK.adminChat) {
+    ADMIN_CHAT = {
+      messages: ARK.adminChat.messages || [],
+      agentId: ARK.adminChat.agentId || '',
+      runId: ARK.adminChat.runId || '',
+    };
+  }
   HOURS_WINDOWS = d.hours_windows || HOURS_WINDOWS;
   SESSION_PRICE_CENTS = d.session_price_cents || SESSION_PRICE_CENTS;
   STATS = d.stats || STATS;
@@ -729,7 +734,6 @@ async function loadDashboard() {
       }
     }
   }
-  syncEvolvePoll();
 }
 
 function recomputeStats() {
@@ -946,7 +950,7 @@ function renderClients() {
 function renderPayments() {
   var html = '<div class="page-header"><div><div class="page-title">Payments</div><div class="page-sub">$' + (STATS.totalRevenue / 100).toFixed(2) + ' collected</div></div></div>';
   html += '<div class="card" style="margin-bottom:1rem;padding:1rem 1.25rem;font-size:0.82rem;color:var(--mid-gray);line-height:1.55;">';
-  html += 'Payment links are created from <strong>Therapy Sessions → Pay Link</strong>. Choose Standard ($' + (SESSION_PRICE_CENTS / 100).toFixed(2) + '), Review donation, Veteran donation, or Senior donation. ';
+  html += 'Payment links are created from <strong>Therapy Sessions -> Pay Link</strong>. Choose Standard ($' + (SESSION_PRICE_CENTS / 100).toFixed(2) + '), Review donation, Veteran donation, or Senior donation. ';
   html += 'Status flips to <strong>Paid</strong> automatically when the client completes Stripe checkout — no manual update needed.</div>';
   html += '<div class="card"><div class="table-wrap"><table><thead><tr><th>Client</th><th>Type</th><th>Amount</th><th>Status</th><th>Created</th><th>Paid</th><th>Actions</th></tr></thead><tbody>';
   if (!PAYMENTS.length) {
@@ -1215,258 +1219,164 @@ function focusEvolveCursorBox(id) {
   }
 }
 
-function renderEvolveGenesPanel(genes) {
-  var html = '<div class="evolve-genes card">';
-  html += '<div class="card-header" style="cursor:pointer;" onclick="toggleEvolveGenesPanel()">';
-  html += '<div class="card-title">Genes (laws) <span style="color:var(--mid-gray);font-weight:500;">(' + genes.length + ')</span></div>';
-  html += '<div style="display:flex;gap:0.35rem;align-items:center;">';
-  html += '<button type="button" class="btn btn-ghost" style="font-size:0.72rem;" onclick="event.stopPropagation();promptAddGene()">+ Add</button>';
-  html += '<span style="font-size:0.72rem;color:var(--mid-gray);">' + (EVOLVE_GENES_OPEN ? 'Hide' : 'Show') + '</span>';
-  html += '</div></div>';
-  if (EVOLVE_GENES_OPEN) {
-    html += '<div style="padding:1rem 1.5rem;">';
-    if (!genes.length) {
-      html += '<div style="color:var(--mid-gray);font-size:0.85rem;">No genes yet — first load seeds defaults.</div>';
-    } else {
-      genes.forEach(function(g) {
-        var on = !!g.active;
-        html += '<div style="padding:0.85rem 0;border-bottom:1px solid rgba(0,0,0,0.06);opacity:' + (on ? '1' : '0.45') + ';">';
-        html += '<div style="display:flex;justify-content:space-between;gap:0.75rem;align-items:flex-start;flex-wrap:wrap;">';
-        html += '<div style="flex:1;min-width:220px;">';
-        html += '<div style="font-weight:600;color:var(--charcoal);margin-bottom:0.25rem;">' + escapeHtml(g.title || '') + '</div>';
-        html += '<div style="font-size:0.85rem;line-height:1.5;color:var(--mid-gray);">' + escapeHtml(g.rule || '') + '</div>';
-        html += '</div>';
-        html += '<div style="display:flex;gap:0.35rem;">';
-        html += '<button class="btn btn-ghost" style="font-size:0.72rem;padding:3px 8px;" onclick="toggleEvolveGene(' + g.id + ',' + (on ? 'false' : 'true') + ')">' + (on ? 'Off' : 'On') + '</button>';
-        html += '<button class="btn btn-red" style="font-size:0.72rem;padding:3px 8px;" onclick="deleteEvolveGene(' + g.id + ')">Del</button>';
-        html += '</div></div></div>';
-      });
-    }
-    html += '</div>';
-  }
-  html += '</div>';
-  return html;
-}
-
 function renderEvolve() {
-  var genes = EVOLVE_GENES || [];
+  var msgs = (ADMIN_CHAT && ADMIN_CHAT.messages) || [];
   var ideas = (EVOLVE_IDEAS || []).slice().sort(function(a, b) {
-    return (Number(a.id) || 0) - (Number(b.id) || 0);
+    return (Number(b.id) || 0) - (Number(a.id) || 0);
   });
+  var active = ideas.filter(function(i) {
+    return i.status !== 'done' && i.status !== 'blocked';
+  });
+  var blocked = ideas.filter(function(i) { return i.status === 'blocked'; });
+  var done = ideas.filter(function(i) { return i.status === 'done'; });
   var cloudReady = !!(ARK && ARK.cursorCloudReady);
-  var busy = ideas.filter(function(i) { return i.status === 'queued' || i.status === 'doing'; }).length;
-  var activeGenes = genes.filter(function(g) { return !!g.active; }).length;
+  var autoReady = !!(ARK && ARK.githubAutopilotReady);
 
-  // Genes above; chat shell fills the rest with composer pinned at the bottom of the page.
-  var html = renderEvolveGenesPanel(genes);
+  var html = '<div class="page-header"><div class="page-title">Thoughts</div>';
+  html += '<div style="font-size:0.85rem;color:var(--mid-gray);margin-top:0.35rem;">Run builds above. Chat stays at the bottom' + (cloudReady ? '' : ' (needs CURSOR_API_KEY)') + (autoReady ? '' : '') + '.</div></div>';
 
-  html += '<div class="evolve-chat-shell">';
-  html += '<div class="evolve-chat-head">';
-  html += '<div><div class="page-title">Thoughts</div>';
-  html += '<div style="font-size:0.8rem;color:var(--mid-gray);margin-top:0.25rem;">Chat lives at the bottom — Enter queues · Ctrl/⌘+Enter runs' + (cloudReady ? '' : ' (needs CURSOR_API_KEY)') + '.</div></div>';
-  html += '<div style="font-size:0.72rem;color:var(--mid-gray);text-align:right;">' + ideas.length + ' thoughts';
-  if (busy) html += ' · <span style="color:#8a6a1a;">' + busy + ' running</span>';
-  html += '<br/>' + activeGenes + ' active genes</div></div>';
+  // —— Run a thought (background) ——
+  html += '<div class="card" style="margin-bottom:1rem;">';
+  html += '<div class="card-header"><div class="card-title">Run a thought</div></div>';
+  html += '<div style="padding:1rem 1.25rem;">';
+  html += '<div style="display:flex;gap:0.55rem;align-items:flex-end;flex-wrap:wrap;">';
+  html += '<select id="evolveDomain" style="min-width:120px;">';
+  ['general','ads','semrush','site','payments','visitors'].forEach(function(d) {
+    var labels = { general:'General', ads:'Ads', semrush:'SEMrush', site:'Site', payments:'Payments', visitors:'Visitors' };
+    html += '<option value="' + d + '"' + (d === (EVOLVE_THOUGHT_DOMAIN || 'general') ? ' selected' : '') + '>' + labels[d] + '</option>';
+  });
+  html += '</select>';
+  html += '<textarea id="evolveIdeaBody" rows="2" placeholder="What should we build or change?" style="flex:1;min-width:200px;resize:vertical;"></textarea>';
+  html += '<button type="button" class="btn btn-ghost" onclick="addEvolveIdea()">Save</button>';
+  html += '<button type="button" class="btn btn-teal" onclick="addEvolveIdeaAndRun()"' + (cloudReady ? '' : ' disabled') + '>Run</button>';
+  html += '</div>';
+  html += '<div style="margin-top:0.4rem;font-size:0.75rem;color:var(--mid-gray);">Run starts a background agent. Status updates on the card — nothing pops open.</div>';
+  html += '</div></div>';
 
-  html += '<div class="evolve-chat-msgs" id="evolveChatMsgs">';
-  if (!ideas.length) {
-    html += '<div class="evolve-empty">No thoughts yet.<br/>Type in the chat box at the bottom to start.</div>';
+  function ideaCard(i) {
+    var h = '<div style="border:1px solid rgba(0,0,0,0.08);border-radius:10px;padding:0.85rem 1rem;margin-bottom:0.55rem;background:#fff;">';
+    h += '<div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:0.04em;color:var(--mid-gray);margin-bottom:0.3rem;">' + escapeHtml(i.domain || 'general') + ' · #' + i.id + ' · ' + escapeHtml(i.status || '') + '</div>';
+    h += '<div style="font-size:0.9rem;line-height:1.45;white-space:pre-wrap;">' + escapeHtml(i.body || '') + '</div>';
+    if (i.result) h += '<div style="margin-top:0.45rem;font-size:0.8rem;color:var(--teal-dark);">' + escapeHtml(i.result) + '</div>';
+    if (i.run_note) h += '<div style="margin-top:0.3rem;font-size:0.75rem;color:var(--mid-gray);">' + escapeHtml(i.run_note) + '</div>';
+    h += '<div style="display:flex;flex-wrap:wrap;gap:0.3rem;margin-top:0.55rem;">';
+    h += '<button class="btn btn-teal" style="font-size:0.72rem;padding:3px 8px;" onclick="runEvolveIdea(' + i.id + ')">Run</button>';
+    if (i.status !== 'done') h += '<button class="btn btn-ghost" style="font-size:0.72rem;padding:3px 8px;" onclick="setEvolveStatus(' + i.id + ',\'done\')">Done</button>';
+    if (i.status !== 'blocked') h += '<button class="btn btn-ghost" style="font-size:0.72rem;padding:3px 8px;" onclick="setEvolveStatus(' + i.id + ',\'blocked\')">Block</button>';
+    h += '<button class="btn btn-red" style="font-size:0.72rem;padding:3px 8px;" onclick="deleteEvolveIdea(' + i.id + ')">Del</button>';
+    h += '</div></div>';
+    return h;
+  }
+
+  html += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;margin-bottom:1rem;">';
+  [
+    ['Active', active],
+    ['Blocked', blocked],
+    ['Done', done.slice(0, 15)]
+  ].forEach(function(col) {
+    html += '<div class="card"><div class="card-header"><div class="card-title">' + col[0] + ' <span style="color:var(--mid-gray);font-weight:500;">(' + col[1].length + ')</span></div></div>';
+    html += '<div style="padding:0.75rem 1rem;max-height:360px;overflow:auto;">';
+    if (!col[1].length) html += '<div style="font-size:0.82rem;color:var(--mid-gray);padding:0.4rem 0;">Empty</div>';
+    else col[1].forEach(function(i) { html += ideaCard(i); });
+    html += '</div></div>';
+  });
+  html += '</div>';
+
+  // —— Chat (questions) — pinned at the bottom of this page ——
+  html += '<div class="card" style="margin-bottom:0.25rem;position:sticky;bottom:0.5rem;z-index:5;box-shadow:0 -4px 24px rgba(0,0,0,0.06);">';
+  html += '<div class="card-header" style="display:flex;justify-content:space-between;align-items:center;">';
+  html += '<div class="card-title">Chat</div>';
+  html += '<button type="button" class="btn btn-ghost" style="font-size:0.72rem;" onclick="clearAdminChat()">Clear</button>';
+  html += '</div>';
+  html += '<div style="padding:0 1rem 1rem;">';
+  html += '<div id="evolveChatMsgs" style="height:220px;overflow:auto;border:1px solid rgba(0,0,0,0.08);border-radius:10px;padding:0.85rem;background:#f7f8f7;margin-bottom:0.65rem;">';
+  if (!msgs.length) {
+    html += '<div style="color:var(--mid-gray);font-size:0.85rem;text-align:center;padding:2rem 0.5rem;">Ask a question anytime — chat lives here at the bottom.</div>';
   } else {
-    ideas.forEach(function(i) {
-      var st = i.status || 'inbox';
-      var agentUrl = evolveAgentUrl(i);
-      var agentId = evolveAgentId(i);
-      var msgs = evolveChatMessages(i);
-      html += '<div class="evolve-turn you" data-idea="' + i.id + '">';
-      html += '<div class="evolve-bubble">' + escapeHtml(i.body || '') + '</div>';
-      html += '<div class="evolve-meta"><span class="evolve-status ' + escapeHtml(st) + '">' + escapeHtml(st) + '</span>';
-      html += '<span>' + escapeHtml(i.domain || 'general') + ' · #' + i.id + '</span></div>';
-      html += '<div class="evolve-actions">';
-      if (st !== 'allowed' && st !== 'queued' && st !== 'doing') {
-        html += '<button type="button" class="btn btn-ghost" onclick="allowEvolveIdea(' + i.id + ')">Allow</button>';
-      }
-      html += '<button type="button" class="btn btn-teal" onclick="runEvolveIdea(' + i.id + ')">' + (agentId ? 'Re-run' : 'Run') + '</button>';
-      if (agentUrl) html += '<a class="btn btn-ghost" href="' + escapeHtml(agentUrl) + '" target="_blank" rel="noopener">Open agent</a>';
-      if (i.agent_prompt) html += '<button type="button" class="btn btn-ghost" onclick="copyEvolvePrompt(' + i.id + ')">Copy prompt</button>';
-      if (st !== 'done') html += '<button type="button" class="btn btn-ghost" onclick="setEvolveStatus(' + i.id + ',\'done\')">Done</button>';
-      if (st !== 'blocked') html += '<button type="button" class="btn btn-ghost" onclick="setEvolveStatus(' + i.id + ',\'blocked\')">Block</button>';
-      if (st !== 'inbox') html += '<button type="button" class="btn btn-ghost" onclick="setEvolveStatus(' + i.id + ',\'inbox\')">Inbox</button>';
-      html += '<button type="button" class="btn btn-red" onclick="deleteEvolveIdea(' + i.id + ')">Del</button>';
-      html += '</div></div>';
-
-      if (msgs.length) {
-        msgs.forEach(function(m) {
-          var role = m.role === 'you' ? 'you' : 'agent';
-          var kind = m.kind || '';
-          html += '<div class="evolve-turn ' + role + '">';
-          html += '<div class="evolve-bubble' + (kind === 'status' || kind === 'error' ? ' ' + escapeHtml(kind) : '') + '">' + escapeHtml(m.text || '') + '</div>';
-          html += '</div>';
-        });
-      } else if (i.run_note || i.result || st === 'doing' || st === 'queued') {
-        html += '<div class="evolve-turn agent">';
-        if (i.result) {
-          html += '<div class="evolve-bubble">' + escapeHtml(i.result) + '</div>';
-        } else if (st === 'doing' || st === 'queued') {
-          html += '<div class="evolve-bubble status">Agent ' + escapeHtml(st) + '…</div>';
-        } else {
-          html += '<div class="evolve-bubble" style="opacity:0.85;">No result note yet.</div>';
-        }
-        if (i.run_note) {
-          var noteHtml = escapeHtml(i.run_note);
-          if (agentUrl) {
-            noteHtml = noteHtml.replace(escapeHtml(agentUrl), '<a href="' + escapeHtml(agentUrl) + '" target="_blank" rel="noopener">' + escapeHtml(agentUrl) + '</a>');
-          }
-          html += '<div class="evolve-note">' + noteHtml + '</div>';
-        }
-        html += '</div>';
-      }
-
-      if (agentId) {
-        html += '<div class="evolve-cursor-box" data-idea="' + i.id + '">';
-        html += '<div class="evolve-cursor-box-label"><span>Cursor chatbox</span>';
-        html += '<a href="' + escapeHtml(agentUrl) + '" target="_blank" rel="noopener">Open full agent ↗</a></div>';
-        html += '<div class="evolve-cursor-row">';
-        html += '<textarea id="evolveReply_' + i.id + '" rows="1" placeholder="Reply to this Cursor agent…"></textarea>';
-        html += '<button type="button" class="btn btn-teal" onclick="replyEvolveIdea(' + i.id + ')">Send</button>';
-        html += '</div></div>';
-      }
+    msgs.forEach(function(m) {
+      var mine = m.role === 'you';
+      html += '<div style="display:flex;justify-content:' + (mine ? 'flex-end' : 'flex-start') + ';margin-bottom:0.55rem;">';
+      html += '<div style="max-width:90%;padding:0.55rem 0.8rem;border-radius:12px;font-size:0.88rem;line-height:1.4;white-space:pre-wrap;';
+      html += mine ? 'background:var(--teal-dark);color:#fff;' : 'background:#fff;border:1px solid rgba(0,0,0,0.08);';
+      if (m.kind === 'status') html += 'font-style:italic;opacity:0.85;';
+      if (m.kind === 'error') html += 'color:#8b2020;';
+      html += '">' + escapeHtml(m.text || '') + '</div></div>';
     });
   }
   html += '</div>';
-
-  html += '<div class="evolve-composer">';
-  html += '<div class="evolve-composer-row">';
-  html += '<select id="evolveDomain" aria-label="Domain">' + evolveDomainOptions(EVOLVE_CHAT_DOMAIN || 'general') + '</select>';
-  html += '<textarea id="evolveIdeaBody" rows="2" placeholder="What should we build or change?"></textarea>';
-  html += '<button type="button" class="btn btn-ghost" onclick="addEvolveIdea()">Queue</button>';
-  html += '<button type="button" class="btn btn-teal" onclick="addEvolveIdeaAndRun()">Run</button>';
+  html += '<div style="display:flex;gap:0.5rem;align-items:flex-end;">';
+  html += '<textarea id="adminChatInput" rows="2" placeholder="Ask a question…" style="flex:1;resize:vertical;"></textarea>';
+  html += '<button type="button" class="btn btn-teal" id="adminChatSendBtn" onclick="sendAdminChat()"' + (cloudReady ? '' : ' disabled') + '>Send</button>';
   html += '</div>';
-  html += '<div class="evolve-composer-hint">Composer stays at the bottom · Enter = queue · Ctrl/⌘+Enter = run · reply under live agents</div>';
+  if (!cloudReady) {
+    html += '<div style="margin-top:0.45rem;font-size:0.75rem;color:#8b2020;">Chat needs the CURSOR_API_KEY Worker secret.</div>';
+  }
   html += '</div></div>';
 
   var tab = document.getElementById('tab-evolve');
   tab.innerHTML = html;
   var main = document.querySelector('.main');
-  if (main && tab.classList.contains('active')) main.classList.add('evolve-mode');
-  bindEvolveComposer({ forceScroll: EVOLVE_FORCE_SCROLL });
-  syncEvolvePoll();
-}
+  if (main) main.classList.remove('evolve-mode');
 
-function toggleEvolveGenesPanel() {
-  EVOLVE_GENES_OPEN = !EVOLVE_GENES_OPEN;
-  renderEvolve();
-}
-
-function readEvolveComposer() {
+  var chatInput = document.getElementById('adminChatInput');
+  if (chatInput) {
+    chatInput.value = ADMIN_CHAT_DRAFT || '';
+    chatInput.oninput = function() { ADMIN_CHAT_DRAFT = chatInput.value; };
+    chatInput.onkeydown = function(e) {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendAdminChat(); }
+    };
+  }
+  var thoughtInput = document.getElementById('evolveIdeaBody');
   var domainEl = document.getElementById('evolveDomain');
-  var bodyEl = document.getElementById('evolveIdeaBody');
-  var domain = (domainEl && domainEl.value) || EVOLVE_CHAT_DOMAIN || 'general';
-  var body = ((bodyEl && bodyEl.value) || EVOLVE_CHAT_DRAFT || '').trim();
-  EVOLVE_CHAT_DOMAIN = domain;
-  return { domain: domain, body: body };
-}
-
-function clearEvolveComposer() {
-  EVOLVE_CHAT_DRAFT = '';
-  EVOLVE_FORCE_SCROLL = true;
-  var bodyEl = document.getElementById('evolveIdeaBody');
-  if (bodyEl) bodyEl.value = '';
+  if (domainEl) {
+    domainEl.onchange = function() { EVOLVE_THOUGHT_DOMAIN = domainEl.value || 'general'; };
+  }
+  if (thoughtInput) {
+    thoughtInput.value = EVOLVE_THOUGHT_DRAFT || '';
+    thoughtInput.oninput = function() { EVOLVE_THOUGHT_DRAFT = thoughtInput.value; };
+  }
+  var box = document.getElementById('evolveChatMsgs');
+  if (box) box.scrollTop = box.scrollHeight;
+  ensureAdminChatPoll();
+  ensureEvolvePoll();
 }
 
 async function addEvolveIdea() {
-  var c = readEvolveComposer();
-  if (!c.body) { toast('Write a thought first'); return; }
-  var r = await ajax({ action: 'add_evolve_idea', domain: c.domain, body: c.body });
+  var body = ((document.getElementById('evolveIdeaBody') || {}).value || EVOLVE_THOUGHT_DRAFT || '').trim();
+  var domain = ((document.getElementById('evolveDomain') || {}).value || EVOLVE_THOUGHT_DOMAIN || 'general');
+  if (!body) { toast('Write a thought first'); return; }
+  var r = await ajax({ action: 'add_evolve_idea', domain: domain, body: body });
   if (r.error) { toast(r.error); return; }
-  clearEvolveComposer();
-  toast('Thought queued');
-  await loadDashboard();
-}
-
-async function addEvolveIdeaAndAllow() {
-  var c = readEvolveComposer();
-  if (!c.body) { toast('Write a thought first'); return; }
-  var r = await ajax({ action: 'add_evolve_idea', domain: c.domain, body: c.body });
-  if (r.error) { toast(r.error); return; }
-  clearEvolveComposer();
-  if (r.id) {
-    var a = await ajax({ action: 'allow_evolve_idea', id: r.id });
-    if (a.error) { toast(a.error); return; }
-  }
-  toast('Thought allowed');
-  await loadDashboard();
-}
-
-async function allowEvolveIdea(id) {
-  var r = await ajax({ action: 'allow_evolve_idea', id: id });
-  if (r.error) { toast(r.error); return; }
-  toast('Allowed');
+  EVOLVE_THOUGHT_DRAFT = '';
+  toast('Saved');
   await loadDashboard();
 }
 
 async function addEvolveIdeaAndRun() {
-  var c = readEvolveComposer();
-  if (!c.body) { toast('Write a thought first'); return; }
-  var r = await ajax({ action: 'add_evolve_idea', domain: c.domain, body: c.body });
+  var body = ((document.getElementById('evolveIdeaBody') || {}).value || EVOLVE_THOUGHT_DRAFT || '').trim();
+  var domain = ((document.getElementById('evolveDomain') || {}).value || EVOLVE_THOUGHT_DOMAIN || 'general');
+  if (!body) { toast('Write a thought first'); return; }
+  var r = await ajax({ action: 'add_evolve_idea', domain: domain, body: body });
   if (r.error) { toast(r.error); return; }
-  clearEvolveComposer();
+  EVOLVE_THOUGHT_DRAFT = '';
   if (!r.id) { toast('Saved but missing id'); await loadDashboard(); return; }
   await runEvolveIdea(r.id);
 }
 
 async function runEvolveIdea(id) {
-  toast('Starting Cursor agent…');
-  EVOLVE_FORCE_SCROLL = true;
+  toast('Starting in background…');
   var r = await ajax({ action: 'run_evolve_idea', id: id });
   if (r.error) { toast(r.error, 6000); return; }
-  if (r.cloud && r.cloud.ok) {
-    EVOLVE_FOCUS_REPLY_ID = id;
-    toast('Cursor chatbox ready — reply here');
-  } else if (r.cloud && r.cloud.note) {
-    toast(r.cloud.note, 7000);
-  } else {
-    toast('Queued');
-  }
+  if (r.cloud && r.cloud.ok) toast('Running in background');
+  else if (r.cloud && r.cloud.note) toast(r.cloud.note, 7000);
+  else toast('Queued');
   await loadDashboard();
-  if (EVOLVE_FOCUS_REPLY_ID) {
-    focusEvolveCursorBox(EVOLVE_FOCUS_REPLY_ID);
-    EVOLVE_FOCUS_REPLY_ID = null;
-  }
-}
-
-async function replyEvolveIdea(id) {
-  var box = document.getElementById('evolveReply_' + id);
-  var text = ((box && box.value) || EVOLVE_REPLY_DRAFTS[id] || '').trim();
-  if (!text) { toast('Write a reply first'); return; }
-  EVOLVE_REPLY_DRAFTS[id] = '';
-  if (box) box.value = '';
-  EVOLVE_FORCE_SCROLL = true;
-  toast('Sending to Cursor…');
-  var r = await ajax({ action: 'chat_evolve_idea', id: id, text: text });
-  if (r.error) {
-    EVOLVE_REPLY_DRAFTS[id] = text;
-    toast(r.error, 7000);
-    await loadDashboard();
-    return;
-  }
-  toast('Reply sent');
-  await loadDashboard();
-}
-
-function copyEvolvePrompt(id) {
-  var idea = (EVOLVE_IDEAS || []).find(function(x) { return Number(x.id) === Number(id); });
-  if (!idea || !idea.agent_prompt) { toast('No prompt yet — hit Run first'); return; }
-  navigator.clipboard.writeText(idea.agent_prompt).then(function() {
-    toast('Prompt copied');
-  }).catch(function() {
-    prompt('Copy this prompt:', idea.agent_prompt);
-  });
 }
 
 async function setEvolveStatus(id, status) {
   var payload = { action: 'update_evolve_idea', id: id, status: status };
   if (status === 'done') {
-    var note = prompt('Optional result note (what shipped / learned):', '');
+    var note = prompt('Optional result note:', '');
     if (note != null && note.trim()) payload.result = note.trim();
   }
   var r = await ajax(payload);
@@ -1481,28 +1391,73 @@ async function deleteEvolveIdea(id) {
   await loadDashboard();
 }
 
-async function promptAddGene() {
-  var title = prompt('Gene title (short law name):', '');
-  if (!title || !title.trim()) return;
-  var rule = prompt('Rule / law text:', '');
-  if (!rule || !rule.trim()) return;
-  var r = await ajax({ action: 'add_evolve_gene', title: title.trim(), rule: rule.trim() });
-  if (r.error) { toast(r.error); return; }
-  toast('Gene added');
-  await loadDashboard();
+function ensureEvolvePoll() {
+  var hasDoing = (EVOLVE_IDEAS || []).some(function(i) { return i.status === 'doing' || i.status === 'queued'; });
+  if (!hasDoing) {
+    if (EVOLVE_POLL_TIMER) { clearInterval(EVOLVE_POLL_TIMER); EVOLVE_POLL_TIMER = null; }
+    return;
+  }
+  if (EVOLVE_POLL_TIMER) return;
+  EVOLVE_POLL_TIMER = setInterval(async function() {
+    try {
+      await ajax({ action: 'poll_evolve_agents' });
+      await loadDashboard();
+    } catch (e) {}
+  }, 20000);
 }
 
-async function toggleEvolveGene(id, active) {
-  var r = await ajax({ action: 'update_evolve_gene', id: id, active: !!active });
-  if (r.error) { toast(r.error); return; }
-  await loadDashboard();
+async function sendAdminChat() {
+  if (ADMIN_CHAT_BUSY) return;
+  var input = document.getElementById('adminChatInput');
+  var text = ((input && input.value) || ADMIN_CHAT_DRAFT || '').trim();
+  if (!text) return;
+  ADMIN_CHAT_BUSY = true;
+  ADMIN_CHAT_DRAFT = '';
+  if (input) input.value = '';
+  var btn = document.getElementById('adminChatSendBtn');
+  if (btn) btn.disabled = true;
+  try {
+    var r = await ajax({ action: 'admin_chat_send', text: text });
+    if (r.error) {
+      toast(r.error, 6000);
+      ADMIN_CHAT_DRAFT = text;
+    }
+    if (r.chat) ADMIN_CHAT.messages = r.chat;
+    if (r.agentId) ADMIN_CHAT.agentId = r.agentId;
+    if (r.runId) ADMIN_CHAT.runId = r.runId;
+  } finally {
+    ADMIN_CHAT_BUSY = false;
+    renderEvolve();
+  }
 }
 
-async function deleteEvolveGene(id) {
-  if (!confirm('Delete this gene?')) return;
-  var r = await ajax({ action: 'delete_evolve_gene', id: id });
+async function clearAdminChat() {
+  if (!confirm('Clear this chat?')) return;
+  var r = await ajax({ action: 'admin_chat_clear' });
   if (r.error) { toast(r.error); return; }
-  await loadDashboard();
+  ADMIN_CHAT = { messages: [], agentId: '', runId: '' };
+  renderEvolve();
+}
+
+function ensureAdminChatPoll() {
+  var msgs = (ADMIN_CHAT && ADMIN_CHAT.messages) || [];
+  var waiting = msgs.length && msgs[msgs.length - 1] && msgs[msgs.length - 1].kind === 'status';
+  if (!waiting) {
+    if (ADMIN_CHAT_POLL) { clearInterval(ADMIN_CHAT_POLL); ADMIN_CHAT_POLL = null; }
+    return;
+  }
+  if (ADMIN_CHAT_POLL) return;
+  ADMIN_CHAT_POLL = setInterval(async function() {
+    try {
+      var r = await ajax({ action: 'admin_chat_sync' });
+      if (r.chat) ADMIN_CHAT.messages = r.chat;
+      if (r.synced) renderEvolve();
+      else {
+        var still = (ADMIN_CHAT.messages || []).length && ADMIN_CHAT.messages[ADMIN_CHAT.messages.length - 1].kind === 'status';
+        if (!still && ADMIN_CHAT_POLL) { clearInterval(ADMIN_CHAT_POLL); ADMIN_CHAT_POLL = null; }
+      }
+    } catch (e) {}
+  }, 4000);
 }
 
 function renderAds() {
@@ -1543,7 +1498,7 @@ function renderAds() {
   html += '</div>';
   html += '<details style="margin-bottom:1rem;"><summary style="cursor:pointer;font-size:0.82rem;color:var(--mid-gray);">Advanced: Client ID / secret / developer token</summary>';
   html += '<div class="form-row" style="gap:0.75rem;flex-wrap:wrap;align-items:end;margin-top:0.75rem;">';
-  html += '<div class="form-group" style="flex:1;min-width:180px;"><label>Developer token ' + ((gads.hasDeveloperToken || gads.hasStoredDeveloperToken) ? '<span style="color:var(--sage);">(saved)</span>' : '') + '</label><input type="password" id="gadsDevToken" placeholder="' + ((gads.hasDeveloperToken || gads.hasStoredDeveloperToken) ? '••••••••' : 'paste token') + '" autocomplete="off"/></div>';
+  html += '<div class="form-group" style="flex:1;min-width:180px;"><label>Developer token ' + ((gads.hasDeveloperToken || gads.hasStoredDeveloperToken) ? '<span style="color:var(--sage);">(saved)</span>' : '') + '</label><input type="password" id="gadsDevToken" placeholder="' + ((gads.hasDeveloperToken || gads.hasStoredDeveloperToken) ? 'ΓÇóΓÇóΓÇóΓÇóΓÇóΓÇóΓÇóΓÇó' : 'paste token') + '" autocomplete="off"/></div>';
   html += '<div class="form-group" style="flex:1;min-width:100%;"><label>OAuth client ID (readable — not the secret)</label>';
   html += '<input type="text" id="gadsClientId" value="' + escapeHtml(gads.clientId || '') + '" placeholder="xxxx....apps.googleusercontent.com" autocomplete="off" spellcheck="false" style="font-family:ui-monospace,Consolas,monospace;font-size:0.78rem;width:100%;"/></div>';
   html += '<div class="form-group" style="flex:1;min-width:100%;"><label>OAuth client secret</label>';
@@ -1635,7 +1590,7 @@ function renderAdsPanelBody(key, byType, rows, gads) {
       '</div>';
   }
   if (key === 'notes') {
-    return '<textarea id="adsScratchNotes" rows="5" placeholder="Scratch notes for this Ads board…" style="width:100%;" onchange="localStorage.setItem(\'adsScratchNotes\',this.value)">' +
+    return '<textarea id="adsScratchNotes" rows="5" placeholder="Scratch notes for this Ads board..." style="width:100%;" onchange="localStorage.setItem(\'adsScratchNotes\',this.value)">' +
       escapeHtml(localStorage.getItem('adsScratchNotes') || '') + '</textarea>';
   }
   if (key === 'page_hits') {
@@ -1704,7 +1659,7 @@ function renderAdsPanelBody(key, byType, rows, gads) {
         ' <span style="opacity:0.85;">Re-Sync after traffic, or pick a different Customer ID if this is the wrong account.</span></div>';
     }
     var need = (gads.missing && gads.missing.length) ? (' Missing: <b>' + escapeHtml(gads.missing.join(', ')) + '</b>.') : '';
-    return '<div style="font-size:0.82rem;color:var(--mid-gray);line-height:1.55;">No live data yet.' + need + ' Fill <b>Live connection</b> at the top → Save → Authorize → Sync.</div>';
+    return '<div style="font-size:0.82rem;color:var(--mid-gray);line-height:1.55;">No live data yet.' + need + ' Fill <b>Live connection</b> at the top -> Save -> Authorize -> Sync.</div>';
   }
 
   if (key === 'overview') {
@@ -1796,7 +1751,7 @@ async function importAdsCsv() {
   if (!fileEl || !fileEl.files || !fileEl.files[0]) { toast('Choose a CSV file'); return; }
   var file = fileEl.files[0];
   var text = await file.text();
-  toast('Importing…');
+  toast('Importing...');
   var r = await ajax({ action: 'import_ads_csv', report_type: type, filename: file.name, csv: text });
   if (r.error) { toast(r.error, 5000); return; }
   toast('Imported ' + (r.row_count || 0) + ' rows as ' + (r.report_type || type));
@@ -1831,7 +1786,7 @@ async function saveGoogleAdsSettings(opts) {
     if (r.googleAds && r.googleAds.hasRefreshToken) {
       toast('Saved — OAuth ready. Click Sync from Google now');
     } else if (r.googleAds && r.googleAds.clientId) {
-      toast('Saved. Client ID ends with: …' + r.googleAds.clientId.slice(-24));
+      toast('Saved. Client ID ends with: ...' + r.googleAds.clientId.slice(-24));
     } else {
       toast('Google Ads settings saved');
     }
@@ -1868,7 +1823,7 @@ async function authorizeGoogleAds() {
 }
 
 async function syncGoogleAds() {
-  toast('Syncing from Google Ads…');
+  toast('Syncing from Google Ads...');
   var r = await ajax({ action: 'sync_google_ads' });
   if (r.error) { toast(r.error, 6000); await loadDashboard(); return; }
   var parts = (r.reports || []).map(function(x) { return x.type + ':' + x.rows; });
@@ -1878,8 +1833,8 @@ async function syncGoogleAds() {
 
 async function listGoogleAdsAccounts() {
   var box = document.getElementById('gadsAccountList');
-  if (box) box.innerHTML = '<div style="font-size:0.8rem;color:var(--mid-gray);">Asking Google which accounts this login can see…</div>';
-  toast('Listing Google Ads accounts…');
+  if (box) box.innerHTML = '<div style="font-size:0.8rem;color:var(--mid-gray);">Asking Google which accounts this login can see...</div>';
+  toast('Listing Google Ads accounts...');
   var r = await ajax({ action: 'list_google_ads_accounts' });
   if (r.error) {
     if (box) box.innerHTML = '<div style="color:#a33b2b;font-size:0.82rem;">' + escapeHtml(r.error) + '</div>';
@@ -1892,7 +1847,7 @@ async function listGoogleAdsAccounts() {
     box.innerHTML = '<div style="font-size:0.82rem;color:#a33b2b;">Google returned zero accounts for this OAuth login. Open Ads with the Google account that owns your keyword account, or link that account under your manager.</div>';
     return;
   }
-  var h = '<div style="font-size:0.78rem;color:var(--mid-gray);margin-bottom:0.45rem;">Click an account to use it, then Save → Sync.</div>';
+  var h = '<div style="font-size:0.78rem;color:var(--mid-gray);margin-bottom:0.45rem;">Click an account to use it, then Save -> Sync.</div>';
   accounts.forEach(function(a) {
     var label = (a.name || '(unnamed)') + (a.manager ? ' · MANAGER' : '');
     var meta = a.manager
@@ -1948,7 +1903,7 @@ function renderSemrush() {
   var negatives = keywords.filter(function(k) { return Number(k.negative) === 1; });
 
   var html = '<div class="page-header"><div class="page-title">SEMrush</div>';
-  html += '<div style="font-size:0.85rem;color:var(--mid-gray);margin-top:0.35rem;">Upload keyword CSV → filter by volume / KD / CPC / junk words → mark Keepers & Negatives. API units later.</div></div>';
+  html += '<div style="font-size:0.85rem;color:var(--mid-gray);margin-top:0.35rem;">Upload keyword CSV -> filter by volume / KD / CPC / junk words -> mark Keepers & Negatives. API units later.</div></div>';
 
   html += '<div class="card" style="margin-bottom:1rem;"><div class="card-header"><div class="card-title">Import + filters</div></div>';
   html += '<div style="padding:1rem 1.5rem;">';
@@ -2551,7 +2506,7 @@ function renderEmailNav(el) {
     { slug: 'all', name: 'All' },
     { slug: 'trash', name: 'Trash' }
   ];
-  var html = '<button type="button" class="email-compose-btn" onclick="toggleEmailCompose(true)">✎ Compose</button>';
+  var html = '<button type="button" class="email-compose-btn" onclick="toggleEmailCompose(true)">Γ£Ä Compose</button>';
   systemNav.forEach(function(f) {
     var active = f.slug === EMAIL_FOLDER ? ' active' : '';
     var count = f.slug === 'all'
@@ -2568,7 +2523,7 @@ function renderEmailNav(el) {
   html += '<div class="email-nav-section"><span>Folders</span>';
   html += '<select id="emailFolderTool" onchange="onEmailFolderTool(this.value); this.value=\'\';" title="Folder actions">';
   html += '<option value="">+</option>';
-  html += '<option value="__new__">New folder…</option>';
+  html += '<option value="__new__">New folder...</option>';
   (EMAIL_FOLDER_META.custom || []).forEach(function(f) {
     html += '<option value="__del__:' + escapeHtml(f.slug) + '">Delete ' + escapeHtml(f.name) + ' (' + (f.count || 0) + ')</option>';
   });
@@ -2580,7 +2535,7 @@ function renderEmailNav(el) {
     html += '<div class="email-nav-folder">';
     html += '<button type="button" class="email-nav-item' + active + '" onclick="switchEmailFolder(\'' + escapeHtml(f.slug) + '\')">' +
       escapeHtml(f.name) + count + '</button>';
-    html += '<button type="button" class="email-nav-del" title="Delete folder" onclick="event.stopPropagation();deleteEmailFolder(\'' + escapeHtml(f.slug) + '\')">×</button>';
+    html += '<button type="button" class="email-nav-del" title="Delete folder" onclick="event.stopPropagation();deleteEmailFolder(\'' + escapeHtml(f.slug) + '\')">├ù</button>';
     html += '</div>';
   });
   el.innerHTML = html;
@@ -2603,14 +2558,14 @@ function renderEmail() {
   html += '<label>Domain<select id="emailDomainSelect" onchange="switchEmailDomain(this.value)"></select></label>';
   html += '<div class="email-mailbox-tools">';
   html += '<button type="button" class="btn btn-ghost" onclick="createEmailDomain()" title="Add a domain">+ Domain</button>';
-  html += '<button type="button" class="btn btn-ghost" onclick="deleteEmailDomain()" title="Remove selected domain">− Domain</button>';
+  html += '<button type="button" class="btn btn-ghost" onclick="deleteEmailDomain()" title="Remove selected domain">ΓêÆ Domain</button>';
   html += '</div>';
   html += '<label>Mailbox<select id="emailMailboxSelect" onchange="switchEmailMailbox(this.value)"></select></label>';
   html += '<div class="email-mailbox-tools">';
   html += '<button type="button" class="btn btn-ghost" onclick="createEmailMailbox()" title="Add a mailbox address">+ Email</button>';
-  html += '<button type="button" class="btn btn-ghost" onclick="deleteEmailMailbox()" title="Remove selected mailbox">− Email</button>';
+  html += '<button type="button" class="btn btn-ghost" onclick="deleteEmailMailbox()" title="Remove selected mailbox">ΓêÆ Email</button>';
   html += '</div>';
-  html += '<input type="search" id="emailFilter" placeholder="Search mail…" value="' + escapeHtml(EMAIL_FILTER) + '" oninput="EMAIL_FILTER=this.value;renderEmailList()" title="Filters the conversation list by sender, subject, or preview"/>';
+  html += '<input type="search" id="emailFilter" placeholder="Search mail..." value="' + escapeHtml(EMAIL_FILTER) + '" oninput="EMAIL_FILTER=this.value;renderEmailList()" title="Filters the conversation list by sender, subject, or preview"/>';
   html += '<button type="button" class="btn btn-ghost" onclick="loadEmailInbox()">Refresh</button>';
   html += '<button type="button" class="btn btn-ghost" style="display:none;" id="emailFoldersMobileBtn" onclick="document.getElementById(\'emailLayout\').classList.toggle(\'show-nav\')">Folders</button>';
   html += '</div>';
@@ -2619,11 +2574,11 @@ function renderEmail() {
     html += '<div class="email-compose" id="emailCompose">';
     html += '<div class="email-compose-row"><label>From</label><input type="text" id="composeFrom" value="' + escapeHtml(EMAIL_MAILBOX) + '" readonly style="opacity:0.85;"/></div>';
     html += '<div class="email-compose-row"><label>To</label><div class="email-to-wrap">';
-    html += '<input type="email" id="composeTo" placeholder="Start typing a name or email…" autocomplete="off" oninput="onComposeToInput(event)" onkeydown="onComposeToKey(event)" onfocus="onComposeToInput(event)" onblur="setTimeout(hideComposeAc,150)"/>';
+    html += '<input type="email" id="composeTo" placeholder="Start typing a name or email..." autocomplete="off" oninput="onComposeToInput(event)" onkeydown="onComposeToKey(event)" onfocus="onComposeToInput(event)" onblur="setTimeout(hideComposeAc,150)"/>';
     html += '<div class="email-ac" id="composeAc"></div>';
     html += '</div></div>';
     html += '<div class="email-compose-row"><label>Subject</label><input type="text" id="composeSubject" placeholder="Subject"/></div>';
-    html += '<div class="email-compose-row"><label>Message</label><textarea id="composeBody" placeholder="Write your message…"></textarea></div>';
+    html += '<div class="email-compose-row"><label>Message</label><textarea id="composeBody" placeholder="Write your message..."></textarea></div>';
     html += '<div class="email-compose-row"><label>Attach</label><div>';
     html += '<input type="file" id="composeFiles" multiple accept="image/*,.pdf,.doc,.docx,.txt,.csv,.zip,application/*" onchange="onComposeFiles(event)"/>';
     html += '<div class="email-attach-list" id="composeAttachList"></div>';
@@ -2643,7 +2598,7 @@ function renderEmail() {
     html += '<div class="email-empty">Select a conversation</div>';
   } else {
     html += '<div class="email-detail-head">';
-    html += '<button type="button" class="btn btn-ghost" style="margin-bottom:0.35rem;display:none;" id="emailBackBtn" onclick="EMAIL_SELECTED_THREAD=null;EMAIL_SELECTED=null;EMAIL_THREAD_MESSAGES=[];EMAIL_REPLY_OPEN=false;document.getElementById(\'emailLayout\').classList.remove(\'show-detail\');renderEmail()">← Conversations</button>';
+    html += '<button type="button" class="btn btn-ghost" style="margin-bottom:0.35rem;display:none;" id="emailBackBtn" onclick="EMAIL_SELECTED_THREAD=null;EMAIL_SELECTED=null;EMAIL_THREAD_MESSAGES=[];EMAIL_REPLY_OPEN=false;document.getElementById(\'emailLayout\').classList.remove(\'show-detail\');renderEmail()">ΓåÉ Conversations</button>';
     html += '<div style="font-size:0.95rem;font-weight:500;margin-bottom:0.2rem;" id="emailDetailSubject"></div>';
     html += '<div class="email-meta" id="emailDetailMeta"></div>';
     html += '<div class="email-actions" id="emailDetailActions"></div>';
@@ -2652,7 +2607,7 @@ function renderEmail() {
     if (EMAIL_REPLY_OPEN && EMAIL_FOLDER !== 'sent') {
       html += '<div class="email-reply">';
       html += '<div class="email-meta" style="margin-bottom:0.35rem;">Replying as ' + escapeHtml(EMAIL_MAILBOX) + '</div>';
-      html += '<textarea id="emailReplyText" placeholder="Write a reply…"></textarea>';
+      html += '<textarea id="emailReplyText" placeholder="Write a reply..."></textarea>';
       html += '<div style="margin-top:0.45rem;"><input type="file" id="replyFiles" multiple accept="image/*,.pdf,.doc,.docx,.txt,.csv,.zip,application/*" onchange="onReplyFiles(event)"/>';
       html += '<div class="email-attach-list" id="replyAttachList"></div></div>';
       html += '<div style="display:flex;justify-content:space-between;align-items:center;gap:0.5rem;margin-top:0.45rem;">';
@@ -2742,7 +2697,7 @@ function renderComposeAttachList() {
   el.innerHTML = EMAIL_COMPOSE_FILES.map(function(f, i) {
     var kb = Math.max(1, Math.round(f.size / 1024));
     return '<span class="email-attach-chip">' + escapeHtml(f.name) + ' (' + kb + ' KB)'
-      + '<button type="button" onclick="removeComposeFile(' + i + ')" title="Remove">×</button></span>';
+      + '<button type="button" onclick="removeComposeFile(' + i + ')" title="Remove">├ù</button></span>';
   }).join('');
 }
 
@@ -2771,7 +2726,7 @@ function renderReplyAttachList() {
   el.innerHTML = EMAIL_REPLY_FILES.map(function(f, i) {
     var kb = Math.max(1, Math.round(f.size / 1024));
     return '<span class="email-attach-chip">' + escapeHtml(f.name) + ' (' + kb + ' KB)'
-      + '<button type="button" onclick="removeReplyFile(' + i + ')" title="Remove">×</button></span>';
+      + '<button type="button" onclick="removeReplyFile(' + i + ')" title="Remove">├ù</button></span>';
   }).join('');
 }
 
@@ -2898,7 +2853,7 @@ async function sendComposeEmail() {
     return;
   }
   if (btn) btn.disabled = true;
-  if (status) { status.textContent = 'Sending…'; status.style.color = ''; }
+  if (status) { status.textContent = 'Sending...'; status.style.color = ''; }
   try {
     var attachments = await filesToAttachments(EMAIL_COMPOSE_FILES);
     var payload = {
@@ -2957,7 +2912,7 @@ function renderEmailList() {
       html += '<button type="button" class="btn btn-red" onclick="emailBulkAction(\'delete\')">Delete</button>';
     }
     html += '<select id="emailBulkMove" onchange="emailBulkAction(\'move\', this.value); this.value=\'\';">';
-    html += '<option value="">Move to…</option>';
+    html += '<option value="">Move to...</option>';
     [{ slug: 'inbox', name: 'Inbox' }, { slug: 'archive', name: 'Archive' }, { slug: 'trash', name: 'Trash' }]
       .concat(EMAIL_FOLDER_META.custom || []).forEach(function(f) {
         if (f.slug === EMAIL_FOLDER) return;
@@ -3247,7 +3202,7 @@ function getDriveClientId() {
 function ensureDriveClientId() {
   var id = getDriveClientId();
   if (id) return id;
-  var entered = prompt('Paste your Google OAuth Client ID to save files to Drive (Google Cloud → Credentials → OAuth client). Leave blank to cancel.');
+  var entered = prompt('Paste your Google OAuth Client ID to save files to Drive (Google Cloud -> Credentials -> OAuth client). Leave blank to cancel.');
   if (!entered || !entered.trim()) return '';
   try { localStorage.setItem('emailGoogleDriveClientId', entered.trim()); } catch (e) {}
   return entered.trim();
@@ -3262,7 +3217,7 @@ async function saveEmailAttToDrive(id) {
   var clientId = ensureDriveClientId();
   if (!clientId) return;
   try {
-    toast('Connecting to Google…');
+    toast('Connecting to Google...');
     await loadGoogleIdentity();
     var token = await new Promise(function(resolve, reject) {
       var client = google.accounts.oauth2.initTokenClient({
@@ -3385,7 +3340,7 @@ function renderEmailActions(m) {
   var moveOpts = [{ slug: 'inbox', name: 'Inbox' }, { slug: 'archive', name: 'Archive' }, { slug: 'trash', name: 'Trash' }]
     .concat(EMAIL_FOLDER_META.custom || []);
   html += '<select class="email-move-select" id="emailMoveSelect" onchange="emailMoveTo(this.value); this.value=\'\';">';
-  html += '<option value="">Move to…</option>';
+  html += '<option value="">Move to...</option>';
   moveOpts.forEach(function(f) {
     if (f.slug === EMAIL_FOLDER) return;
     html += '<option value="' + escapeHtml(f.slug) + '">' + escapeHtml(f.name) + '</option>';
@@ -3575,7 +3530,7 @@ function deleteEmailDomain() {
 
   if (protection) {
     var serious =
-      '⚠ SERIOUS WARNING — THIS DOMAIN IS USED IN YOUR PROGRAMS\n\n' +
+      'ΓÜá SERIOUS WARNING — THIS DOMAIN IS USED IN YOUR PROGRAMS\n\n' +
       domain + '\n\n' +
       protection + '\n\n' +
       'Removing it from this list does NOT change Cloudflare DNS or Email Routing.\n' +
@@ -3597,7 +3552,7 @@ function deleteEmailDomain() {
 
   saveRemovedDomain(domain);
 
-  // hide mailboxes for this domain from the active list (same as − Email for each)
+  // hide mailboxes for this domain from the active list (same as ΓêÆ Email for each)
   boxes.forEach(function(b) {
     if (b.builtin) {
       try {
@@ -3672,7 +3627,7 @@ function deleteEmailMailbox() {
 
   if (protection) {
     var serious =
-      '⚠ SERIOUS WARNING — THIS ADDRESS IS USED IN YOUR PROGRAMS\n\n' +
+      'ΓÜá SERIOUS WARNING — THIS ADDRESS IS USED IN YOUR PROGRAMS\n\n' +
       email + '\n\n' +
       protection + '\n\n' +
       'Deleting it from this list does NOT stop Cloudflare routing or code that sends from it.\n' +
@@ -3764,7 +3719,7 @@ async function sendEmailReply() {
     return;
   }
   if (btn) btn.disabled = true;
-  if (status) { status.textContent = 'Sending…'; status.style.color = ''; }
+  if (status) { status.textContent = 'Sending...'; status.style.color = ''; }
   try {
     var replyToId = EMAIL_SELECTED.id;
     for (var i = EMAIL_THREAD_MESSAGES.length - 1; i >= 0; i--) {
@@ -4103,7 +4058,7 @@ function generatePayLink() {
     return;
   }
   var btn = document.querySelector('#paymentModal .btn-gold');
-  if (btn) { btn.disabled = true; btn.textContent = 'Creating…'; }
+  if (btn) { btn.disabled = true; btn.textContent = 'Creating...'; }
   var payload = {
     ajax_action: 'gen_payment',
     name: name,
@@ -4358,7 +4313,7 @@ if (!resetToken) {
     var params = new URLSearchParams(window.location.search);
     var oauthCode = params.get('code');
     if (oauthCode && (params.get('scope') || params.get('state') === 'ads' || params.get('authuser') != null)) {
-      toast('Finishing Google authorization…');
+      toast('Finishing Google authorization...');
       var ex = await ajax({ action: 'exchange_google_ads_code', code: oauthCode });
       history.replaceState({}, '', location.pathname);
       if (ex.error) {
