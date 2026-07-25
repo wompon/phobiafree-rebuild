@@ -192,6 +192,14 @@ body{font-family:'DM Sans',sans-serif;background:#f0f2f5;color:var(--charcoal);m
 .evolve-composer textarea:focus,.evolve-composer select:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(26,107,114,0.08);}
 .evolve-composer-hint{font-size:0.7rem;color:var(--mid-gray);}
 .evolve-genes{margin-top:1rem;max-width:920px;width:100%;}
+.evolve-cursor-box{align-self:stretch;max-width:min(100%,640px);margin-top:0.15rem;padding:0.65rem 0.75rem;background:#fff;border:1px solid rgba(26,107,114,0.16);border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,0.04);}
+.evolve-cursor-box-label{font-size:0.68rem;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:var(--teal-dark);margin-bottom:0.45rem;display:flex;justify-content:space-between;gap:0.5rem;align-items:center;}
+.evolve-cursor-box-label a{color:var(--teal-dark);text-transform:none;letter-spacing:0;font-weight:500;}
+.evolve-cursor-row{display:flex;gap:0.45rem;align-items:flex-end;}
+.evolve-cursor-row textarea{flex:1;min-height:40px;max-height:120px;resize:vertical;padding:0.45rem 0.7rem;border:1px solid rgba(26,107,114,0.2);border-radius:14px;font-family:'DM Sans',sans-serif;font-size:0.82rem;outline:none;background:var(--warm-white);line-height:1.4;}
+.evolve-cursor-row textarea:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(26,107,114,0.08);}
+.evolve-turn.agent .evolve-bubble.status{opacity:0.88;font-style:italic;}
+.evolve-turn.agent .evolve-bubble.error{border-color:rgba(200,50,50,0.25);color:#8b2020;}
 @media(max-width:900px){
   .main.evolve-mode{padding:3.25rem 0.65rem 0.75rem;}
   .evolve-chat-msgs{min-height:220px;}
@@ -493,9 +501,11 @@ var EVOLVE_GENES = [];
 var EVOLVE_IDEAS = [];
 var EVOLVE_CHAT_DRAFT = '';
 var EVOLVE_CHAT_DOMAIN = 'general';
+var EVOLVE_REPLY_DRAFTS = {};
 var EVOLVE_POLL_TIMER = null;
 var EVOLVE_GENES_OPEN = false;
 var EVOLVE_FORCE_SCROLL = true;
+var EVOLVE_SYNCING = false;
 var ARK = { adsPanels: [], adsPanelCatalog: [], adsImports: [], adsRows: [], semrushImports: [], semrushKeywords: [], semrushFilters: {}, cursorCloudReady: false };
 var STATS = { todayCount: 0, weekCount: 0, totalClients: 0, totalRevenue: 0, pendingCount: 0 };
 
@@ -1049,10 +1059,53 @@ function evolveDomainOptions(selected) {
   }).join('');
 }
 
+function evolveAgentId(idea) {
+  if (!idea) return '';
+  if (idea.agent_id) return String(idea.agent_id);
+  var fromNote = String(idea.run_note || '').match(/\b(bc-[0-9a-f-]{20,})\b/i);
+  return fromNote ? fromNote[1] : '';
+}
+
 function evolveAgentUrl(idea) {
+  var id = evolveAgentId(idea);
+  if (id) return 'https://cursor.com/agents/' + encodeURIComponent(id);
   if (!idea || !idea.run_note) return '';
   var m = String(idea.run_note).match(/https:\/\/cursor\.com\/agents[^\s]*/i);
   return m ? m[0] : '';
+}
+
+function evolveChatMessages(idea) {
+  if (!idea) return [];
+  if (Array.isArray(idea.chat)) return idea.chat;
+  if (!idea.chat_json) return [];
+  try {
+    var parsed = JSON.parse(idea.chat_json);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+async function pollEvolveAgents() {
+  if (EVOLVE_SYNCING) return;
+  var active = document.querySelector('.tab-content.active');
+  if (!(active && active.id === 'tab-evolve')) return;
+  var targets = (EVOLVE_IDEAS || []).filter(function(i) {
+    return evolveAgentId(i) && (i.status === 'doing' || i.status === 'queued');
+  });
+  if (!targets.length) {
+    await loadDashboard();
+    return;
+  }
+  EVOLVE_SYNCING = true;
+  try {
+    for (var i = 0; i < targets.length; i++) {
+      await ajax({ action: 'sync_evolve_idea', id: targets[i].id });
+    }
+  } finally {
+    EVOLVE_SYNCING = false;
+  }
+  await loadDashboard();
 }
 
 function syncEvolvePoll() {
@@ -1066,7 +1119,13 @@ function syncEvolvePoll() {
     EVOLVE_POLL_TIMER = null;
   }
   if (onEvolve && busy) {
-    EVOLVE_POLL_TIMER = setInterval(function() { loadDashboard(); }, 8000);
+    EVOLVE_POLL_TIMER = setInterval(function() {
+      var hasAgent = (EVOLVE_IDEAS || []).some(function(i) {
+        return evolveAgentId(i) && (i.status === 'doing' || i.status === 'queued');
+      });
+      if (hasAgent) pollEvolveAgents();
+      else loadDashboard();
+    }, 8000);
   }
 }
 
@@ -1081,6 +1140,9 @@ function bindEvolveComposer(opts) {
   var forceScroll = !!(opts && opts.forceScroll);
   var ta = document.getElementById('evolveIdeaBody');
   var sel = document.getElementById('evolveDomain');
+  var activeReply = document.activeElement && document.activeElement.id && String(document.activeElement.id).indexOf('evolveReply_') === 0
+    ? document.activeElement.id
+    : null;
   var hadFocus = !!(ta && document.activeElement === ta);
   if (sel) {
     sel.value = EVOLVE_CHAT_DOMAIN || 'general';
@@ -1096,8 +1158,29 @@ function bindEvolveComposer(opts) {
         else addEvolveIdea();
       }
     };
-    if (hadFocus || forceScroll) {
+    if (!activeReply && (hadFocus || forceScroll)) {
       try { ta.focus(); } catch (e) {}
+    }
+  }
+  document.querySelectorAll('textarea[id^="evolveReply_"]').forEach(function(box) {
+    var id = String(box.id).replace('evolveReply_', '');
+    box.value = EVOLVE_REPLY_DRAFTS[id] || '';
+    box.oninput = function() { EVOLVE_REPLY_DRAFTS[id] = box.value; };
+    box.onkeydown = function(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        replyEvolveIdea(Number(id));
+      }
+    };
+  });
+  if (activeReply) {
+    var keep = document.getElementById(activeReply);
+    if (keep) {
+      try {
+        var pos = keep.value.length;
+        keep.focus();
+        keep.setSelectionRange(pos, pos);
+      } catch (e) {}
     }
   }
   scrollEvolveChat(forceScroll || EVOLVE_FORCE_SCROLL);
@@ -1116,18 +1199,20 @@ function renderEvolve() {
   var html = '<div class="evolve-chat-shell">';
   html += '<div class="evolve-chat-head">';
   html += '<div><div class="page-title">Thoughts</div>';
-  html += '<div style="font-size:0.8rem;color:var(--mid-gray);margin-top:0.25rem;">Chat a thought. Enter queues it · Ctrl/⌘+Enter runs an agent' + (cloudReady ? '' : ' (needs CURSOR_API_KEY)') + '.</div></div>';
+  html += '<div style="font-size:0.8rem;color:var(--mid-gray);margin-top:0.25rem;">Cursor chatbox on this page — Enter queues · Ctrl/⌘+Enter runs' + (cloudReady ? '' : ' (needs CURSOR_API_KEY)') + '.</div></div>';
   html += '<div style="font-size:0.72rem;color:var(--mid-gray);text-align:right;">' + ideas.length + ' thoughts';
   if (busy) html += ' · <span style="color:#8a6a1a;">' + busy + ' running</span>';
   html += '<br/>' + activeGenes + ' active genes</div></div>';
 
   html += '<div class="evolve-chat-msgs" id="evolveChatMsgs">';
   if (!ideas.length) {
-    html += '<div class="evolve-empty">No thoughts yet.<br/>Type below — this chat is the inbox.</div>';
+    html += '<div class="evolve-empty">No thoughts yet.<br/>Type below — Run opens a Cursor chatbox here.</div>';
   } else {
     ideas.forEach(function(i) {
       var st = i.status || 'inbox';
       var agentUrl = evolveAgentUrl(i);
+      var agentId = evolveAgentId(i);
+      var msgs = evolveChatMessages(i);
       html += '<div class="evolve-turn you" data-idea="' + i.id + '">';
       html += '<div class="evolve-bubble">' + escapeHtml(i.body || '') + '</div>';
       html += '<div class="evolve-meta"><span class="evolve-status ' + escapeHtml(st) + '">' + escapeHtml(st) + '</span>';
@@ -1136,7 +1221,7 @@ function renderEvolve() {
       if (st !== 'allowed' && st !== 'queued' && st !== 'doing') {
         html += '<button type="button" class="btn btn-ghost" onclick="allowEvolveIdea(' + i.id + ')">Allow</button>';
       }
-      html += '<button type="button" class="btn btn-teal" onclick="runEvolveIdea(' + i.id + ')">Run</button>';
+      html += '<button type="button" class="btn btn-teal" onclick="runEvolveIdea(' + i.id + ')">' + (agentId ? 'Re-run' : 'Run') + '</button>';
       if (agentUrl) html += '<a class="btn btn-ghost" href="' + escapeHtml(agentUrl) + '" target="_blank" rel="noopener">Open agent</a>';
       if (i.agent_prompt) html += '<button type="button" class="btn btn-ghost" onclick="copyEvolvePrompt(' + i.id + ')">Copy prompt</button>';
       if (st !== 'done') html += '<button type="button" class="btn btn-ghost" onclick="setEvolveStatus(' + i.id + ',\'done\')">Done</button>';
@@ -1145,12 +1230,20 @@ function renderEvolve() {
       html += '<button type="button" class="btn btn-red" onclick="deleteEvolveIdea(' + i.id + ')">Del</button>';
       html += '</div></div>';
 
-      if (i.run_note || i.result || st === 'doing' || st === 'queued') {
+      if (msgs.length) {
+        msgs.forEach(function(m) {
+          var role = m.role === 'you' ? 'you' : 'agent';
+          var kind = m.kind || '';
+          html += '<div class="evolve-turn ' + role + '">';
+          html += '<div class="evolve-bubble' + (kind === 'status' || kind === 'error' ? ' ' + escapeHtml(kind) : '') + '">' + escapeHtml(m.text || '') + '</div>';
+          html += '</div>';
+        });
+      } else if (i.run_note || i.result || st === 'doing' || st === 'queued') {
         html += '<div class="evolve-turn agent">';
         if (i.result) {
           html += '<div class="evolve-bubble">' + escapeHtml(i.result) + '</div>';
         } else if (st === 'doing' || st === 'queued') {
-          html += '<div class="evolve-bubble">Agent ' + escapeHtml(st) + '…</div>';
+          html += '<div class="evolve-bubble status">Agent ' + escapeHtml(st) + '…</div>';
         } else {
           html += '<div class="evolve-bubble" style="opacity:0.85;">No result note yet.</div>';
         }
@@ -1163,6 +1256,16 @@ function renderEvolve() {
         }
         html += '</div>';
       }
+
+      if (agentId) {
+        html += '<div class="evolve-cursor-box" data-idea="' + i.id + '">';
+        html += '<div class="evolve-cursor-box-label"><span>Cursor chatbox</span>';
+        html += '<a href="' + escapeHtml(agentUrl) + '" target="_blank" rel="noopener">Open full agent ↗</a></div>';
+        html += '<div class="evolve-cursor-row">';
+        html += '<textarea id="evolveReply_' + i.id + '" rows="1" placeholder="Reply to this Cursor agent…"></textarea>';
+        html += '<button type="button" class="btn btn-teal" onclick="replyEvolveIdea(' + i.id + ')">Send</button>';
+        html += '</div></div>';
+      }
     });
   }
   html += '</div>';
@@ -1174,7 +1277,7 @@ function renderEvolve() {
   html += '<button type="button" class="btn btn-ghost" onclick="addEvolveIdea()">Queue</button>';
   html += '<button type="button" class="btn btn-teal" onclick="addEvolveIdeaAndRun()">Run</button>';
   html += '</div>';
-  html += '<div class="evolve-composer-hint">Enter = queue to inbox · Ctrl/⌘+Enter = queue + run · Shift+Enter = newline</div>';
+  html += '<div class="evolve-composer-hint">Enter = queue · Ctrl/⌘+Enter = run Cursor agent · reply boxes appear under live agents</div>';
   html += '</div></div>';
 
   html += '<div class="evolve-genes card">';
@@ -1278,19 +1381,36 @@ async function addEvolveIdeaAndRun() {
 }
 
 async function runEvolveIdea(id) {
-  toast('Starting agent…');
+  toast('Starting Cursor agent…');
+  EVOLVE_FORCE_SCROLL = true;
   var r = await ajax({ action: 'run_evolve_idea', id: id });
   if (r.error) { toast(r.error, 6000); return; }
   if (r.cloud && r.cloud.ok) {
-    toast('Agent running');
-    if (r.agentUrl) {
-      try { window.open(r.agentUrl, '_blank', 'noopener'); } catch (e) {}
-    }
+    toast('Cursor chatbox ready — reply below the thought');
   } else if (r.cloud && r.cloud.note) {
     toast(r.cloud.note, 7000);
   } else {
     toast('Queued');
   }
+  await loadDashboard();
+}
+
+async function replyEvolveIdea(id) {
+  var box = document.getElementById('evolveReply_' + id);
+  var text = ((box && box.value) || EVOLVE_REPLY_DRAFTS[id] || '').trim();
+  if (!text) { toast('Write a reply first'); return; }
+  EVOLVE_REPLY_DRAFTS[id] = '';
+  if (box) box.value = '';
+  EVOLVE_FORCE_SCROLL = true;
+  toast('Sending to Cursor…');
+  var r = await ajax({ action: 'chat_evolve_idea', id: id, text: text });
+  if (r.error) {
+    EVOLVE_REPLY_DRAFTS[id] = text;
+    toast(r.error, 7000);
+    await loadDashboard();
+    return;
+  }
+  toast('Reply sent');
   await loadDashboard();
 }
 

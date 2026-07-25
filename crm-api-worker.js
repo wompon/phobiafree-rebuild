@@ -75,11 +75,24 @@ async function handleDashboard(request, env) {
   const { results: evolveGenes } = await env.phobiafree_db
     .prepare('SELECT * FROM evolve_genes ORDER BY sort_order ASC, id ASC')
     .all();
-  const { results: evolveIdeas } = await env.phobiafree_db
+  const { results: evolveIdeaRows } = await env.phobiafree_db
     .prepare(`SELECT * FROM evolve_ideas ORDER BY CASE status
       WHEN 'queued' THEN 0 WHEN 'allowed' THEN 1 WHEN 'inbox' THEN 2
       WHEN 'doing' THEN 3 WHEN 'blocked' THEN 4 ELSE 5 END, id DESC LIMIT 300`)
     .all();
+  const evolveIdeas = (evolveIdeaRows || []).map((row) => {
+    let chat = [];
+    try {
+      const parsed = row.chat_json ? JSON.parse(row.chat_json) : [];
+      chat = Array.isArray(parsed) ? parsed : [];
+    } catch (_) { chat = []; }
+    let agentId = row.agent_id || '';
+    if (!agentId && row.run_note) {
+      const m = String(row.run_note).match(/\b(bc-[0-9a-f-]{20,})\b/i);
+      if (m) agentId = m[1];
+    }
+    return { ...row, chat, agent_id: agentId || row.agent_id || null };
+  });
   let ark = {
     adsPanels: ['overview', 'search_terms', 'campaigns', 'hotlinks'],
     adsPanelCatalog: [],
