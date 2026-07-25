@@ -101,6 +101,7 @@ async function handleDashboard(request, env) {
     semrushImports: [],
     semrushKeywords: [],
     semrushFilters: {},
+    semrush: {},
     cursorCloudReady: false,
     githubAutopilotReady: false,
     adminChat: { messages: [], agentId: '', runId: '' },

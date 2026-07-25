@@ -511,7 +511,7 @@ var ADMIN_CHAT_BUSY = false;
 var EVOLVE_THOUGHT_DRAFT = '';
 var EVOLVE_THOUGHT_DOMAIN = 'general';
 var EVOLVE_POLL_TIMER = null;
-var ARK = { adsPanels: [], adsPanelCatalog: [], adsImports: [], adsRows: [], semrushImports: [], semrushKeywords: [], semrushFilters: {}, cursorCloudReady: false, githubAutopilotReady: false, adminChat: null };
+var ARK = { adsPanels: [], adsPanelCatalog: [], adsImports: [], adsRows: [], semrushImports: [], semrushKeywords: [], semrushFilters: {}, semrush: {}, cursorCloudReady: false, githubAutopilotReady: false, adminChat: null };
 var STATS = { todayCount: 0, weekCount: 0, totalClients: 0, totalRevenue: 0, pendingCount: 0 };
 
 function escapeHtml(str) {
@@ -1881,6 +1881,8 @@ function renderSemrush() {
   var filters = ark.semrushFilters || {};
   var keywords = ark.semrushKeywords || [];
   var imports = ark.semrushImports || [];
+  var sem = ark.semrush || {};
+  var syncSets = sem.syncSets || ['overview', 'organic', 'paid', 'competitors'];
   var exclude = String(filters.excludeWords || '').toLowerCase().split(/[,]+/).map(function(s) { return s.trim(); }).filter(Boolean);
   var intentNeedle = String(filters.intentIncludes || '').toLowerCase().trim();
   var minVol = Number(filters.minVolume);
@@ -1901,17 +1903,88 @@ function renderSemrush() {
   });
   var keepers = keywords.filter(function(k) { return Number(k.keep) === 1; });
   var negatives = keywords.filter(function(k) { return Number(k.negative) === 1; });
+  var overview = sem.overview || null;
+  var competitors = sem.competitors || [];
 
   var html = '<div class="page-header"><div class="page-title">SEMrush</div>';
-  html += '<div style="font-size:0.85rem;color:var(--mid-gray);margin-top:0.35rem;">Upload keyword CSV -> filter by volume / KD / CPC / junk words -> mark Keepers & Negatives. API units later.</div></div>';
+  html += '<div style="font-size:0.85rem;color:var(--mid-gray);margin-top:0.35rem;">Live API sync fills keywords (CSV still works as fallback). Filter → mark Keepers & Negatives → Run a thought for recommendations.</div></div>';
 
-  html += '<div class="card" style="margin-bottom:1rem;"><div class="card-header"><div class="card-title">Import + filters</div></div>';
+  html += '<div class="card" style="margin-bottom:1rem;border-top:3px solid var(--teal);"><div class="card-header"><div class="card-title">API sync</div>';
+  html += '<span style="font-size:0.78rem;color:' + (sem.ready ? 'var(--sage)' : 'var(--mid-gray)') + ';">' + (sem.ready ? 'Ready to sync' : 'Not connected') + '</span></div>';
   html += '<div style="padding:1rem 1.5rem;">';
-  html += '<div class="form-row" style="gap:0.75rem;flex-wrap:wrap;align-items:end;margin-bottom:1rem;">';
-  html += '<div class="form-group" style="flex:1;min-width:220px;"><label>SEMrush CSV</label><input type="file" id="semCsvFile" accept=".csv,text/csv"/></div>';
-  html += '<button type="button" class="btn btn-teal" onclick="importSemrushCsv()">Import</button>';
-  if (imports.length) html += '<button type="button" class="btn btn-red" onclick="clearSemrushData()">Clear keywords</button>';
+  html += '<p style="font-size:0.82rem;color:var(--mid-gray);line-height:1.55;margin-bottom:1rem;">Paste your Semrush <b>v3 API key</b> (Profile → API Keys). Units are consumed per row — keep the limit modest. Optional: set Worker secret <code>SEMRUSH_API_KEY</code> instead of pasting here.</p>';
+  html += '<div class="form-row" style="gap:0.75rem;flex-wrap:wrap;align-items:end;margin-bottom:0.85rem;">';
+  html += '<div class="form-group" style="flex:1;min-width:220px;"><label>API key ' + (sem.hasApiKey ? '<span style="color:var(--sage);">(saved' + (sem.apiKeyHint ? ' ' + escapeHtml(sem.apiKeyHint) : '') + ')</span>' : '') + '</label>';
+  html += '<input type="password" id="semApiKey" value="" placeholder="' + (sem.hasApiKey ? 'leave empty to keep saved key' : 'paste Semrush API key') + '" autocomplete="off" spellcheck="false" style="font-family:ui-monospace,Consolas,monospace;font-size:0.78rem;width:100%;"/></div>';
+  html += '<div class="form-group"><label>Domain</label><input type="text" id="semDomain" value="' + escapeHtml(sem.domain || 'phobiafree.life') + '" style="min-width:160px;"/></div>';
+  html += '<div class="form-group"><label>Database</label><input type="text" id="semDatabase" value="' + escapeHtml(sem.database || 'us') + '" style="width:80px;"/></div>';
+  html += '<div class="form-group"><label>Row limit</label><input type="number" id="semDisplayLimit" value="' + escapeHtml(String(sem.displayLimit || 200)) + '" min="10" max="2000" style="width:90px;"/></div>';
   html += '</div>';
+  html += '<div style="margin-bottom:0.85rem;font-size:0.82rem;">';
+  html += '<div style="font-weight:600;margin-bottom:0.4rem;">Sync datasets</div>';
+  [
+    ['overview', 'Domain overview'],
+    ['organic', 'Organic keywords'],
+    ['paid', 'Paid keywords'],
+    ['competitors', 'Organic competitors']
+  ].forEach(function(pair) {
+    var on = syncSets.indexOf(pair[0]) >= 0;
+    html += '<label style="display:inline-flex;align-items:center;gap:0.35rem;margin-right:1rem;margin-bottom:0.35rem;cursor:pointer;">';
+    html += '<input type="checkbox" class="semSyncSet" value="' + pair[0] + '"' + (on ? ' checked' : '') + '/> ' + pair[1] + '</label>';
+  });
+  html += '</div>';
+  html += '<label style="display:inline-flex;align-items:center;gap:0.4rem;font-size:0.82rem;margin-bottom:0.85rem;cursor:pointer;">';
+  html += '<input type="checkbox" id="semDailySync"' + (sem.dailySync ? ' checked' : '') + '/> Daily scheduled sync (site cron, ~once/day when enabled)</label>';
+  html += '<div style="display:flex;flex-wrap:wrap;gap:0.55rem;align-items:center;">';
+  html += '<button type="button" class="btn btn-teal" onclick="saveSemrushSettings()">Save connection</button>';
+  html += '<button type="button" class="btn btn-teal" onclick="syncSemrushNow()">Sync now</button>';
+  if (imports.length || overview || competitors.length) html += '<button type="button" class="btn btn-red" onclick="clearSemrushData()">Clear keywords</button>';
+  html += '</div>';
+  html += '<div style="margin-top:0.75rem;font-size:0.78rem;color:var(--mid-gray);">';
+  html += 'Last sync: ' + (sem.lastSync ? escapeHtml(sem.lastSync) : 'never');
+  if (sem.fromWorkerSecret) html += ' · key also set via Worker secret';
+  if (sem.missing && sem.missing.length) {
+    html += '<div style="margin-top:0.45rem;color:#a33b2b;">Still needed: ' + escapeHtml(sem.missing.join(' · ')) + '</div>';
+  }
+  if (sem.lastError) html += '<div style="color:#a33b2b;margin-top:0.35rem;">' + escapeHtml(sem.lastError) + '</div>';
+  if (sem.lastResult && sem.lastResult.reports) {
+    html += '<div style="margin-top:0.35rem;">Last pull: ' + escapeHtml((sem.lastResult.reports || []).map(function(x) {
+      return x.type + ':' + (x.rows || 0) + (x.error ? '!' : '');
+    }).join(', ')) + '</div>';
+  }
+  html += '</div></div></div>';
+
+  if (overview) {
+    html += '<div class="card" style="margin-bottom:1rem;"><div class="card-header"><div class="card-title">Domain overview</div></div>';
+    html += '<div style="padding:1rem 1.5rem;font-size:0.85rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:0.75rem;">';
+    [
+      ['Rank', overview.rank],
+      ['Organic KW', overview.organicKeywords],
+      ['Organic traffic', overview.organicTraffic],
+      ['Organic cost', overview.organicCost],
+      ['Paid KW', overview.adwordsKeywords],
+      ['Paid traffic', overview.adwordsTraffic]
+    ].forEach(function(pair) {
+      html += '<div><div style="color:var(--mid-gray);font-size:0.72rem;">' + pair[0] + '</div><div style="font-weight:600;">' + (pair[1] != null ? escapeHtml(String(pair[1])) : '—') + '</div></div>';
+    });
+    html += '</div></div>';
+  }
+
+  if (competitors.length) {
+    html += '<div class="card" style="margin-bottom:1rem;"><div class="card-header"><div class="card-title">Competitors (' + competitors.length + ')</div></div>';
+    html += '<div class="table-wrap" style="max-height:220px;overflow:auto;"><table><thead><tr><th>Domain</th><th>Relevance</th><th>Common KW</th><th>Organic KW</th><th>Traffic</th></tr></thead><tbody>';
+    competitors.slice(0, 40).forEach(function(c) {
+      html += '<tr><td>' + escapeHtml(c.domain || '') + '</td>';
+      html += '<td>' + (c.relevance != null ? escapeHtml(String(c.relevance)) : '—') + '</td>';
+      html += '<td>' + (c.commonKeywords != null ? escapeHtml(String(c.commonKeywords)) : '—') + '</td>';
+      html += '<td>' + (c.organicKeywords != null ? escapeHtml(String(c.organicKeywords)) : '—') + '</td>';
+      html += '<td>' + (c.organicTraffic != null ? escapeHtml(String(c.organicTraffic)) : '—') + '</td></tr>';
+    });
+    html += '</tbody></table></div></div>';
+  }
+
+  html += '<div class="card" style="margin-bottom:1rem;"><div class="card-header"><div class="card-title">Filters</div></div>';
+  html += '<div style="padding:1rem 1.5rem;">';
   html += '<div class="form-row" style="gap:0.75rem;flex-wrap:wrap;align-items:end;">';
   html += '<div class="form-group"><label>Min volume</label><input type="number" id="semMinVol" value="' + escapeHtml(String(minVol)) + '" style="width:100px;"/></div>';
   html += '<div class="form-group"><label>Max KD</label><input type="number" id="semMaxKd" value="' + escapeHtml(String(maxKd)) + '" style="width:100px;"/></div>';
@@ -1920,11 +1993,21 @@ function renderSemrush() {
   html += '<div class="form-group" style="flex:1;min-width:220px;"><label>Exclude words</label><input type="text" id="semExclude" value="' + escapeHtml(filters.excludeWords || '') + '"/></div>';
   html += '<button type="button" class="btn btn-teal" onclick="saveSemrushFilters()">Save filters</button>';
   html += '</div>';
-  if (imports.length) {
-    html += '<div style="margin-top:0.75rem;font-size:0.8rem;color:var(--mid-gray);">' + keywords.length + ' keywords loaded · ' + filtered.length + ' pass filters · last: ' +
-      escapeHtml(imports[0].filename || '') + '</div>';
+  if (imports.length || keywords.length) {
+    html += '<div style="margin-top:0.75rem;font-size:0.8rem;color:var(--mid-gray);">' + keywords.length + ' keywords loaded · ' + filtered.length + ' pass filters';
+    if (imports[0]) html += ' · last: ' + escapeHtml(imports[0].filename || '');
+    html += '</div>';
   }
   html += '</div></div>';
+
+  html += '<details class="card" style="margin-bottom:1rem;"><summary class="card-header" style="cursor:pointer;"><div class="card-title">CSV fallback (optional)</div></summary>';
+  html += '<div style="padding:1rem 1.5rem;">';
+  html += '<div class="form-row" style="gap:0.75rem;flex-wrap:wrap;align-items:end;">';
+  html += '<div class="form-group" style="flex:1;min-width:220px;"><label>SEMrush CSV</label><input type="file" id="semCsvFile" accept=".csv,text/csv"/></div>';
+  html += '<button type="button" class="btn btn-ghost" onclick="importSemrushCsv()">Import CSV</button>';
+  html += '</div>';
+  html += '<p style="margin-top:0.65rem;font-size:0.78rem;color:var(--mid-gray);">CSV appends. API Sync replaces keyword rows (Keep/Neg marks are preserved by keyword).</p>';
+  html += '</div></details>';
 
   html += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem;margin-bottom:1rem;">';
   html += '<div class="card"><div class="card-header"><div class="card-title">Keepers (' + keepers.length + ')</div></div><div style="padding:0.85rem 1rem;max-height:220px;overflow:auto;font-size:0.82rem;">';
@@ -1940,7 +2023,7 @@ function renderSemrush() {
   html += '<div class="table-wrap" style="max-height:480px;overflow:auto;"><table><thead><tr>';
   html += '<th>Keyword</th><th>Vol</th><th>KD</th><th>CPC</th><th>Intent</th><th></th></tr></thead><tbody>';
   if (!filtered.length) {
-    html += '<tr><td colspan="6" style="color:var(--mid-gray);padding:1rem;">Import a SEMrush keyword CSV to begin.</td></tr>';
+    html += '<tr><td colspan="6" style="color:var(--mid-gray);padding:1rem;">Sync from API (or import a CSV) to begin.</td></tr>';
   } else {
     filtered.slice(0, 300).forEach(function(k) {
       html += '<tr>';
@@ -1960,6 +2043,43 @@ function renderSemrush() {
   var el = document.getElementById('tab-semrush');
   if (!el) { toast('SEMrush tab missing — open /admin and Ctrl+F5'); return; }
   el.innerHTML = html;
+}
+
+function collectSemrushSyncSets() {
+  var boxes = document.querySelectorAll('.semSyncSet');
+  var sets = [];
+  boxes.forEach(function(b) { if (b.checked) sets.push(b.value); });
+  return sets;
+}
+
+async function saveSemrushSettings(opts) {
+  opts = opts || {};
+  var payload = {
+    action: 'save_semrush_settings',
+    domain: ((document.getElementById('semDomain') || {}).value || ''),
+    database: ((document.getElementById('semDatabase') || {}).value || ''),
+    display_limit: Number((document.getElementById('semDisplayLimit') || {}).value),
+    sync_sets: collectSemrushSyncSets(),
+    daily_sync: !!(document.getElementById('semDailySync') || {}).checked
+  };
+  var key = ((document.getElementById('semApiKey') || {}).value || '').trim();
+  if (key) payload.api_key = key;
+  var r = await ajax(payload);
+  if (r.error) { toast(r.error, 6000); return null; }
+  if (!opts.quiet) toast('SEMrush settings saved');
+  await loadDashboard();
+  return r;
+}
+
+async function syncSemrushNow() {
+  var saved = await saveSemrushSettings({ quiet: true });
+  if (!saved) return;
+  toast('Syncing from Semrush API...');
+  var r = await ajax({ action: 'sync_semrush', sets: collectSemrushSyncSets() });
+  if (r.error) { toast(r.error, 7000); await loadDashboard(); return; }
+  var parts = (r.reports || []).map(function(x) { return x.type + ':' + (x.rows || 0); });
+  toast('Synced ' + (parts.join(', ') || 'ok'));
+  await loadDashboard();
 }
 
 async function importSemrushCsv() {

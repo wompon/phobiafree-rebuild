@@ -12,6 +12,7 @@ import payment from './payment-api-worker.js';
 import editor from './editor-api-worker.js';
 import { serveSiteImageOverride } from './editor-images.js';
 import { composeFearPage, composePageCss } from './lib/bento-compose.js';
+import { maybeScheduledSemrushSync } from './lib/semrush.js';
 
 /** Legacy admin URLs → CRM dashboard HTML (served in-place with no-cache). */
 const ADMIN_PAGES = {
@@ -305,5 +306,11 @@ export default {
     if (consult.scheduled) {
       ctx.waitUntil(consult.scheduled(event, env, ctx));
     }
+    // Daily Semrush sync (prefs-gated; safe on every-minute cron — see lib/semrush.js)
+    ctx.waitUntil(
+      Promise.resolve()
+        .then(() => maybeScheduledSemrushSync(env))
+        .catch((err) => console.error('semrush scheduled sync', err)),
+    );
   },
 };
