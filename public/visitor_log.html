@@ -296,11 +296,12 @@ tr:hover td{background:rgba(26,107,114,0.02);}
 .sidebar-overlay.active{display:block;}
 
 /* VISITOR LOG */
-.vlog-row{display:grid;grid-template-columns:1fr 1fr 1fr 80px 80px auto;gap:0.5rem;padding:0.85rem 1rem;border-bottom:1px solid var(--divider);font-size:0.8rem;align-items:start;}
+.vlog-row{display:grid;grid-template-columns:1fr 1fr 1fr 80px 80px auto 72px;gap:0.5rem;padding:0.85rem 1rem;border-bottom:1px solid var(--divider);font-size:0.8rem;align-items:center;}
 .vlog-row:hover{background:rgba(26,107,114,0.02);}
 .vlog-head{background:var(--cream);font-size:0.68rem;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--mid-gray);padding:0.6rem 1rem;}
 .vlog-pages{display:flex;flex-wrap:wrap;gap:0.25rem;}
 .vlog-page-tag{background:rgba(26,107,114,0.08);color:var(--teal-dark);padding:2px 6px;border-radius:2px;font-size:0.65rem;}
+.vlog-actions{display:flex;justify-content:flex-end;align-items:center;}
 
 /* RESPONSIVE */
 @media(max-width:900px){
@@ -998,9 +999,9 @@ function renderVisitors() {
 
   html += '<div class="card" style="margin-bottom:1rem;"><div class="card-header"><div class="card-title">All page hits (Ads reconciliation)</div>';
   html += '<div style="font-size:0.75rem;color:var(--mid-gray);">Every load — including clicks that never moved the mouse. Match time + location + gclid to Google Ads.</div></div>';
-  html += '<div class="table-wrap"><table><thead><tr><th>When</th><th>Location / IP</th><th>Device</th><th>Page</th><th>Engaged</th><th>Ads</th></tr></thead><tbody>';
+  html += '<div class="table-wrap"><table><thead><tr><th>When</th><th>Location / IP</th><th>Device</th><th>Page</th><th>Engaged</th><th>Ads</th><th>Actions</th></tr></thead><tbody>';
   if (!hits.length) {
-    html += '<tr><td colspan="6" style="text-align:center;color:var(--mid-gray);padding:1.5rem;">No page hits yet. New landings will appear here.</td></tr>';
+    html += '<tr><td colspan="7" style="text-align:center;color:var(--mid-gray);padding:1.5rem;">No page hits yet. New landings will appear here.</td></tr>';
   } else {
     hits.slice(0, 200).forEach(function(h) {
       var engaged = h.interacted ? 'Yes' : 'NO — ghost';
@@ -1017,6 +1018,7 @@ function renderVisitors() {
       html += '<td style="font-size:0.8rem;">' + escapeHtml(h.page || h.path || '—') + '</td>';
       html += '<td style="font-size:0.78rem;font-weight:500;color:' + (h.interacted ? 'var(--sage)' : '#8b2020') + ';">' + engaged + '</td>';
       html += '<td style="font-size:0.72rem;color:var(--mid-gray);">' + escapeHtml(adsBits.length ? adsBits.join(' · ') : (h.referrer ? String(h.referrer).slice(0, 40) : '—')) + '</td>';
+      html += '<td><button class="btn btn-red" style="font-size:0.68rem;padding:2px 8px;" type="button" onclick="deletePageHit(' + parseInt(h.id, 10) + ')">Delete</button></td>';
       html += '</tr>';
     });
   }
@@ -1025,7 +1027,7 @@ function renderVisitors() {
   html += '<div class="card"><div class="card-header"><div class="card-title">Interactive sessions</div></div>';
   html += '<div class="vlog-row vlog-head">';
   html += '<div>Location / IP</div><div>Device</div><div>Pages Viewed</div>';
-  html += '<div class="vlog-hide">First Seen</div><div class="vlog-hide">Last Seen</div><div>Time on Site</div></div>';
+  html += '<div class="vlog-hide">First Seen</div><div class="vlog-hide">Last Seen</div><div>Time on Site</div><div>Actions</div></div>';
   html += '<div id="visitorLogBody">';
   if (!VISITOR_LOGS.length) {
     html += '<div style="padding:2rem;text-align:center;color:var(--mid-gray);font-size:0.85rem;">No interactive visitor data yet.</div>';
@@ -1036,7 +1038,8 @@ function renderVisitors() {
       var mins = Math.floor((v.total_seconds || 0) / 60);
       var secs = (v.total_seconds || 0) % 60;
       var timeStr = mins > 0 ? mins + 'm ' + secs + 's' : secs + 's';
-      var search = ((v.location || '') + (v.ip || '') + (v.device || '')).toLowerCase();
+      var search = ((v.location || '') + (v.ip || '') + (v.device || '') + (v.vid || '')).toLowerCase();
+      var safeVid = String(v.vid || '').replace(/[^a-z0-9_]/gi, '');
       html += '<div class="vlog-row" data-search="' + escapeHtml(search) + '">';
       html += '<div><div style="font-weight:500;font-size:0.82rem;">' + escapeHtml(v.location || '—') + '</div>';
       html += '<div style="font-size:0.72rem;color:var(--mid-gray);font-family:monospace;">' + escapeHtml(v.ip || '') + '</div></div>';
@@ -1052,9 +1055,11 @@ function renderVisitors() {
       html += '</div>';
       html += '<div class="vlog-hide" style="font-size:0.75rem;color:var(--mid-gray);">' + (v.first_seen ? escapeHtml(fmtDate(v.first_seen, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })) : '—') + '</div>';
       html += '<div class="vlog-hide" style="font-size:0.75rem;color:var(--mid-gray);">' + (v.last_seen ? escapeHtml(fmtDate(v.last_seen, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })) : '—') + '</div>';
-      html += '<div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;">';
       html += '<div style="font-weight:500;color:var(--teal-dark);font-size:0.82rem;">' + escapeHtml(timeStr) + '</div>';
-      html += '<button class="btn btn-red" style="font-size:0.68rem;padding:2px 8px;" onclick="deleteVisitor(\'' + escapeHtml(v.vid || '') + '\')">Delete</button>';
+      html += '<div class="vlog-actions">';
+      if (safeVid) {
+        html += '<button class="btn btn-red" style="font-size:0.68rem;padding:2px 8px;" type="button" onclick="deleteVisitor(\'' + safeVid + '\')">Delete</button>';
+      }
       html += '</div></div>';
     });
   }
@@ -3985,6 +3990,7 @@ function clearVisitorLog() {
   ajax({ ajax_action: 'clear_visitor_log' }).then(function(res) {
     if (res.error) { toast(res.error); return; }
     VISITOR_LOGS = [];
+    PAGE_HITS = [];
     toast('Log cleared');
     refreshViews();
   });
@@ -3995,6 +4001,18 @@ function deleteVisitor(vid) {
   ajax({ ajax_action: 'delete_visitor', vid: vid }).then(function(res) {
     if (res.error) { toast(res.error); return; }
     VISITOR_LOGS = VISITOR_LOGS.filter(function(v) { return v.vid !== vid; });
+    PAGE_HITS = (PAGE_HITS || []).filter(function(h) { return h.vid !== vid; });
+    toast('Deleted');
+    refreshViews();
+  });
+}
+
+function deletePageHit(id) {
+  id = parseInt(id, 10);
+  if (!id || !confirm('Delete this page hit?')) return;
+  ajax({ ajax_action: 'delete_page_hit', id: id }).then(function(res) {
+    if (res.error) { toast(res.error); return; }
+    PAGE_HITS = (PAGE_HITS || []).filter(function(h) { return h.id != id; });
     toast('Deleted');
     refreshViews();
   });

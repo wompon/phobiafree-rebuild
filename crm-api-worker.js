@@ -323,6 +323,19 @@ async function handleAction(request, env) {
       await env.phobiafree_db.prepare('DELETE FROM session_snapshots WHERE vid = ?').bind(vid).run();
       await env.phobiafree_db.prepare('DELETE FROM visitor_log WHERE vid = ?').bind(vid).run();
       await env.phobiafree_db.prepare('DELETE FROM live_visitors WHERE vid = ?').bind(vid).run();
+      try {
+        await env.phobiafree_db.prepare('DELETE FROM page_hits WHERE vid = ?').bind(vid).run();
+      } catch (_) { /* page_hits may not exist yet */ }
+      return json({ success: true });
+    }
+    case 'delete_page_hit': {
+      const id = parseInt(body.id, 10);
+      if (!id) return json({ error: 'Missing id' }, 400);
+      try {
+        await env.phobiafree_db.prepare('DELETE FROM page_hits WHERE id = ?').bind(id).run();
+      } catch (e) {
+        return json({ error: String(e) }, 500);
+      }
       return json({ success: true });
     }
     case 'get_hours': {
@@ -388,6 +401,9 @@ async function handleAction(request, env) {
       await env.phobiafree_db.prepare('DELETE FROM session_snapshots').run();
       await env.phobiafree_db.prepare('DELETE FROM visitor_log').run();
       await env.phobiafree_db.prepare('DELETE FROM live_visitors').run();
+      try {
+        await env.phobiafree_db.prepare('DELETE FROM page_hits').run();
+      } catch (_) { /* page_hits may not exist yet */ }
       return json({ success: true });
     }
     case 'add_evolve_idea': {
