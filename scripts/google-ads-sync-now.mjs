@@ -22,6 +22,8 @@ function microsToMoney(v) {
 }
 
 function d1Sql(sql) {
+  // Writes go through --file (fast, no shell quoting issues). Note: file-based
+  // remote execution returns import stats only, never SELECT rows — use d1Query for reads.
   const file = join(tmpdir(), `ads-sync-${Date.now()}-${Math.random().toString(16).slice(2)}.sql`);
   writeFileSync(file, sql, 'utf8');
   try {
@@ -30,10 +32,22 @@ function d1Sql(sql) {
       ['wrangler', 'd1', 'execute', 'phobiafree-db', '--remote', '-c', 'wrangler-site.jsonc', `--file=${file}`, '--json'],
       { encoding: 'utf8', cwd, shell: true },
     );
-    return JSON.parse(out);
+    const start = out.search(/\[\s*[{\]]/);
+    return JSON.parse(start >= 0 ? out.slice(start) : out);
   } finally {
     try { unlinkSync(file); } catch {}
   }
+}
+
+function d1Query(sql) {
+  if (sql.includes('"')) throw new Error('Use single quotes in SQL');
+  const out = execFileSync(
+    'npx',
+    ['wrangler', 'd1', 'execute', 'phobiafree-db', '--remote', '-c', 'wrangler-site.jsonc', '--json', `--command="${sql}"`],
+    { encoding: 'utf8', cwd, shell: true },
+  );
+  const start = out.search(/\[\s*[{\]]/);
+  return JSON.parse(start >= 0 ? out.slice(start) : out);
 }
 
 function resultsOf(parsed) {
@@ -145,7 +159,7 @@ const REPORTS = [
   },
 ];
 
-const prefsParsed = d1Sql(`SELECT key, value FROM ark_prefs WHERE key LIKE 'google_ads%';`);
+const prefsParsed = d1Query(`SELECT key, value FROM ark_prefs WHERE key LIKE 'google_ads%';`);
 const prefsRows = resultsOf(prefsParsed);
 const prefs = Object.fromEntries(
   prefsRows.map((r) => [String(r.key).replace(/^google_ads_/, ''), r.value]),
@@ -189,7 +203,7 @@ for (const report of REPORTS) {
     `INSERT INTO ads_imports (report_type, filename, row_count, created_at) VALUES ('${report.type}', 'google-ads-api:${report.type}', ${mapped.length}, datetime('now'));`,
   );
   const idRow = resultsOf(
-    d1Sql(`SELECT id FROM ads_imports WHERE report_type='${report.type}' ORDER BY id DESC LIMIT 1;`),
+    d1Query(`SELECT id FROM ads_imports WHERE report_type='${report.type}' ORDER BY id DESC LIMIT 1;`),
   )[0];
   const importId = idRow?.id;
   if (!importId) throw new Error(`No import id for ${report.type}`);
@@ -210,6 +224,6 @@ for (const report of REPORTS) {
 const when = new Date().toISOString();
 d1Sql(`UPDATE ark_prefs SET value='${sqlEscape(when)}', updated_at=datetime('now') WHERE key='google_ads_last_sync'; UPDATE ark_prefs SET value='', updated_at=datetime('now') WHERE key='google_ads_last_error';`);
 
-const check = resultsOf(d1Sql('SELECT report_type, COUNT(*) AS n FROM ads_rows GROUP BY report_type;'));
+const check = resultsOf(d1Query('SELECT report_type, COUNT(*) AS n FROM ads_rows GROUP BY report_type;'));
 console.log('DB now:', check);
 console.log('Done', when);

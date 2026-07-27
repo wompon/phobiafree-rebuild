@@ -360,7 +360,25 @@ async function handleAdmin(path, request, env) {
   }
   if (path === '/admin/consultation/delete') {
     const id = parseInt(data.id, 10) || 0;
-    try { await env.phobiafree_db.prepare('DELETE FROM consultations WHERE id = ?').bind(id).run(); }
+    if (!id) return json({ ok: false, error: 'Missing id' });
+    try {
+      // Detach/remove dependents first — payment_links has FK to consultations.
+      await env.phobiafree_db
+        .prepare('UPDATE payment_links SET consultation_id = NULL WHERE consultation_id = ? AND IFNULL(paid, 0) = 1')
+        .bind(id).run();
+      await env.phobiafree_db
+        .prepare('DELETE FROM payment_links WHERE consultation_id = ?')
+        .bind(id).run();
+      await env.phobiafree_db
+        .prepare('DELETE FROM therapy_sessions WHERE consultation_id = ?')
+        .bind(id).run();
+      try {
+        await env.phobiafree_db
+          .prepare('DELETE FROM clients WHERE consultation_id = ?')
+          .bind(id).run();
+      } catch (e) {}
+      await env.phobiafree_db.prepare('DELETE FROM consultations WHERE id = ?').bind(id).run();
+    }
     catch (e) { return json({ ok: false, error: String(e) }); }
     return json({ ok: true });
   }
@@ -371,13 +389,24 @@ async function handleAdmin(path, request, env) {
     return json({ ok: true, columns: rows.length ? Object.keys(rows[0]) : [], rows });
   }
   if (path === '/admin/visitor/delete') {
-    const vid = (data.vid || '').toString().slice(0, 80);
-    try { await env.phobiafree_db.prepare('DELETE FROM visitor_log WHERE vid = ?').bind(vid).run(); }
+    const vid = (data.vid || '').toString().replace(/[^a-z0-9_]/gi, '');
+    if (!vid) return json({ ok: false, error: 'missing vid' });
+    try {
+      await env.phobiafree_db.prepare('DELETE FROM session_snapshots WHERE vid = ?').bind(vid).run();
+      await env.phobiafree_db.prepare('DELETE FROM visitor_log WHERE vid = ?').bind(vid).run();
+      await env.phobiafree_db.prepare('DELETE FROM live_visitors WHERE vid = ?').bind(vid).run();
+      try { await env.phobiafree_db.prepare('DELETE FROM page_hits WHERE vid = ?').bind(vid).run(); } catch (_) {}
+    }
     catch (e) { return json({ ok: false, error: String(e) }); }
     return json({ ok: true });
   }
   if (path === '/admin/visitors/clear') {
-    try { await env.phobiafree_db.prepare('DELETE FROM visitor_log').run(); }
+    try {
+      await env.phobiafree_db.prepare('DELETE FROM session_snapshots').run();
+      await env.phobiafree_db.prepare('DELETE FROM visitor_log').run();
+      await env.phobiafree_db.prepare('DELETE FROM live_visitors').run();
+      try { await env.phobiafree_db.prepare('DELETE FROM page_hits').run(); } catch (_) {}
+    }
     catch (e) { return json({ ok: false, error: String(e) }); }
     return json({ ok: true });
   }

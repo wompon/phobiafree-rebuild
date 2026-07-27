@@ -203,22 +203,47 @@ async function handlePageHit(request, env) {
 }
 
 // ── LEAVE — visitor closed/left the page; drop live card immediately ────────
+// Same-tab navigations (e.g. my_fear → /services) also fire pagehide+leave.
+// The leave beacon can arrive AFTER the next page's first ping. Only delete
+// when the live row's gen is still <= the leaving page's gen, so a newer ping
+// from the next page wins the race and the card doesn't vanish mid-session.
 async function handleLeave(request, env) {
   let vid = '';
+  let leaveGen = null;
   const ct = request.headers.get('content-type') || '';
   if (ct.includes('application/json') || ct.includes('text/plain') || !ct) {
     const text = await request.text().catch(() => '');
     try {
       const body = text ? JSON.parse(text) : null;
       vid = cleanVid(body && body.vid);
+      if (body && body.gen != null && Number.isFinite(Number(body.gen))) {
+        leaveGen = parseInt(body.gen, 10);
+      }
     } catch {
       vid = '';
     }
   } else {
     const form = await request.formData().catch(() => null);
     vid = cleanVid(form && form.get('vid'));
+    const g = form && form.get('gen');
+    if (g != null && Number.isFinite(Number(g))) leaveGen = parseInt(g, 10);
   }
   if (vid) {
+    if (leaveGen != null) {
+      const row = await env.phobiafree_db
+        .prepare('SELECT data FROM live_visitors WHERE vid = ?')
+        .bind(vid)
+        .first();
+      if (row && row.data) {
+        let liveGen = 0;
+        try {
+          const d = JSON.parse(row.data);
+          liveGen = parseInt(d && d.gen, 10) || 0;
+        } catch { liveGen = 0; }
+        // Newer ping already landed from the next page — keep the card.
+        if (liveGen > leaveGen) return json({ ok: true, kept: true });
+      }
+    }
     await env.phobiafree_db
       .prepare('DELETE FROM live_visitors WHERE vid = ?')
       .bind(vid)
@@ -345,13 +370,23 @@ async function handleTrackerPing(request, env) {
     : [];
 
   // Exact same shape the dashboard already reads — nothing downstream changes.
+  const gen = parseInt(data.gen, 10);
+  const cfPhobia = (data.cfPhobia != null ? String(data.cfPhobia) : '').slice(0, 80);
+  const cfPhobiaIdx = parseInt(data.cfPhobiaIdx, 10);
+  const cfPhobiaScroll = parseInt(data.cfPhobiaScroll, 10);
   const visitorState = {
     x: parseFloat(data.x || 0),
     y: parseFloat(data.y || 0),
     scrollY: parseInt(data.scrollY || 0, 10),
     scrollPct: parseFloat(data.scrollPct || 0),
     modalScroll: !!data.modalScroll,
+    invOpen: !!data.invOpen,
+    navOpen: !!data.navOpen,
     openFaqs,
+    cfPhobia,
+    cfPhobiaOpen: !!data.cfPhobiaOpen,
+    cfPhobiaIdx: Number.isFinite(cfPhobiaIdx) ? cfPhobiaIdx : -1,
+    cfPhobiaScroll: Number.isFinite(cfPhobiaScroll) ? Math.max(0, cfPhobiaScroll) : 0,
     chatOpen,
     chatLeftPct: Number.isFinite(chatLeftPct) ? chatLeftPct : null,
     chatTopPct: Number.isFinite(chatTopPct) ? chatTopPct : null,
@@ -365,6 +400,7 @@ async function handleTrackerPing(request, env) {
     first: (prior && prior.first) || now,
     first_load,
     pings,
+    gen: Number.isFinite(gen) ? gen : ((prior && prior.gen) || 0),
     t: now,
     events: Array.isArray(data.events) && data.events.length ? data.events : [],
   };
@@ -426,7 +462,13 @@ async function handleTrackerPing(request, env) {
         x: visitorState.x, y: visitorState.y,
         scrollY: visitorState.scrollY, scrollPct: visitorState.scrollPct,
         modalScroll: !!visitorState.modalScroll,
+        invOpen: !!visitorState.invOpen,
+        navOpen: !!visitorState.navOpen,
         openFaqs: visitorState.openFaqs || [],
+        cfPhobia: visitorState.cfPhobia || '',
+        cfPhobiaOpen: !!visitorState.cfPhobiaOpen,
+        cfPhobiaIdx: visitorState.cfPhobiaIdx,
+        cfPhobiaScroll: visitorState.cfPhobiaScroll || 0,
         chatOpen: !!visitorState.chatOpen,
         chatLeftPct: visitorState.chatLeftPct,
         chatTopPct: visitorState.chatTopPct,

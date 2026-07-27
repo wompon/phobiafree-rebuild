@@ -101,7 +101,7 @@
     document.getElementById('consultConsent').hidden = false;
     document.getElementById('consultSubmitBtn').hidden = false;
     document.getElementById('consultSubmitBtn').disabled = false;
-    document.getElementById('consultSubmitBtn').textContent = 'Book Consultation';
+    document.getElementById('consultSubmitBtn').textContent = 'Book Free Consultation';
     document.getElementById('consultSubmitBtn').style.display = '';
     document.getElementById('consultDetailsBtn').hidden = true;
     document.getElementById('consultSkipBtn').hidden = true;
@@ -204,6 +204,22 @@
       sms_consent: true
     };
 
+    // Attach ad attribution captured on landing (tracker stores pf_attr) so the
+    // booking record shows which keyword/campaign paid for this consult.
+    try {
+      var _attr = JSON.parse(localStorage.getItem('pf_attr') || 'null');
+      if (_attr && (_attr.gclid || _attr.utm_source)) {
+        payload.gclid = _attr.gclid || '';
+        payload.utm_source = _attr.utm_source || '';
+        payload.utm_medium = _attr.utm_medium || '';
+        payload.utm_campaign = _attr.utm_campaign || '';
+        payload.utm_term = _attr.utm_term || '';
+        payload.utm_content = _attr.utm_content || '';
+        payload.landing_page = _attr.landing || '';
+        payload.attr_ts = _attr.ts || '';
+      }
+    } catch (e) {}
+
     if (PF_CONSULT_FORM === 'single') {
       var extras = collectExtras();
       for (var k in extras) payload[k] = extras[k];
@@ -253,14 +269,14 @@
         } else {
           showMsg(msg, res.message || 'Booking failed.', 'error');
           btn.disabled = false;
-          btn.textContent = 'Book Consultation';
+          btn.textContent = 'Book Free Consultation';
           if ((res.message || '').indexOf('slot was just taken') !== -1) loadSlots();
         }
       })
       .catch(function () {
         showMsg(msg, 'Something went wrong. Please try again or contact us directly.', 'error');
         btn.disabled = false;
-        btn.textContent = 'Book Consultation';
+        btn.textContent = 'Book Free Consultation';
       });
   }
 
@@ -358,11 +374,13 @@
     var el = document.getElementById('investmentModal');
     if (el) el.classList.add('active');
     document.body.style.overflow = 'hidden';
+    if (typeof window.pfTrackFlush === 'function') window.pfTrackFlush();
   };
 
   window.closeInvestment = function () {
     var el = document.getElementById('investmentModal');
     if (el) el.classList.remove('active');
+    if (typeof window.pfTrackFlush === 'function') window.pfTrackFlush();
     var consult = document.getElementById('consultModal');
     if (!consult || !consult.classList.contains('active')) {
       document.body.style.overflow = '';
@@ -378,9 +396,11 @@
   var navLinks = document.getElementById('navLinks');
   function setNavOpen(open) {
     if (!nav) return;
+    var was = nav.classList.contains('is-open');
     nav.classList.toggle('is-open', open);
     if (navToggle) navToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
     if (navToggle) navToggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+    if (was !== !!open && typeof window.pfTrackFlush === 'function') window.pfTrackFlush();
   }
   if (navToggle) {
     navToggle.addEventListener('click', function () {

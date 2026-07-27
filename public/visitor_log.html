@@ -162,6 +162,53 @@ body{font-family:'DM Sans',sans-serif;background:#f0f2f5;color:var(--charcoal);m
 .email-actions .btn{padding:0.25rem 0.55rem;font-size:0.68rem;}
 .email-move-select{padding:0.25rem 0.4rem;border:1px solid var(--divider);border-radius:2px;font-size:0.68rem;font-family:'DM Sans',sans-serif;background:#fff;}
 #tab-email.tab-content.active{display:flex;flex-direction:column;flex:1;min-height:0;}
+#tab-evolve.tab-content.active{display:flex;flex-direction:column;flex:1;min-height:0;}
+.main.evolve-mode{padding:1rem 1.25rem 1rem;display:flex;flex-direction:column;min-height:100vh;}
+.evolve-chat-shell{display:flex;flex-direction:column;flex:1;min-height:0;background:#fff;border-radius:8px;box-shadow:0 2px 8px rgba(0,0,0,0.04);overflow:hidden;max-width:920px;width:100%;}
+.evolve-chat-head{padding:0.85rem 1.1rem;border-bottom:1px solid var(--divider);flex-shrink:0;display:flex;align-items:flex-start;justify-content:space-between;gap:0.75rem;flex-wrap:wrap;}
+.evolve-chat-head .page-title{font-size:1.45rem;margin:0;}
+.evolve-chat-msgs{flex:1;min-height:280px;overflow:auto;padding:1rem 1.1rem;background:linear-gradient(180deg,#f7f5f1 0%,#f0f2f5 100%);display:flex;flex-direction:column;gap:0.85rem;}
+.evolve-empty{margin:auto;text-align:center;color:var(--mid-gray);font-size:0.88rem;padding:2rem 1rem;line-height:1.5;}
+.evolve-turn{display:flex;flex-direction:column;gap:0.4rem;max-width:min(100%,640px);}
+.evolve-turn.you{align-self:flex-end;align-items:flex-end;}
+.evolve-turn.agent{align-self:flex-start;align-items:flex-start;}
+.evolve-bubble{padding:0.7rem 0.95rem;border-radius:14px;font-size:0.9rem;line-height:1.45;white-space:pre-wrap;word-break:break-word;}
+.evolve-turn.you .evolve-bubble{background:var(--teal-dark);color:#fff;border-bottom-right-radius:4px;}
+.evolve-turn.agent .evolve-bubble{background:#fff;color:var(--charcoal);border:1px solid rgba(26,107,114,0.12);border-bottom-left-radius:4px;box-shadow:0 1px 3px rgba(0,0,0,0.04);}
+.evolve-meta{font-size:0.68rem;color:var(--mid-gray);display:flex;flex-wrap:wrap;gap:0.35rem 0.55rem;align-items:center;}
+.evolve-turn.you .evolve-meta{justify-content:flex-end;}
+.evolve-status{display:inline-block;padding:1px 7px;border-radius:999px;background:rgba(26,107,114,0.1);color:var(--teal-dark);text-transform:uppercase;letter-spacing:0.04em;font-weight:600;}
+.evolve-status.doing,.evolve-status.queued{background:rgba(201,168,76,0.18);color:#8a6a1a;}
+.evolve-status.done{background:rgba(122,158,126,0.18);color:#3d6b42;}
+.evolve-status.blocked{background:rgba(200,50,50,0.1);color:#8b2020;}
+.evolve-actions{display:flex;flex-wrap:wrap;gap:0.3rem;}
+.evolve-actions .btn{font-size:0.68rem;padding:2px 8px;}
+.evolve-note{font-size:0.75rem;color:var(--mid-gray);max-width:100%;}
+.evolve-note a{color:var(--teal-dark);}
+.evolve-composer{flex-shrink:0;border-top:1px solid var(--divider);padding:0.75rem 1rem 0.9rem;background:#fff;display:flex;flex-direction:column;gap:0.55rem;}
+.evolve-composer-row{display:flex;gap:0.55rem;align-items:flex-end;flex-wrap:wrap;}
+.evolve-composer select{padding:0.45rem 0.55rem;border:1px solid rgba(26,107,114,0.2);border-radius:6px;font-family:'DM Sans',sans-serif;font-size:0.78rem;background:var(--warm-white);color:var(--charcoal);outline:none;min-width:120px;}
+.evolve-composer textarea{flex:1;min-width:220px;min-height:44px;max-height:160px;resize:vertical;padding:0.55rem 0.8rem;border:1px solid rgba(26,107,114,0.2);border-radius:18px;font-family:'DM Sans',sans-serif;font-size:0.88rem;outline:none;background:var(--warm-white);line-height:1.4;}
+.evolve-composer textarea:focus,.evolve-composer select:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(26,107,114,0.08);}
+.evolve-composer-hint{font-size:0.7rem;color:var(--mid-gray);}
+.evolve-genes{margin-top:1rem;max-width:920px;width:100%;}
+.evolve-cursor-box{align-self:stretch;max-width:min(100%,640px);margin-top:0.15rem;padding:0.65rem 0.75rem;background:#fff;border:1px solid rgba(26,107,114,0.16);border-radius:12px;box-shadow:0 1px 4px rgba(0,0,0,0.04);}
+.evolve-cursor-box-label{font-size:0.68rem;font-weight:600;letter-spacing:0.04em;text-transform:uppercase;color:var(--teal-dark);margin-bottom:0.45rem;display:flex;justify-content:space-between;gap:0.5rem;align-items:center;}
+.evolve-cursor-box-label a{color:var(--teal-dark);text-transform:none;letter-spacing:0;font-weight:500;}
+.evolve-cursor-row{display:flex;gap:0.45rem;align-items:flex-end;}
+.evolve-cursor-row textarea{flex:1;min-height:40px;max-height:120px;resize:vertical;padding:0.45rem 0.7rem;border:1px solid rgba(26,107,114,0.2);border-radius:14px;font-family:'DM Sans',sans-serif;font-size:0.82rem;outline:none;background:var(--warm-white);line-height:1.4;}
+.evolve-cursor-row textarea:focus{border-color:var(--teal);box-shadow:0 0 0 3px rgba(26,107,114,0.08);}
+.evolve-turn.agent .evolve-bubble.status{opacity:0.88;font-style:italic;}
+.evolve-turn.agent .evolve-bubble.error{border-color:rgba(200,50,50,0.25);color:#8b2020;}
+.evolve-cursor-box.focus-here{border-color:var(--teal);box-shadow:0 0 0 3px rgba(26,107,114,0.12);animation:evolveChatPulse 1.2s ease-out 1;}
+@keyframes evolveChatPulse{
+  0%{box-shadow:0 0 0 0 rgba(26,107,114,0.28);}
+  100%{box-shadow:0 0 0 3px rgba(26,107,114,0);}
+}
+@media(max-width:900px){
+  .main.evolve-mode{padding:3.25rem 0.65rem 0.75rem;}
+  .evolve-chat-msgs{min-height:220px;}
+}
 @media(max-width:1100px){
   .email-layout{grid-template-columns:180px minmax(200px,280px) 1fr;}
 }
@@ -178,6 +225,10 @@ body{font-family:'DM Sans',sans-serif;background:#f0f2f5;color:var(--charcoal);m
 .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
 table{width:100%;border-collapse:collapse;font-size:0.82rem;min-width:500px;}
 th{padding:0.75rem 1rem;text-align:left;font-size:0.68rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--mid-gray);background:var(--cream);border-bottom:1px solid var(--divider);white-space:nowrap;}
+th.sortable{cursor:pointer;user-select:none;}
+th.sortable:hover{color:var(--teal-dark);}
+th.sortable.active{color:var(--teal-dark);}
+th.sortable .sort-ind{font-size:0.65rem;opacity:0.85;margin-left:0.2rem;}
 td{padding:0.85rem 1rem;border-bottom:1px solid var(--divider);vertical-align:top;}
 tr:last-child td{border-bottom:none;}
 tr:hover td{background:rgba(26,107,114,0.02);}
@@ -249,11 +300,12 @@ tr:hover td{background:rgba(26,107,114,0.02);}
 .sidebar-overlay.active{display:block;}
 
 /* VISITOR LOG */
-.vlog-row{display:grid;grid-template-columns:1fr 1fr 1fr 80px 80px auto;gap:0.5rem;padding:0.85rem 1rem;border-bottom:1px solid var(--divider);font-size:0.8rem;align-items:start;}
+.vlog-row{display:grid;grid-template-columns:1fr 1fr 1fr 80px 80px auto 72px;gap:0.5rem;padding:0.85rem 1rem;border-bottom:1px solid var(--divider);font-size:0.8rem;align-items:center;}
 .vlog-row:hover{background:rgba(26,107,114,0.02);}
 .vlog-head{background:var(--cream);font-size:0.68rem;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--mid-gray);padding:0.6rem 1rem;}
 .vlog-pages{display:flex;flex-wrap:wrap;gap:0.25rem;}
 .vlog-page-tag{background:rgba(26,107,114,0.08);color:var(--teal-dark);padding:2px 6px;border-radius:2px;font-size:0.65rem;}
+.vlog-actions{display:flex;justify-content:flex-end;align-items:center;}
 
 /* RESPONSIVE */
 @media(max-width:900px){
@@ -314,18 +366,18 @@ tr:hover td{background:rgba(26,107,114,0.02);}
 <div class="sidebar" id="sidebar">
   <div class="sidebar-logo">Phobia<span>Free</span>.life<small>Admin</small></div>
   <nav style="margin-top:0.5rem;" id="sidebarNav">
-    <a class="nav-item active" onclick="switchTab('dashboard',this)"><span class="nav-icon">⊞</span><span>Dashboard</span></a>
-    <a class="nav-item" onclick="switchTab('evolve',this)"><span class="nav-icon">∞</span><span>Thoughts</span></a>
-    <a class="nav-item" onclick="switchTab('ads',this)"><span class="nav-icon">A</span><span>Google Ads</span></a>
-    <a class="nav-item" onclick="switchTab('semrush',this)"><span class="nav-icon">SR</span><span>SEMrush</span></a>
-    <a class="nav-item" onclick="switchTab('consultations',this)"><span class="nav-icon">C</span><span>Consultations</span><span class="nav-badge" id="pendingBadge" style="display:none"></span></a>
-    <a class="nav-item" onclick="switchTab('sessions',this)"><span class="nav-icon">T</span><span>Therapy Sessions</span></a>
-    <a class="nav-item" onclick="switchTab('schedule',this)"><span class="nav-icon">S</span><span>Schedule</span></a>
-    <a class="nav-item" onclick="switchTab('clients',this)"><span class="nav-icon">P</span><span>Clients</span></a>
-    <a class="nav-item" onclick="switchTab('payments',this)"><span class="nav-icon">$</span><span>Payments</span></a>
-    <a class="nav-item" onclick="switchTab('email',this)"><span class="nav-icon">✉</span><span>Email</span><span class="nav-badge" id="emailBadge" style="display:none"></span></a>
-    <a class="nav-item" onclick="switchTab('visitors',this)"><span class="nav-icon">👁</span><span>Visitor Log</span></a>
-    <a class="nav-item" onclick="switchTab('settings',this)"><span class="nav-icon">⚙</span><span>Settings</span></a>
+    <a class="nav-item active" onclick="switchTab('dashboard',this)">Dashboard</a>
+    <a class="nav-item" onclick="switchTab('evolve',this)">Thoughts</a>
+    <a class="nav-item" onclick="switchTab('ads',this)">Google Ads</a>
+    <a class="nav-item" onclick="switchTab('semrush',this)">SEMrush</a>
+    <a class="nav-item" onclick="switchTab('consultations',this)">Consultations<span class="nav-badge" id="pendingBadge" style="display:none"></span></a>
+    <a class="nav-item" onclick="switchTab('sessions',this)">Therapy Sessions</a>
+    <a class="nav-item" onclick="switchTab('schedule',this)">Schedule</a>
+    <a class="nav-item" onclick="switchTab('clients',this)">Clients</a>
+    <a class="nav-item" onclick="switchTab('payments',this)">Payments</a>
+    <a class="nav-item" onclick="switchTab('email',this)">Email<span class="nav-badge" id="emailBadge" style="display:none"></span></a>
+    <a class="nav-item" onclick="switchTab('visitors',this)">Visitor Log</a>
+    <a class="nav-item" onclick="switchTab('settings',this)">Settings</a>
     <div class="nav-account">
       <button type="button" class="logout-btn" onclick="showChangePassword()">Change password</button>
       <button type="button" class="logout-btn" onclick="doLogout()">Sign Out</button>
@@ -427,7 +479,7 @@ tr:hover td{background:rgba(26,107,114,0.02);}
     </div>
     <div class="form-group">
       <label>Note on invoice (optional)</label>
-      <textarea id="pm_price_reason" maxlength="500" rows="3" placeholder="Note the client will see on their invoice…" oninput="syncInvoicePreview()" style="width:100%;padding:0.65rem 0.75rem;border:1px solid rgba(26,107,114,0.2);border-radius:2px;font:inherit;resize:vertical;min-height:4.5rem;"></textarea>
+      <textarea id="pm_price_reason" maxlength="500" rows="3" placeholder="Note the client will see on their invoice..." oninput="syncInvoicePreview()" style="width:100%;padding:0.65rem 0.75rem;border:1px solid rgba(26,107,114,0.2);border-radius:2px;font:inherit;resize:vertical;min-height:4.5rem;"></textarea>
     </div>
     <div id="pm_invoice_preview" style="margin-bottom:1rem;padding:0.9rem 1rem;background:rgba(26,107,114,0.05);border:1px solid rgba(26,107,114,0.18);border-radius:2px;">
       <div style="font-size:0.7rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--mid-gray);margin-bottom:0.45rem;">Client will see</div>
@@ -457,7 +509,14 @@ var VISITOR_LOGS = [];
 var PAGE_HITS = [];
 var EVOLVE_GENES = [];
 var EVOLVE_IDEAS = [];
-var ARK = { adsPanels: [], adsPanelCatalog: [], adsImports: [], adsRows: [], semrushImports: [], semrushKeywords: [], semrushFilters: {}, cursorCloudReady: false };
+var ADMIN_CHAT = { messages: [], agentId: '', runId: '' };
+var ADMIN_CHAT_DRAFT = '';
+var ADMIN_CHAT_POLL = null;
+var ADMIN_CHAT_BUSY = false;
+var EVOLVE_THOUGHT_DRAFT = '';
+var EVOLVE_THOUGHT_DOMAIN = 'general';
+var EVOLVE_POLL_TIMER = null;
+var ARK = { adsPanels: [], adsPanelCatalog: [], adsImports: [], adsRows: [], semrushImports: [], semrushKeywords: [], semrushFilters: {}, cursorCloudReady: false, githubAutopilotReady: false, adminChat: null };
 var STATS = { todayCount: 0, weekCount: 0, totalClients: 0, totalRevenue: 0, pendingCount: 0 };
 
 function escapeHtml(str) {
@@ -624,7 +683,16 @@ function ajax(data) {
     credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data)
-  }).then(function(r) { return r.json(); });
+  }).then(async function(r) {
+    var d = {};
+    try { d = await r.json(); } catch (e) { d = {}; }
+    if (r.status === 401) {
+      showLogin();
+      return { error: 'Session expired — sign in again' };
+    }
+    if (!r.ok && !d.error) d.error = 'Request failed (' + r.status + ')';
+    return d;
+  });
 }
 
 async function loadDashboard() {
@@ -653,6 +721,13 @@ async function loadDashboard() {
   EVOLVE_GENES = d.evolveGenes || [];
   EVOLVE_IDEAS = d.evolveIdeas || [];
   ARK = d.ark || ARK;
+  if (ARK.adminChat) {
+    ADMIN_CHAT = {
+      messages: ARK.adminChat.messages || [],
+      agentId: ARK.adminChat.agentId || '',
+      runId: ARK.adminChat.runId || '',
+    };
+  }
   HOURS_WINDOWS = d.hours_windows || HOURS_WINDOWS;
   SESSION_PRICE_CENTS = d.session_price_cents || SESSION_PRICE_CENTS;
   STATS = d.stats || STATS;
@@ -667,7 +742,10 @@ async function loadDashboard() {
       if (tabEl) tabEl.classList.add('active');
       nav.classList.add('active');
       var main = document.querySelector('.main');
-      if (main) main.classList.toggle('email-mode', activeTab === 'email');
+      if (main) {
+        main.classList.toggle('email-mode', activeTab === 'email');
+        main.classList.toggle('evolve-mode', activeTab === 'evolve');
+      }
     }
   }
 }
@@ -703,6 +781,7 @@ function refreshViews() {
   else if (tab === 'payments') renderPayments();
   else if (tab === 'email') renderEmail();
   else if (tab === 'visitors') renderVisitors();
+  else if (tab === 'evolve') renderEvolve();
   else if (tab === 'settings') renderSettings();
 }
 
@@ -885,7 +964,7 @@ function renderClients() {
 function renderPayments() {
   var html = '<div class="page-header"><div><div class="page-title">Payments</div><div class="page-sub">$' + (STATS.totalRevenue / 100).toFixed(2) + ' collected</div></div></div>';
   html += '<div class="card" style="margin-bottom:1rem;padding:1rem 1.25rem;font-size:0.82rem;color:var(--mid-gray);line-height:1.55;">';
-  html += 'Payment links are created from <strong>Therapy Sessions → Pay Link</strong>. Choose Standard ($' + (SESSION_PRICE_CENTS / 100).toFixed(2) + '), Review donation, Veteran donation, or Senior donation. ';
+  html += 'Payment links are created from <strong>Therapy Sessions -> Pay Link</strong>. Choose Standard ($' + (SESSION_PRICE_CENTS / 100).toFixed(2) + '), Review donation, Veteran donation, or Senior donation. ';
   html += 'Status flips to <strong>Paid</strong> automatically when the client completes Stripe checkout — no manual update needed.</div>';
   html += '<div class="card"><div class="table-wrap"><table><thead><tr><th>Client</th><th>Type</th><th>Amount</th><th>Status</th><th>Created</th><th>Paid</th><th>Actions</th></tr></thead><tbody>';
   if (!PAYMENTS.length) {
@@ -933,9 +1012,9 @@ function renderVisitors() {
 
   html += '<div class="card" style="margin-bottom:1rem;"><div class="card-header"><div class="card-title">All page hits (Ads reconciliation)</div>';
   html += '<div style="font-size:0.75rem;color:var(--mid-gray);">Every load — including clicks that never moved the mouse. Match time + location + gclid to Google Ads.</div></div>';
-  html += '<div class="table-wrap"><table><thead><tr><th>When</th><th>Location / IP</th><th>Device</th><th>Page</th><th>Engaged</th><th>Ads</th></tr></thead><tbody>';
+  html += '<div class="table-wrap"><table><thead><tr><th>When</th><th>Location / IP</th><th>Device</th><th>Page</th><th>Engaged</th><th>Ads</th><th>Actions</th></tr></thead><tbody>';
   if (!hits.length) {
-    html += '<tr><td colspan="6" style="text-align:center;color:var(--mid-gray);padding:1.5rem;">No page hits yet. New landings will appear here.</td></tr>';
+    html += '<tr><td colspan="7" style="text-align:center;color:var(--mid-gray);padding:1.5rem;">No page hits yet. New landings will appear here.</td></tr>';
   } else {
     hits.slice(0, 200).forEach(function(h) {
       var engaged = h.interacted ? 'Yes' : 'NO — ghost';
@@ -952,6 +1031,7 @@ function renderVisitors() {
       html += '<td style="font-size:0.8rem;">' + escapeHtml(h.page || h.path || '—') + '</td>';
       html += '<td style="font-size:0.78rem;font-weight:500;color:' + (h.interacted ? 'var(--sage)' : '#8b2020') + ';">' + engaged + '</td>';
       html += '<td style="font-size:0.72rem;color:var(--mid-gray);">' + escapeHtml(adsBits.length ? adsBits.join(' · ') : (h.referrer ? String(h.referrer).slice(0, 40) : '—')) + '</td>';
+      html += '<td><button class="btn btn-red" style="font-size:0.68rem;padding:2px 8px;" type="button" onclick="deletePageHit(' + parseInt(h.id, 10) + ')">Delete</button></td>';
       html += '</tr>';
     });
   }
@@ -960,7 +1040,7 @@ function renderVisitors() {
   html += '<div class="card"><div class="card-header"><div class="card-title">Interactive sessions</div></div>';
   html += '<div class="vlog-row vlog-head">';
   html += '<div>Location / IP</div><div>Device</div><div>Pages Viewed</div>';
-  html += '<div class="vlog-hide">First Seen</div><div class="vlog-hide">Last Seen</div><div>Time on Site</div></div>';
+  html += '<div class="vlog-hide">First Seen</div><div class="vlog-hide">Last Seen</div><div>Time on Site</div><div>Actions</div></div>';
   html += '<div id="visitorLogBody">';
   if (!VISITOR_LOGS.length) {
     html += '<div style="padding:2rem;text-align:center;color:var(--mid-gray);font-size:0.85rem;">No interactive visitor data yet.</div>';
@@ -971,7 +1051,8 @@ function renderVisitors() {
       var mins = Math.floor((v.total_seconds || 0) / 60);
       var secs = (v.total_seconds || 0) % 60;
       var timeStr = mins > 0 ? mins + 'm ' + secs + 's' : secs + 's';
-      var search = ((v.location || '') + (v.ip || '') + (v.device || '')).toLowerCase();
+      var search = ((v.location || '') + (v.ip || '') + (v.device || '') + (v.vid || '')).toLowerCase();
+      var safeVid = String(v.vid || '').replace(/[^a-z0-9_]/gi, '');
       html += '<div class="vlog-row" data-search="' + escapeHtml(search) + '">';
       html += '<div><div style="font-weight:500;font-size:0.82rem;">' + escapeHtml(v.location || '—') + '</div>';
       html += '<div style="font-size:0.72rem;color:var(--mid-gray);font-family:monospace;">' + escapeHtml(v.ip || '') + '</div></div>';
@@ -987,9 +1068,11 @@ function renderVisitors() {
       html += '</div>';
       html += '<div class="vlog-hide" style="font-size:0.75rem;color:var(--mid-gray);">' + (v.first_seen ? escapeHtml(fmtDate(v.first_seen, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })) : '—') + '</div>';
       html += '<div class="vlog-hide" style="font-size:0.75rem;color:var(--mid-gray);">' + (v.last_seen ? escapeHtml(fmtDate(v.last_seen, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })) : '—') + '</div>';
-      html += '<div style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;">';
       html += '<div style="font-weight:500;color:var(--teal-dark);font-size:0.82rem;">' + escapeHtml(timeStr) + '</div>';
-      html += '<button class="btn btn-red" style="font-size:0.68rem;padding:2px 8px;" onclick="deleteVisitor(\'' + escapeHtml(v.vid || '') + '\')">Delete</button>';
+      html += '<div class="vlog-actions">';
+      if (safeVid) {
+        html += '<button class="btn btn-red" style="font-size:0.68rem;padding:2px 8px;" type="button" onclick="deleteVisitor(\'' + safeVid + '\')">Delete</button>';
+      }
       html += '</div></div>';
     });
   }
@@ -997,178 +1080,317 @@ function renderVisitors() {
   document.getElementById('tab-visitors').innerHTML = html;
 }
 
+function evolveDomainOptions(selected) {
+  var domains = ['general', 'ads', 'semrush', 'site', 'payments', 'visitors'];
+  var labels = { general: 'General', ads: 'Ads', semrush: 'SEMrush', site: 'Site', payments: 'Payments', visitors: 'Visitors' };
+  return domains.map(function(d) {
+    return '<option value="' + d + '"' + (d === selected ? ' selected' : '') + '>' + labels[d] + '</option>';
+  }).join('');
+}
+
+function evolveAgentId(idea) {
+  if (!idea) return '';
+  if (idea.agent_id) return String(idea.agent_id);
+  var fromNote = String(idea.run_note || '').match(/\b(bc-[0-9a-f-]{20,})\b/i);
+  return fromNote ? fromNote[1] : '';
+}
+
+function evolveAgentUrl(idea) {
+  var id = evolveAgentId(idea);
+  if (id) return 'https://cursor.com/agents/' + encodeURIComponent(id);
+  if (!idea || !idea.run_note) return '';
+  var m = String(idea.run_note).match(/https:\/\/cursor\.com\/agents[^\s]*/i);
+  return m ? m[0] : '';
+}
+
+function evolveChatMessages(idea) {
+  if (!idea) return [];
+  if (Array.isArray(idea.chat)) return idea.chat;
+  if (!idea.chat_json) return [];
+  try {
+    var parsed = JSON.parse(idea.chat_json);
+    return Array.isArray(parsed) ? parsed : [];
+  } catch (e) {
+    return [];
+  }
+}
+
+async function pollEvolveAgents() {
+  if (EVOLVE_SYNCING) return;
+  var active = document.querySelector('.tab-content.active');
+  if (!(active && active.id === 'tab-evolve')) return;
+  var targets = (EVOLVE_IDEAS || []).filter(function(i) {
+    return evolveAgentId(i) && (i.status === 'doing' || i.status === 'queued');
+  });
+  if (!targets.length) {
+    await loadDashboard();
+    return;
+  }
+  EVOLVE_SYNCING = true;
+  try {
+    for (var i = 0; i < targets.length; i++) {
+      await ajax({ action: 'sync_evolve_idea', id: targets[i].id });
+    }
+  } finally {
+    EVOLVE_SYNCING = false;
+  }
+  await loadDashboard();
+}
+
+function syncEvolvePoll() {
+  var active = document.querySelector('.tab-content.active');
+  var onEvolve = !!(active && active.id === 'tab-evolve');
+  var busy = (EVOLVE_IDEAS || []).some(function(i) {
+    return i.status === 'queued' || i.status === 'doing';
+  });
+  if (EVOLVE_POLL_TIMER) {
+    clearInterval(EVOLVE_POLL_TIMER);
+    EVOLVE_POLL_TIMER = null;
+  }
+  if (onEvolve && busy) {
+    EVOLVE_POLL_TIMER = setInterval(function() {
+      var hasAgent = (EVOLVE_IDEAS || []).some(function(i) {
+        return evolveAgentId(i) && (i.status === 'doing' || i.status === 'queued');
+      });
+      if (hasAgent) pollEvolveAgents();
+      else loadDashboard();
+    }, 8000);
+  }
+}
+
+function scrollEvolveChat(force) {
+  var box = document.getElementById('evolveChatMsgs');
+  if (!box) return;
+  var nearBottom = (box.scrollHeight - box.scrollTop - box.clientHeight) < 120;
+  if (force || nearBottom) box.scrollTop = box.scrollHeight;
+}
+
+function bindEvolveComposer(opts) {
+  var forceScroll = !!(opts && opts.forceScroll);
+  var ta = document.getElementById('evolveIdeaBody');
+  var sel = document.getElementById('evolveDomain');
+  var activeReply = document.activeElement && document.activeElement.id && String(document.activeElement.id).indexOf('evolveReply_') === 0
+    ? document.activeElement.id
+    : null;
+  var hadFocus = !!(ta && document.activeElement === ta);
+  if (sel) {
+    sel.value = EVOLVE_CHAT_DOMAIN || 'general';
+    sel.onchange = function() { EVOLVE_CHAT_DOMAIN = sel.value || 'general'; };
+  }
+  if (ta) {
+    ta.value = EVOLVE_CHAT_DRAFT || '';
+    ta.oninput = function() { EVOLVE_CHAT_DRAFT = ta.value; };
+    ta.onkeydown = function(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        if (e.metaKey || e.ctrlKey) addEvolveIdeaAndRun();
+        else addEvolveIdea();
+      }
+    };
+    if (!activeReply && (hadFocus || forceScroll)) {
+      try { ta.focus(); } catch (e) {}
+    }
+  }
+  document.querySelectorAll('textarea[id^="evolveReply_"]').forEach(function(box) {
+    var id = String(box.id).replace('evolveReply_', '');
+    box.value = EVOLVE_REPLY_DRAFTS[id] || '';
+    box.oninput = function() { EVOLVE_REPLY_DRAFTS[id] = box.value; };
+    box.onkeydown = function(e) {
+      if (e.key === 'Enter' && !e.shiftKey) {
+        e.preventDefault();
+        replyEvolveIdea(Number(id));
+      }
+    };
+  });
+  if (activeReply) {
+    var keep = document.getElementById(activeReply);
+    if (keep) {
+      try {
+        var pos = keep.value.length;
+        keep.focus();
+        keep.setSelectionRange(pos, pos);
+      } catch (e) {}
+    }
+  } else if (EVOLVE_FOCUS_REPLY_ID) {
+    focusEvolveCursorBox(EVOLVE_FOCUS_REPLY_ID);
+    EVOLVE_FOCUS_REPLY_ID = null;
+  }
+  scrollEvolveChat(forceScroll || EVOLVE_FORCE_SCROLL);
+  EVOLVE_FORCE_SCROLL = false;
+}
+
+function focusEvolveCursorBox(id) {
+  var box = document.getElementById('evolveReply_' + id);
+  var wrap = document.querySelector('.evolve-cursor-box[data-idea="' + id + '"]');
+  if (wrap) {
+    wrap.classList.add('focus-here');
+    try { wrap.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); } catch (e) {
+      try { wrap.scrollIntoView(false); } catch (e2) {}
+    }
+  }
+  if (box) {
+    try {
+      box.focus();
+      var pos = box.value.length;
+      box.setSelectionRange(pos, pos);
+    } catch (e) {}
+  }
+}
+
 function renderEvolve() {
-  var genes = EVOLVE_GENES || [];
-  var ideas = EVOLVE_IDEAS || [];
-  var inbox = ideas.filter(function(i) { return i.status === 'inbox'; });
-  var allowed = ideas.filter(function(i) { return i.status === 'allowed'; });
-  var queued = ideas.filter(function(i) { return i.status === 'queued'; });
-  var doing = ideas.filter(function(i) { return i.status === 'doing'; });
+  var msgs = (ADMIN_CHAT && ADMIN_CHAT.messages) || [];
+  var ideas = (EVOLVE_IDEAS || []).slice().sort(function(a, b) {
+    return (Number(b.id) || 0) - (Number(a.id) || 0);
+  });
+  var active = ideas.filter(function(i) {
+    return i.status !== 'done' && i.status !== 'blocked';
+  });
   var blocked = ideas.filter(function(i) { return i.status === 'blocked'; });
   var done = ideas.filter(function(i) { return i.status === 'done'; });
   var cloudReady = !!(ARK && ARK.cursorCloudReady);
+  var autoReady = !!(ARK && ARK.githubAutopilotReady);
 
   var html = '<div class="page-header"><div class="page-title">Thoughts</div>';
-  html += '<div style="font-size:0.85rem;color:var(--mid-gray);margin-top:0.35rem;">Type a thought → <b>Run</b> launches a Cursor agent' + (cloudReady ? ' (cloud key ready)' : ' (needs CURSOR_API_KEY secret)') + '. Genes are the laws.</div></div>';
+  html += '<div style="font-size:0.85rem;color:var(--mid-gray);margin-top:0.35rem;">Chat for questions. Run for background builds' + (cloudReady ? '' : ' (needs CURSOR_API_KEY)') + (autoReady ? '' : '') + '.</div></div>';
 
-  html += '<div class="card" style="margin-bottom:1.25rem;"><div class="card-header"><div class="card-title">New thought</div></div>';
-  html += '<div style="padding:1.25rem 1.5rem;">';
-  html += '<div class="form-row" style="align-items:end;gap:0.75rem;flex-wrap:wrap;">';
-  html += '<div class="form-group" style="flex:1;min-width:180px;"><label>Domain</label>';
-  html += '<select id="evolveDomain"><option value="ads">Ads</option><option value="semrush">SEMrush</option><option value="site">Site</option><option value="payments">Payments</option><option value="visitors">Visitors</option><option value="general" selected>General</option></select></div>';
-  html += '<div class="form-group" style="flex:3;min-width:280px;"><label>Thought</label>';
-  html += '<textarea id="evolveIdeaBody" rows="2" placeholder="What should we build or change?" style="width:100%;resize:vertical;"></textarea></div>';
-  html += '<button type="button" class="btn btn-teal" onclick="addEvolveIdea()">Add</button>';
-  html += '<button type="button" class="btn btn-teal" onclick="addEvolveIdeaAndRun()">Add + Run</button>';
-  html += '<button type="button" class="btn btn-ghost" onclick="addEvolveIdeaAndAllow()">Add + Allow</button>';
+  // —— Chat (questions) ——
+  html += '<div class="card" style="margin-bottom:1rem;">';
+  html += '<div class="card-header" style="display:flex;justify-content:space-between;align-items:center;">';
+  html += '<div class="card-title">Chat</div>';
+  html += '<button type="button" class="btn btn-ghost" style="font-size:0.72rem;" onclick="clearAdminChat()">Clear</button>';
+  html += '</div>';
+  html += '<div style="padding:0 1rem 1rem;">';
+  html += '<div id="evolveChatMsgs" style="height:220px;overflow:auto;border:1px solid rgba(0,0,0,0.08);border-radius:10px;padding:0.85rem;background:#f7f8f7;margin-bottom:0.65rem;">';
+  if (!msgs.length) {
+    html += '<div style="color:var(--mid-gray);font-size:0.85rem;text-align:center;padding:2rem 0.5rem;">Ask a question anytime.</div>';
+  } else {
+    msgs.forEach(function(m) {
+      var mine = m.role === 'you';
+      html += '<div style="display:flex;justify-content:' + (mine ? 'flex-end' : 'flex-start') + ';margin-bottom:0.55rem;">';
+      html += '<div style="max-width:90%;padding:0.55rem 0.8rem;border-radius:12px;font-size:0.88rem;line-height:1.4;white-space:pre-wrap;';
+      html += mine ? 'background:var(--teal-dark);color:#fff;' : 'background:#fff;border:1px solid rgba(0,0,0,0.08);';
+      if (m.kind === 'status') html += 'font-style:italic;opacity:0.85;';
+      if (m.kind === 'error') html += 'color:#8b2020;';
+      html += '">' + escapeHtml(m.text || '') + '</div></div>';
+    });
+  }
+  html += '</div>';
+  html += '<div style="display:flex;gap:0.5rem;align-items:flex-end;">';
+  html += '<textarea id="adminChatInput" rows="2" placeholder="Ask a question…" style="flex:1;resize:vertical;"></textarea>';
+  html += '<button type="button" class="btn btn-teal" id="adminChatSendBtn" onclick="sendAdminChat()"' + (cloudReady ? '' : ' disabled') + '>Send</button>';
   html += '</div></div></div>';
 
+  // —— Run a thought (background) ——
+  html += '<div class="card" style="margin-bottom:1rem;">';
+  html += '<div class="card-header"><div class="card-title">Run a thought</div></div>';
+  html += '<div style="padding:1rem 1.25rem;">';
+  html += '<div style="display:flex;gap:0.55rem;align-items:flex-end;flex-wrap:wrap;">';
+  html += '<select id="evolveDomain" style="min-width:120px;">';
+  ['general','ads','semrush','site','payments','visitors'].forEach(function(d) {
+    var labels = { general:'General', ads:'Ads', semrush:'SEMrush', site:'Site', payments:'Payments', visitors:'Visitors' };
+    html += '<option value="' + d + '"' + (d === (EVOLVE_THOUGHT_DOMAIN || 'general') ? ' selected' : '') + '>' + labels[d] + '</option>';
+  });
+  html += '</select>';
+  html += '<textarea id="evolveIdeaBody" rows="2" placeholder="What should we build or change?" style="flex:1;min-width:200px;resize:vertical;"></textarea>';
+  html += '<button type="button" class="btn btn-ghost" onclick="addEvolveIdea()">Save</button>';
+  html += '<button type="button" class="btn btn-teal" onclick="addEvolveIdeaAndRun()"' + (cloudReady ? '' : ' disabled') + '>Run</button>';
+  html += '</div>';
+  html += '<div style="margin-top:0.4rem;font-size:0.75rem;color:var(--mid-gray);">Run starts a background agent. Status updates on the card — nothing pops open.</div>';
+  html += '</div></div>';
+
   function ideaCard(i) {
-    var h = '<div style="border:1px solid rgba(0,0,0,0.08);border-radius:10px;padding:0.9rem 1rem;margin-bottom:0.65rem;background:#fff;">';
-    h += '<div style="display:flex;justify-content:space-between;gap:0.75rem;align-items:flex-start;flex-wrap:wrap;">';
-    h += '<div style="flex:1;min-width:200px;">';
-    h += '<div style="font-size:0.7rem;text-transform:uppercase;letter-spacing:0.04em;color:var(--mid-gray);margin-bottom:0.35rem;">' + escapeHtml(i.domain || 'general') + ' · #' + i.id + ' · ' + escapeHtml(i.status || '') + '</div>';
-    h += '<div style="font-size:0.92rem;line-height:1.45;color:var(--charcoal);white-space:pre-wrap;">' + escapeHtml(i.body || '') + '</div>';
-    if (i.result) h += '<div style="margin-top:0.5rem;font-size:0.8rem;color:var(--teal-dark);">Result: ' + escapeHtml(i.result) + '</div>';
-    if (i.run_note) h += '<div style="margin-top:0.35rem;font-size:0.78rem;color:var(--mid-gray);">' + escapeHtml(i.run_note) + '</div>';
-    h += '</div>';
-    h += '<div style="display:flex;flex-wrap:wrap;gap:0.35rem;">';
-    if (i.status !== 'allowed' && i.status !== 'queued' && i.status !== 'doing') {
-      h += '<button class="btn btn-ghost" style="font-size:0.72rem;padding:3px 8px;" onclick="allowEvolveIdea(' + i.id + ')">Allow</button>';
-    }
+    var h = '<div style="border:1px solid rgba(0,0,0,0.08);border-radius:10px;padding:0.85rem 1rem;margin-bottom:0.55rem;background:#fff;">';
+    h += '<div style="font-size:0.68rem;text-transform:uppercase;letter-spacing:0.04em;color:var(--mid-gray);margin-bottom:0.3rem;">' + escapeHtml(i.domain || 'general') + ' · #' + i.id + ' · ' + escapeHtml(i.status || '') + '</div>';
+    h += '<div style="font-size:0.9rem;line-height:1.45;white-space:pre-wrap;">' + escapeHtml(i.body || '') + '</div>';
+    if (i.result) h += '<div style="margin-top:0.45rem;font-size:0.8rem;color:var(--teal-dark);">' + escapeHtml(i.result) + '</div>';
+    if (i.run_note) h += '<div style="margin-top:0.3rem;font-size:0.75rem;color:var(--mid-gray);">' + escapeHtml(i.run_note) + '</div>';
+    h += '<div style="display:flex;flex-wrap:wrap;gap:0.3rem;margin-top:0.55rem;">';
     h += '<button class="btn btn-teal" style="font-size:0.72rem;padding:3px 8px;" onclick="runEvolveIdea(' + i.id + ')">Run</button>';
-    if (i.run_note && /cursor\.com\/agents/i.test(i.run_note)) {
-      var m = i.run_note.match(/https:\/\/cursor\.com\/agents[^\s]*/i);
-      if (m) h += '<a class="btn btn-ghost" style="font-size:0.72rem;padding:3px 8px;" href="' + escapeHtml(m[0]) + '" target="_blank" rel="noopener">Open agent</a>';
-    }
-    if (i.agent_prompt) h += '<button class="btn btn-ghost" style="font-size:0.72rem;padding:3px 8px;" onclick="copyEvolvePrompt(' + i.id + ')">Copy prompt</button>';
-    if (i.status !== 'doing') h += '<button class="btn btn-ghost" style="font-size:0.72rem;padding:3px 8px;" onclick="setEvolveStatus(' + i.id + ',\'doing\')">Doing</button>';
     if (i.status !== 'done') h += '<button class="btn btn-ghost" style="font-size:0.72rem;padding:3px 8px;" onclick="setEvolveStatus(' + i.id + ',\'done\')">Done</button>';
     if (i.status !== 'blocked') h += '<button class="btn btn-ghost" style="font-size:0.72rem;padding:3px 8px;" onclick="setEvolveStatus(' + i.id + ',\'blocked\')">Block</button>';
-    if (i.status !== 'inbox') h += '<button class="btn btn-ghost" style="font-size:0.72rem;padding:3px 8px;" onclick="setEvolveStatus(' + i.id + ',\'inbox\')">Inbox</button>';
     h += '<button class="btn btn-red" style="font-size:0.72rem;padding:3px 8px;" onclick="deleteEvolveIdea(' + i.id + ')">Del</button>';
-    h += '</div></div></div>';
+    h += '</div></div>';
     return h;
   }
 
-  html += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;margin-bottom:1.5rem;">';
+  html += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:1rem;margin-bottom:1rem;">';
   [
-    ['Inbox', inbox],
-    ['Allowed', allowed],
-    ['Queued / Run', queued],
-    ['Doing', doing],
+    ['Active', active],
     ['Blocked', blocked],
-    ['Done', done.slice(0, 20)]
+    ['Done', done.slice(0, 15)]
   ].forEach(function(col) {
     html += '<div class="card"><div class="card-header"><div class="card-title">' + col[0] + ' <span style="color:var(--mid-gray);font-weight:500;">(' + col[1].length + ')</span></div></div>';
-    html += '<div style="padding:0.85rem 1rem;max-height:420px;overflow:auto;">';
-    if (!col[1].length) html += '<div style="font-size:0.82rem;color:var(--mid-gray);padding:0.5rem 0;">Empty</div>';
+    html += '<div style="padding:0.75rem 1rem;max-height:360px;overflow:auto;">';
+    if (!col[1].length) html += '<div style="font-size:0.82rem;color:var(--mid-gray);padding:0.4rem 0;">Empty</div>';
     else col[1].forEach(function(i) { html += ideaCard(i); });
     html += '</div></div>';
   });
   html += '</div>';
 
-  html += '<div class="card"><div class="card-header" style="display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;">';
-  html += '<div class="card-title">Genes (laws)</div>';
-  html += '<button type="button" class="btn btn-ghost" style="font-size:0.78rem;" onclick="promptAddGene()">+ Add gene</button>';
-  html += '</div><div style="padding:1rem 1.5rem;">';
-  if (!genes.length) {
-    html += '<div style="color:var(--mid-gray);font-size:0.85rem;">No genes yet — first load seeds defaults.</div>';
-  } else {
-    genes.forEach(function(g) {
-      var on = !!g.active;
-      html += '<div style="padding:0.85rem 0;border-bottom:1px solid rgba(0,0,0,0.06);opacity:' + (on ? '1' : '0.45') + ';">';
-      html += '<div style="display:flex;justify-content:space-between;gap:0.75rem;align-items:flex-start;flex-wrap:wrap;">';
-      html += '<div style="flex:1;min-width:220px;">';
-      html += '<div style="font-weight:600;color:var(--charcoal);margin-bottom:0.25rem;">' + escapeHtml(g.title || '') + '</div>';
-      html += '<div style="font-size:0.85rem;line-height:1.5;color:var(--mid-gray);">' + escapeHtml(g.rule || '') + '</div>';
-      html += '</div>';
-      html += '<div style="display:flex;gap:0.35rem;">';
-      html += '<button class="btn btn-ghost" style="font-size:0.72rem;padding:3px 8px;" onclick="toggleEvolveGene(' + g.id + ',' + (on ? 'false' : 'true') + ')">' + (on ? 'Off' : 'On') + '</button>';
-      html += '<button class="btn btn-red" style="font-size:0.72rem;padding:3px 8px;" onclick="deleteEvolveGene(' + g.id + ')">Del</button>';
-      html += '</div></div></div>';
-    });
-  }
-  html += '</div></div>';
+  var tab = document.getElementById('tab-evolve');
+  tab.innerHTML = html;
+  var main = document.querySelector('.main');
+  if (main) main.classList.remove('evolve-mode');
 
-  document.getElementById('tab-evolve').innerHTML = html;
+  var chatInput = document.getElementById('adminChatInput');
+  if (chatInput) {
+    chatInput.value = ADMIN_CHAT_DRAFT || '';
+    chatInput.oninput = function() { ADMIN_CHAT_DRAFT = chatInput.value; };
+    chatInput.onkeydown = function(e) {
+      if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendAdminChat(); }
+    };
+  }
+  var thoughtInput = document.getElementById('evolveIdeaBody');
+  var domainEl = document.getElementById('evolveDomain');
+  if (domainEl) {
+    domainEl.onchange = function() { EVOLVE_THOUGHT_DOMAIN = domainEl.value || 'general'; };
+  }
+  if (thoughtInput) {
+    thoughtInput.value = EVOLVE_THOUGHT_DRAFT || '';
+    thoughtInput.oninput = function() { EVOLVE_THOUGHT_DRAFT = thoughtInput.value; };
+  }
+  var box = document.getElementById('evolveChatMsgs');
+  if (box) box.scrollTop = box.scrollHeight;
+  ensureAdminChatPoll();
+  ensureEvolvePoll();
 }
 
 async function addEvolveIdea() {
-  var body = (document.getElementById('evolveIdeaBody') || {}).value || '';
-  var domain = (document.getElementById('evolveDomain') || {}).value || 'general';
-  body = body.trim();
+  var body = ((document.getElementById('evolveIdeaBody') || {}).value || EVOLVE_THOUGHT_DRAFT || '').trim();
+  var domain = ((document.getElementById('evolveDomain') || {}).value || EVOLVE_THOUGHT_DOMAIN || 'general');
   if (!body) { toast('Write a thought first'); return; }
   var r = await ajax({ action: 'add_evolve_idea', domain: domain, body: body });
   if (r.error) { toast(r.error); return; }
-  toast('Thought queued');
-  await loadDashboard();
-}
-
-async function addEvolveIdeaAndAllow() {
-  var body = (document.getElementById('evolveIdeaBody') || {}).value || '';
-  var domain = (document.getElementById('evolveDomain') || {}).value || 'general';
-  body = body.trim();
-  if (!body) { toast('Write a thought first'); return; }
-  var r = await ajax({ action: 'add_evolve_idea', domain: domain, body: body });
-  if (r.error) { toast(r.error); return; }
-  if (r.id) {
-    var a = await ajax({ action: 'allow_evolve_idea', id: r.id });
-    if (a.error) { toast(a.error); return; }
-  }
-  toast('Thought allowed');
-  await loadDashboard();
-}
-
-async function allowEvolveIdea(id) {
-  var r = await ajax({ action: 'allow_evolve_idea', id: id });
-  if (r.error) { toast(r.error); return; }
-  toast('Allowed');
+  EVOLVE_THOUGHT_DRAFT = '';
+  toast('Saved');
   await loadDashboard();
 }
 
 async function addEvolveIdeaAndRun() {
-  var domain = (document.getElementById('evolveDomain') || {}).value || 'general';
-  var body = ((document.getElementById('evolveIdeaBody') || {}).value || '').trim();
+  var body = ((document.getElementById('evolveIdeaBody') || {}).value || EVOLVE_THOUGHT_DRAFT || '').trim();
+  var domain = ((document.getElementById('evolveDomain') || {}).value || EVOLVE_THOUGHT_DOMAIN || 'general');
   if (!body) { toast('Write a thought first'); return; }
-  var r = await ajax({ ajax_action: 'add_evolve_idea', domain: domain, body: body });
+  var r = await ajax({ action: 'add_evolve_idea', domain: domain, body: body });
   if (r.error) { toast(r.error); return; }
-  if (document.getElementById('evolveIdeaBody')) document.getElementById('evolveIdeaBody').value = '';
+  EVOLVE_THOUGHT_DRAFT = '';
   if (!r.id) { toast('Saved but missing id'); await loadDashboard(); return; }
   await runEvolveIdea(r.id);
 }
 
 async function runEvolveIdea(id) {
-  toast('Starting agent…');
+  toast('Starting in background…');
   var r = await ajax({ action: 'run_evolve_idea', id: id });
   if (r.error) { toast(r.error, 6000); return; }
-  if (r.cloud && r.cloud.ok) {
-    toast('Agent running');
-    if (r.agentUrl) {
-      try { window.open(r.agentUrl, '_blank', 'noopener'); } catch (e) {}
-    }
-  } else if (r.cloud && r.cloud.note) {
-    toast(r.cloud.note, 7000);
-  } else {
-    toast('Queued');
-  }
+  if (r.cloud && r.cloud.ok) toast('Running in background');
+  else if (r.cloud && r.cloud.note) toast(r.cloud.note, 7000);
+  else toast('Queued');
   await loadDashboard();
-}
-
-function copyEvolvePrompt(id) {
-  var idea = (EVOLVE_IDEAS || []).find(function(x) { return Number(x.id) === Number(id); });
-  if (!idea || !idea.agent_prompt) { toast('No prompt yet — hit Run first'); return; }
-  navigator.clipboard.writeText(idea.agent_prompt).then(function() {
-    toast('Prompt copied');
-  }).catch(function() {
-    prompt('Copy this prompt:', idea.agent_prompt);
-  });
 }
 
 async function setEvolveStatus(id, status) {
   var payload = { action: 'update_evolve_idea', id: id, status: status };
   if (status === 'done') {
-    var note = prompt('Optional result note (what shipped / learned):', '');
+    var note = prompt('Optional result note:', '');
     if (note != null && note.trim()) payload.result = note.trim();
   }
   var r = await ajax(payload);
@@ -1183,28 +1405,133 @@ async function deleteEvolveIdea(id) {
   await loadDashboard();
 }
 
-async function promptAddGene() {
-  var title = prompt('Gene title (short law name):', '');
-  if (!title || !title.trim()) return;
-  var rule = prompt('Rule / law text:', '');
-  if (!rule || !rule.trim()) return;
-  var r = await ajax({ action: 'add_evolve_gene', title: title.trim(), rule: rule.trim() });
-  if (r.error) { toast(r.error); return; }
-  toast('Gene added');
-  await loadDashboard();
+function ensureEvolvePoll() {
+  var hasDoing = (EVOLVE_IDEAS || []).some(function(i) { return i.status === 'doing' || i.status === 'queued'; });
+  if (!hasDoing) {
+    if (EVOLVE_POLL_TIMER) { clearInterval(EVOLVE_POLL_TIMER); EVOLVE_POLL_TIMER = null; }
+    return;
+  }
+  if (EVOLVE_POLL_TIMER) return;
+  EVOLVE_POLL_TIMER = setInterval(async function() {
+    try {
+      await ajax({ action: 'poll_evolve_agents' });
+      await loadDashboard();
+    } catch (e) {}
+  }, 20000);
 }
 
-async function toggleEvolveGene(id, active) {
-  var r = await ajax({ action: 'update_evolve_gene', id: id, active: !!active });
-  if (r.error) { toast(r.error); return; }
-  await loadDashboard();
+async function sendAdminChat() {
+  if (ADMIN_CHAT_BUSY) return;
+  var input = document.getElementById('adminChatInput');
+  var text = ((input && input.value) || ADMIN_CHAT_DRAFT || '').trim();
+  if (!text) return;
+  ADMIN_CHAT_BUSY = true;
+  ADMIN_CHAT_DRAFT = '';
+  if (input) input.value = '';
+  var btn = document.getElementById('adminChatSendBtn');
+  if (btn) btn.disabled = true;
+  try {
+    var r = await ajax({ action: 'admin_chat_send', text: text });
+    if (r.error) {
+      toast(r.error, 6000);
+      ADMIN_CHAT_DRAFT = text;
+    }
+    if (r.chat) ADMIN_CHAT.messages = r.chat;
+    if (r.agentId) ADMIN_CHAT.agentId = r.agentId;
+    if (r.runId) ADMIN_CHAT.runId = r.runId;
+  } finally {
+    ADMIN_CHAT_BUSY = false;
+    renderEvolve();
+  }
 }
 
-async function deleteEvolveGene(id) {
-  if (!confirm('Delete this gene?')) return;
-  var r = await ajax({ action: 'delete_evolve_gene', id: id });
+async function clearAdminChat() {
+  if (!confirm('Clear this chat?')) return;
+  var r = await ajax({ action: 'admin_chat_clear' });
   if (r.error) { toast(r.error); return; }
-  await loadDashboard();
+  ADMIN_CHAT = { messages: [], agentId: '', runId: '' };
+  renderEvolve();
+}
+
+function ensureAdminChatPoll() {
+  var msgs = (ADMIN_CHAT && ADMIN_CHAT.messages) || [];
+  var waiting = msgs.length && msgs[msgs.length - 1] && msgs[msgs.length - 1].kind === 'status';
+  if (!waiting) {
+    if (ADMIN_CHAT_POLL) { clearInterval(ADMIN_CHAT_POLL); ADMIN_CHAT_POLL = null; }
+    return;
+  }
+  if (ADMIN_CHAT_POLL) return;
+  ADMIN_CHAT_POLL = setInterval(async function() {
+    try {
+      var r = await ajax({ action: 'admin_chat_sync' });
+      if (r.chat) ADMIN_CHAT.messages = r.chat;
+      if (r.synced) renderEvolve();
+      else {
+        var still = (ADMIN_CHAT.messages || []).length && ADMIN_CHAT.messages[ADMIN_CHAT.messages.length - 1].kind === 'status';
+        if (!still && ADMIN_CHAT_POLL) { clearInterval(ADMIN_CHAT_POLL); ADMIN_CHAT_POLL = null; }
+      }
+    } catch (e) {}
+  }, 4000);
+}
+
+var ADS_UI = {
+  focus: localStorage.getItem('adsFocusPanel') || '',
+  campaign: localStorage.getItem('adsCampaignFilter') || ''
+};
+
+/* Which synced report feeds each panel (first match wins). */
+var ADS_PANEL_SOURCES = {
+  search_terms: ['search_terms'],
+  campaigns: ['campaigns'],
+  keywords: ['keywords'],
+  auction: ['auction', 'competitors'],
+  geo: ['geo'],
+  competitors: ['competitors', 'auction'],
+  competitor_stats: ['auction', 'competitors'],
+  overview: ['campaigns', 'search_terms', 'keywords', 'other'],
+  ad_groups: ['ad_groups', 'campaigns', 'search_terms'],
+  negatives: ['keywords', 'search_terms'],
+  devices: ['devices', 'campaigns'],
+  landing_pages: ['competitors', 'search_terms'],
+  quality_score: ['keywords'],
+  budget: ['campaigns'],
+  conversions: ['campaigns', 'search_terms']
+};
+
+function adsCampaignOf(r) {
+  var d = (r && r.data) || {};
+  return String(d.Campaign || d['Campaign name'] || '').trim();
+}
+
+function adsFilterByCampaign(list) {
+  if (!ADS_UI.campaign) return list;
+  return list.filter(function(r) {
+    var c = adsCampaignOf(r);
+    return !c || c === ADS_UI.campaign;
+  });
+}
+
+function adsPanelData(key, byType) {
+  var prefs = ADS_PANEL_SOURCES[key] || [key];
+  for (var i = 0; i < prefs.length; i++) {
+    var t = prefs[i];
+    if (byType[t] && byType[t].length) {
+      return { list: adsFilterByCampaign(byType[t]), type: t };
+    }
+  }
+  return { list: [], type: '' };
+}
+
+function setAdsCampaign(v) {
+  ADS_UI.campaign = v || '';
+  try { localStorage.setItem('adsCampaignFilter', ADS_UI.campaign); } catch (e) {}
+  renderAds();
+}
+
+function focusAdsPanel(key) {
+  ADS_UI.focus = key;
+  try { localStorage.setItem('adsFocusPanel', key); } catch (e) {}
+  renderAds();
 }
 
 function renderAds() {
@@ -1221,10 +1548,96 @@ function renderAds() {
     byType[t].push(r);
   });
 
-  var html = '<div class="page-header"><div class="page-title">Google Ads</div>';
-  html += '<div style="font-size:0.85rem;color:var(--mid-gray);margin-top:0.35rem;">Live pull from your account — connect once, then Sync. Stay out of the Ads UI jungle.</div></div>';
+  var campaigns = [];
+  rows.forEach(function(r) {
+    var c = adsCampaignOf(r);
+    if (c && campaigns.indexOf(c) < 0) campaigns.push(c);
+  });
+  campaigns.sort();
+  if (ADS_UI.campaign && campaigns.indexOf(ADS_UI.campaign) < 0) ADS_UI.campaign = '';
 
-  html += '<div class="card" style="margin-bottom:1rem;border-top:3px solid var(--teal);"><div class="card-header"><div class="card-title">Live connection</div>';
+  var html = '<div class="page-header"><div class="page-title">Google Ads</div>';
+  html += '<div style="font-size:0.85rem;color:var(--mid-gray);margin-top:0.35rem;">' +
+    (gads.ready
+      ? 'Connected · Last sync: ' + escapeHtml(gads.lastSync || 'never') + ' (auto-syncs every 6h)'
+      : 'Not connected — open Setup below.') +
+    '</div></div>';
+
+  html += '<div class="card" style="margin-bottom:1rem;"><div style="padding:0.85rem 1.25rem;display:flex;flex-wrap:wrap;gap:0.85rem;align-items:end;">';
+  html += '<div class="form-group" style="margin:0;"><label>Campaign</label><select id="adsCampaignSel" onchange="setAdsCampaign(this.value)" style="min-width:240px;"><option value="">All campaigns</option>';
+  campaigns.forEach(function(c) {
+    html += '<option value="' + escapeHtml(c) + '"' + (c === ADS_UI.campaign ? ' selected' : '') + '>' + escapeHtml(c) + '</option>';
+  });
+  html += '</select></div>';
+
+  html += '<div class="form-group" style="margin:0;"><label>Add a panel</label><select id="adsPanelPick" style="min-width:220px;"><option value="">— choose —</option>';
+  var groups = {};
+  catalog.forEach(function(p) {
+    if (!groups[p.group]) groups[p.group] = [];
+    groups[p.group].push(p);
+  });
+  Object.keys(groups).forEach(function(g) {
+    html += '<optgroup label="' + escapeHtml(g) + '">';
+    groups[g].forEach(function(p) {
+      var already = selected.indexOf(p.key) >= 0;
+      html += '<option value="' + escapeHtml(p.key) + '"' + (already ? ' disabled' : '') + '>' + escapeHtml(p.label) + (already ? ' (on board)' : '') + '</option>';
+    });
+    html += '</optgroup>';
+  });
+  html += '</select></div>';
+  html += '<button type="button" class="btn btn-teal" onclick="addAdsPanel()">Add</button>';
+
+  html += '<button type="button" class="btn btn-teal" onclick="syncGoogleAds()">Sync from Google now</button>';
+  if (gads.lastError) html += '<div style="color:#a33b2b;font-size:0.78rem;align-self:center;">' + escapeHtml(gads.lastError) + '</div>';
+  html += '</div></div>';
+
+  html += renderAdsSetup(gads, catalog, selected, imports, rows);
+
+  if (!selected.length) {
+    html += '<div class="card"><div style="padding:1.5rem;color:var(--mid-gray);">Connect + Sync above to fill panels.</div></div>';
+  } else {
+    var focusKey = ADS_UI.focus;
+    if (selected.indexOf(focusKey) < 0) focusKey = selected[0];
+
+    html += '<div style="display:flex;gap:1rem;align-items:flex-start;">';
+
+    html += '<div style="width:185px;flex:0 0 185px;display:flex;flex-direction:column;gap:0.55rem;">';
+    selected.forEach(function(key) {
+      var meta = catalog.find(function(p) { return p.key === key; }) || { key: key, label: key };
+      var active = key === focusKey;
+      var countTxt = '';
+      if (key !== 'hotlinks' && key !== 'notes' && key !== 'page_hits') {
+        countTxt = adsPanelData(key, byType).list.length + ' rows';
+      }
+      html += '<div class="card" onclick="focusAdsPanel(\'' + escapeHtml(key) + '\')" style="cursor:pointer;padding:0.6rem 0.75rem;' +
+        (active ? 'border-left:3px solid var(--teal);background:#eef5f6;' : 'opacity:0.8;') + '">';
+      html += '<div style="font-weight:600;font-size:0.8rem;color:var(--teal-dark);">' + escapeHtml(meta.label) + '</div>';
+      if (countTxt) html += '<div style="font-size:0.7rem;color:var(--mid-gray);margin-top:2px;">' + countTxt + '</div>';
+      html += '</div>';
+    });
+    html += '</div>';
+
+    var focusMeta = catalog.find(function(p) { return p.key === focusKey; }) || { key: focusKey, label: focusKey };
+    html += '<div class="card" style="flex:1;min-width:0;">';
+    html += '<div class="card-header" style="display:flex;justify-content:space-between;align-items:center;gap:0.5rem;">';
+    html += '<div class="card-title">' + escapeHtml(focusMeta.label) + (ADS_UI.campaign ? ' — ' + escapeHtml(ADS_UI.campaign) : '') + '</div>';
+    html += '<button class="btn btn-ghost" style="font-size:0.72rem;padding:2px 8px;" onclick="removeAdsPanel(\'' + escapeHtml(focusKey) + '\')">Remove</button>';
+    html += '</div><div style="padding:1rem 1.25rem;">';
+    html += renderAdsPanelBody(focusKey, byType, rows, gads);
+    html += '</div></div>';
+
+    html += '</div>';
+  }
+
+  document.getElementById('tab-ads').innerHTML = html;
+}
+
+function renderAdsSetup(gads, catalog, selected, imports, rows) {
+  var html = '<details class="card" style="margin-bottom:1rem;"' + (gads.ready ? '' : ' open') + '>';
+  html += '<summary class="card-header" style="cursor:pointer;"><div class="card-title">Setup — connection, panels &amp; CSV backup</div></summary>';
+  html += '<div style="padding:0 0.25rem;">';
+
+  html += '<div style="margin:0.75rem;border-top:3px solid var(--teal);border-radius:3px;box-shadow:0 0 0 1px var(--divider);"><div class="card-header"><div class="card-title">Live connection</div>';
   html += '<span style="font-size:0.78rem;color:' + (gads.ready ? 'var(--sage)' : 'var(--mid-gray)') + ';">' + (gads.ready ? 'Ready to sync' : 'Not connected') + '</span></div>';
   html += '<div style="padding:1rem 1.5rem;">';
   html += '<p style="font-size:0.82rem;color:var(--mid-gray);line-height:1.55;margin-bottom:1rem;">Moon shot: finish OAuth once. Then Sync fills the board forever.</p>';
@@ -1245,7 +1658,7 @@ function renderAds() {
   html += '</div>';
   html += '<details style="margin-bottom:1rem;"><summary style="cursor:pointer;font-size:0.82rem;color:var(--mid-gray);">Advanced: Client ID / secret / developer token</summary>';
   html += '<div class="form-row" style="gap:0.75rem;flex-wrap:wrap;align-items:end;margin-top:0.75rem;">';
-  html += '<div class="form-group" style="flex:1;min-width:180px;"><label>Developer token ' + ((gads.hasDeveloperToken || gads.hasStoredDeveloperToken) ? '<span style="color:var(--sage);">(saved)</span>' : '') + '</label><input type="password" id="gadsDevToken" placeholder="' + ((gads.hasDeveloperToken || gads.hasStoredDeveloperToken) ? '••••••••' : 'paste token') + '" autocomplete="off"/></div>';
+  html += '<div class="form-group" style="flex:1;min-width:180px;"><label>Developer token ' + ((gads.hasDeveloperToken || gads.hasStoredDeveloperToken) ? '<span style="color:var(--sage);">(saved)</span>' : '') + '</label><input type="password" id="gadsDevToken" placeholder="' + ((gads.hasDeveloperToken || gads.hasStoredDeveloperToken) ? 'ΓÇóΓÇóΓÇóΓÇóΓÇóΓÇóΓÇóΓÇó' : 'paste token') + '" autocomplete="off"/></div>';
   html += '<div class="form-group" style="flex:1;min-width:100%;"><label>OAuth client ID (readable — not the secret)</label>';
   html += '<input type="text" id="gadsClientId" value="' + escapeHtml(gads.clientId || '') + '" placeholder="xxxx....apps.googleusercontent.com" autocomplete="off" spellcheck="false" style="font-family:ui-monospace,Consolas,monospace;font-size:0.78rem;width:100%;"/></div>';
   html += '<div class="form-group" style="flex:1;min-width:100%;"><label>OAuth client secret</label>';
@@ -1305,23 +1718,8 @@ function renderAds() {
   }
   html += '</div></details>';
 
-  if (!selected.length) {
-    html += '<div class="card"><div style="padding:1.5rem;color:var(--mid-gray);">Connect + Sync above to fill panels.</div></div>';
-  } else {
-    html += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1rem;">';
-    selected.forEach(function(key) {
-      var meta = catalog.find(function(p) { return p.key === key; }) || { key: key, label: key };
-      html += '<div class="card"><div class="card-header" style="display:flex;justify-content:space-between;align-items:center;gap:0.5rem;">';
-      html += '<div class="card-title">' + escapeHtml(meta.label) + '</div>';
-      html += '<button class="btn btn-ghost" style="font-size:0.72rem;padding:2px 8px;" onclick="removeAdsPanel(\'' + escapeHtml(key) + '\')">Remove</button>';
-      html += '</div><div style="padding:1rem 1.25rem;">';
-      html += renderAdsPanelBody(key, byType, rows, gads);
-      html += '</div></div>';
-    });
-    html += '</div>';
-  }
-
-  document.getElementById('tab-ads').innerHTML = html;
+  html += '</div></details>';
+  return html;
 }
 
 function renderAdsPanelBody(key, byType, rows, gads) {
@@ -1337,7 +1735,7 @@ function renderAdsPanelBody(key, byType, rows, gads) {
       '</div>';
   }
   if (key === 'notes') {
-    return '<textarea id="adsScratchNotes" rows="5" placeholder="Scratch notes for this Ads board…" style="width:100%;" onchange="localStorage.setItem(\'adsScratchNotes\',this.value)">' +
+    return '<textarea id="adsScratchNotes" rows="5" placeholder="Scratch notes for this Ads board..." style="width:100%;" onchange="localStorage.setItem(\'adsScratchNotes\',this.value)">' +
       escapeHtml(localStorage.getItem('adsScratchNotes') || '') + '</textarea>';
   }
   if (key === 'page_hits') {
@@ -1352,34 +1750,12 @@ function renderAdsPanelBody(key, byType, rows, gads) {
     return h + '</div>';
   }
 
-  var preferred = {
-    search_terms: ['search_terms'],
-    campaigns: ['campaigns'],
-    keywords: ['keywords'],
-    auction: ['auction', 'competitors'],
-    geo: ['geo'],
-    competitors: ['competitors', 'auction'],
-    competitor_stats: ['auction', 'competitors'],
-    overview: ['campaigns', 'search_terms', 'keywords', 'other'],
-    ad_groups: ['ad_groups', 'campaigns', 'search_terms'],
-    negatives: ['keywords', 'search_terms'],
-    devices: ['devices', 'campaigns'],
-    landing_pages: ['competitors', 'search_terms'],
-    quality_score: ['keywords'],
-    budget: ['campaigns'],
-    conversions: ['campaigns', 'search_terms']
-  };
+  var panelData = adsPanelData(key, byType);
+  var list = panelData.list;
+  var usedType = panelData.type;
 
-  var list = [];
-  var usedType = '';
-  var prefs = preferred[key] || [key];
-  for (var pi = 0; pi < prefs.length; pi++) {
-    var t = prefs[pi];
-    if (byType[t] && byType[t].length) {
-      list = byType[t];
-      usedType = t;
-      break;
-    }
+  if (!list.length && usedType && ADS_UI.campaign) {
+    return '<div style="font-size:0.82rem;color:var(--mid-gray);">No rows for campaign "' + escapeHtml(ADS_UI.campaign) + '" in this panel.</div>';
   }
 
   if (!list.length) {
@@ -1406,7 +1782,7 @@ function renderAdsPanelBody(key, byType, rows, gads) {
         ' <span style="opacity:0.85;">Re-Sync after traffic, or pick a different Customer ID if this is the wrong account.</span></div>';
     }
     var need = (gads.missing && gads.missing.length) ? (' Missing: <b>' + escapeHtml(gads.missing.join(', ')) + '</b>.') : '';
-    return '<div style="font-size:0.82rem;color:var(--mid-gray);line-height:1.55;">No live data yet.' + need + ' Fill <b>Live connection</b> at the top → Save → Authorize → Sync.</div>';
+    return '<div style="font-size:0.82rem;color:var(--mid-gray);line-height:1.55;">No live data yet.' + need + ' Fill <b>Live connection</b> at the top -> Save -> Authorize -> Sync.</div>';
   }
 
   if (key === 'overview') {
@@ -1451,23 +1827,22 @@ function adsNum(d, names) {
 }
 
 function renderAdsRowsTable(list, usedType) {
-  var sample = list.slice(0, 12);
-  var keys = Object.keys(sample[0].data || {}).slice(0, 7);
+  var keys = Object.keys(list[0].data || {}).slice(0, 9);
   if (!keys.length) {
     return '<div style="font-size:0.82rem;color:var(--mid-gray);">Rows loaded but columns missing — re-import CSV.</div>';
   }
   var h = '';
   if (usedType && usedType !== 'all') {
-    h += '<div style="font-size:0.72rem;color:var(--mid-gray);margin-bottom:0.35rem;">Source: ' + escapeHtml(usedType) + ' · ' + list.length + ' rows</div>';
+    h += '<div style="font-size:0.72rem;color:var(--mid-gray);margin-bottom:0.35rem;">Source: ' + escapeHtml(usedType) + ' · showing all ' + list.length + ' rows</div>';
   } else if (usedType === 'all') {
     h += '<div style="font-size:0.72rem;color:var(--mid-gray);margin-bottom:0.35rem;">Showing all imported rows (' + list.length + ') — import a matching report for a tighter fit.</div>';
   }
-  h += '<div style="overflow:auto;max-height:260px;"><table style="width:100%;font-size:0.75rem;border-collapse:collapse;"><thead><tr>';
-  keys.forEach(function(k) { h += '<th style="text-align:left;padding:4px;border-bottom:1px solid #ddd;">' + escapeHtml(k) + '</th>'; });
+  h += '<div style="overflow:auto;max-height:65vh;"><table style="width:100%;font-size:0.78rem;border-collapse:collapse;"><thead><tr>';
+  keys.forEach(function(k) { h += '<th style="text-align:left;padding:5px;border-bottom:1px solid #ddd;position:sticky;top:0;background:#fff;">' + escapeHtml(k) + '</th>'; });
   h += '</tr></thead><tbody>';
-  sample.forEach(function(r) {
+  list.forEach(function(r) {
     h += '<tr>';
-    keys.forEach(function(k) { h += '<td style="padding:4px;border-bottom:1px solid #f0f0f0;">' + escapeHtml(String((r.data || {})[k] || '')) + '</td>'; });
+    keys.forEach(function(k) { h += '<td style="padding:5px;border-bottom:1px solid #f0f0f0;">' + escapeHtml(String((r.data || {})[k] || '')) + '</td>'; });
     h += '</tr>';
   });
   h += '</tbody></table></div>';
@@ -1498,7 +1873,7 @@ async function importAdsCsv() {
   if (!fileEl || !fileEl.files || !fileEl.files[0]) { toast('Choose a CSV file'); return; }
   var file = fileEl.files[0];
   var text = await file.text();
-  toast('Importing…');
+  toast('Importing...');
   var r = await ajax({ action: 'import_ads_csv', report_type: type, filename: file.name, csv: text });
   if (r.error) { toast(r.error, 5000); return; }
   toast('Imported ' + (r.row_count || 0) + ' rows as ' + (r.report_type || type));
@@ -1533,7 +1908,7 @@ async function saveGoogleAdsSettings(opts) {
     if (r.googleAds && r.googleAds.hasRefreshToken) {
       toast('Saved — OAuth ready. Click Sync from Google now');
     } else if (r.googleAds && r.googleAds.clientId) {
-      toast('Saved. Client ID ends with: …' + r.googleAds.clientId.slice(-24));
+      toast('Saved. Client ID ends with: ...' + r.googleAds.clientId.slice(-24));
     } else {
       toast('Google Ads settings saved');
     }
@@ -1570,7 +1945,7 @@ async function authorizeGoogleAds() {
 }
 
 async function syncGoogleAds() {
-  toast('Syncing from Google Ads…');
+  toast('Syncing from Google Ads...');
   var r = await ajax({ action: 'sync_google_ads' });
   if (r.error) { toast(r.error, 6000); await loadDashboard(); return; }
   var parts = (r.reports || []).map(function(x) { return x.type + ':' + x.rows; });
@@ -1580,8 +1955,8 @@ async function syncGoogleAds() {
 
 async function listGoogleAdsAccounts() {
   var box = document.getElementById('gadsAccountList');
-  if (box) box.innerHTML = '<div style="font-size:0.8rem;color:var(--mid-gray);">Asking Google which accounts this login can see…</div>';
-  toast('Listing Google Ads accounts…');
+  if (box) box.innerHTML = '<div style="font-size:0.8rem;color:var(--mid-gray);">Asking Google which accounts this login can see...</div>';
+  toast('Listing Google Ads accounts...');
   var r = await ajax({ action: 'list_google_ads_accounts' });
   if (r.error) {
     if (box) box.innerHTML = '<div style="color:#a33b2b;font-size:0.82rem;">' + escapeHtml(r.error) + '</div>';
@@ -1594,7 +1969,7 @@ async function listGoogleAdsAccounts() {
     box.innerHTML = '<div style="font-size:0.82rem;color:#a33b2b;">Google returned zero accounts for this OAuth login. Open Ads with the Google account that owns your keyword account, or link that account under your manager.</div>';
     return;
   }
-  var h = '<div style="font-size:0.78rem;color:var(--mid-gray);margin-bottom:0.45rem;">Click an account to use it, then Save → Sync.</div>';
+  var h = '<div style="font-size:0.78rem;color:var(--mid-gray);margin-bottom:0.45rem;">Click an account to use it, then Save -> Sync.</div>';
   accounts.forEach(function(a) {
     var label = (a.name || '(unnamed)') + (a.manager ? ' · MANAGER' : '');
     var meta = a.manager
@@ -1646,17 +2021,20 @@ function renderSemrush() {
     if (intentNeedle && String(k.intent || '').toLowerCase().indexOf(intentNeedle) < 0) return false;
     return true;
   });
+  filtered = sortSemKeywords(filtered);
   var keepers = keywords.filter(function(k) { return Number(k.keep) === 1; });
   var negatives = keywords.filter(function(k) { return Number(k.negative) === 1; });
 
   var html = '<div class="page-header"><div class="page-title">SEMrush</div>';
-  html += '<div style="font-size:0.85rem;color:var(--mid-gray);margin-top:0.35rem;">Upload keyword CSV → filter by volume / KD / CPC / junk words → mark Keepers & Negatives. API units later.</div></div>';
+  html += '<div style="font-size:0.85rem;color:var(--mid-gray);margin-top:0.35rem;">Upload keyword CSV -> filter by volume / KD / CPC / junk words -> mark Keepers & Negatives. API units later.</div></div>';
 
   html += '<div class="card" style="margin-bottom:1rem;"><div class="card-header"><div class="card-title">Import + filters</div></div>';
   html += '<div style="padding:1rem 1.5rem;">';
   html += '<div class="form-row" style="gap:0.75rem;flex-wrap:wrap;align-items:end;margin-bottom:1rem;">';
   html += '<div class="form-group" style="flex:1;min-width:220px;"><label>SEMrush CSV</label><input type="file" id="semCsvFile" accept=".csv,text/csv"/></div>';
   html += '<button type="button" class="btn btn-teal" onclick="importSemrushCsv()">Import</button>';
+  html += '<button type="button" class="btn btn-ghost" onclick="exportSemKeepers()">Export keepers</button>';
+  html += '<button type="button" class="btn btn-ghost" onclick="exportSemNegatives()">Export negative list</button>';
   if (imports.length) html += '<button type="button" class="btn btn-red" onclick="clearSemrushData()">Clear keywords</button>';
   html += '</div>';
   html += '<div class="form-row" style="gap:0.75rem;flex-wrap:wrap;align-items:end;">';
@@ -1685,7 +2063,8 @@ function renderSemrush() {
 
   html += '<div class="card"><div class="card-header"><div class="card-title">Filtered keywords</div></div>';
   html += '<div class="table-wrap" style="max-height:480px;overflow:auto;"><table><thead><tr>';
-  html += '<th>Keyword</th><th>Vol</th><th>KD</th><th>CPC</th><th>Intent</th><th></th></tr></thead><tbody>';
+  html += semSortTh('Keyword', 'keyword') + semSortTh('Vol', 'volume') + semSortTh('KD', 'kd') + semSortTh('CPC', 'cpc') + semSortTh('Intent', 'intent');
+  html += '<th></th></tr></thead><tbody>';
   if (!filtered.length) {
     html += '<tr><td colspan="6" style="color:var(--mid-gray);padding:1rem;">Import a SEMrush keyword CSV to begin.</td></tr>';
   } else {
@@ -1709,6 +2088,51 @@ function renderSemrush() {
   el.innerHTML = html;
 }
 
+var SEM_SORT = { key: 'volume', dir: 'desc' };
+
+function semSortTh(label, key) {
+  var active = SEM_SORT.key === key;
+  var ind = active ? (SEM_SORT.dir === 'asc' ? '↑' : '↓') : '';
+  return '<th class="sortable' + (active ? ' active' : '') + '" onclick="setSemSort(\'' + key + '\')">' +
+    label + (ind ? '<span class="sort-ind">' + ind + '</span>' : '') + '</th>';
+}
+
+function setSemSort(key) {
+  if (SEM_SORT.key === key) {
+    SEM_SORT.dir = SEM_SORT.dir === 'asc' ? 'desc' : 'asc';
+  } else {
+    SEM_SORT.key = key;
+    SEM_SORT.dir = (key === 'keyword' || key === 'intent') ? 'asc' : 'desc';
+  }
+  renderSemrush();
+}
+
+function sortSemKeywords(rows) {
+  var key = SEM_SORT.key || 'volume';
+  var dir = SEM_SORT.dir === 'asc' ? 1 : -1;
+  var numeric = key === 'volume' || key === 'kd' || key === 'cpc';
+  return rows.slice().sort(function(a, b) {
+    var av = a[key], bv = b[key];
+    if (numeric) {
+      var an = av == null || av === '' ? null : Number(av);
+      var bn = bv == null || bv === '' ? null : Number(bv);
+      var aMiss = an == null || !Number.isFinite(an);
+      var bMiss = bn == null || !Number.isFinite(bn);
+      if (aMiss && bMiss) return 0;
+      if (aMiss) return 1;
+      if (bMiss) return -1;
+      if (an === bn) return 0;
+      return an < bn ? -dir : dir;
+    }
+    var as = String(av || '').toLowerCase();
+    var bs = String(bv || '').toLowerCase();
+    if (!as && !bs) return 0;
+    if (!as) return 1;
+    if (!bs) return -1;
+    return as < bs ? -dir : (as > bs ? dir : 0);
+  });
+}
+
 async function importSemrushCsv() {
   var fileEl = document.getElementById('semCsvFile');
   if (!fileEl || !fileEl.files || !fileEl.files[0]) { toast('Choose a CSV file'); return; }
@@ -1716,7 +2140,7 @@ async function importSemrushCsv() {
   var text = await file.text();
   var r = await ajax({ action: 'import_semrush_csv', filename: file.name, csv: text });
   if (r.error) { toast(r.error); return; }
-  toast('Imported ' + (r.row_count || 0) + ' rows');
+  toast('Loaded ' + (r.row_count || 0) + ' keywords (replaced previous)' + (r.parse_mode === 'headerless' ? ' · headerless CSV' : ''));
   await loadDashboard();
 }
 
@@ -1732,6 +2156,90 @@ async function saveSemrushFilters() {
   if (r.error) { toast(r.error); return; }
   toast('Filters saved');
   await loadDashboard();
+}
+
+function downloadTextFile(filename, text) {
+  var blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(function() { URL.revokeObjectURL(url); }, 5000);
+}
+
+// City-specific terms get exact match; everything else phrase match.
+var SEM_CITY_RE = /(nyc|new york|scarsdale|chappaqua|winnetka|westfield|rhinebeck|ho-ho-kus|saddle river|naperville|evanston|armonk|agoura hills|beverly hills|san diego|porter ranch|del mar)/i;
+
+function exportSemKeepers() {
+  var rows = (ARK.semrushKeywords || []).filter(function(k) { return Number(k.keep) === 1; });
+  if (!rows.length) { toast('No keepers marked — use Keep on rows first'); return; }
+  var seen = {};
+  var lines = [];
+  rows.slice().sort(function(a, b) { return (Number(b.volume) || 0) - (Number(a.volume) || 0); }).forEach(function(k) {
+    var kw = String(k.keyword || '').trim().toLowerCase();
+    if (!kw || seen[kw]) return;
+    seen[kw] = 1;
+    lines.push(SEM_CITY_RE.test(kw) ? '[' + kw + ']' : '"' + kw + '"');
+  });
+  downloadTextFile('google-ads-keepers.txt', lines.join('\n'));
+  toast('Exported ' + lines.length + ' keywords — paste into Google Ads (phrase in quotes, exact in brackets)');
+}
+
+var SEM_NEGATIVE_LIST = [
+  // Freebie / DIY
+  'free', 'tips', 'tricks', 'reddit', 'quora', 'forum', 'blog', 'pdf', 'book', 'books',
+  'app', 'apps', 'download', 'youtube', 'video', 'videos', 'course', 'class', 'online course',
+  'self help', 'diy', 'at home', 'podcast', 'podcasts', 'audiobook', 'audio', 'mp3',
+  'spotify', 'cd', 'workbook', 'worksheet', 'worksheets', 'ebook', 'kindle', 'amazon',
+  'guide', 'article', 'articles', 'story', 'stories', 'support group', 'exercises',
+  'techniques', 'breathing',
+  // Hypnotherapist-peer traffic
+  'script', 'scripts', 'training', 'certification', 'become a hypnotherapist',
+  // Medication
+  'medication', 'medications', 'meds', 'pill', 'pills', 'drug', 'drugs', 'xanax', 'valium',
+  'diazepam', 'ativan', 'benzo', 'prescription', 'dramamine', 'melatonin', 'alcohol',
+  'drink', 'drinking', 'propranolol', 'beta blocker', 'beta blockers', 'klonopin',
+  'lorazepam', 'ambien', 'ssri', 'antidepressant', 'antidepressants', 'cbd', 'gummies',
+  'weed', 'marijuana', 'supplement', 'supplements', 'vitamins',
+  // Research / definition
+  'what is', 'definition', 'meaning', 'wikipedia', 'wiki', 'statistics', 'stats', 'facts',
+  'symptoms', 'symptom', 'causes', 'cause', 'why do', 'is it normal', 'quiz', 'test',
+  'dsm', 'research', 'study', 'studies', 'psychology', 'how common', 'percentage',
+  // Wrong audience
+  'jobs', 'career', 'salary', 'hiring', 'pilot', 'flight attendant', 'cabin crew',
+  'kids', 'kid', 'child', 'children', 'teen', 'teenager', 'toddler', 'baby',
+  'dog', 'cat', 'pet', 'insurance', 'medicare', 'medicaid', 'spanish', 'espanol',
+  // Wrong topic / entertainment
+  'turbulence video', 'plane crash', 'crash video', 'dream', 'dreams', 'meme', 'funny',
+  'quotes', 'quote', 'song', 'songs', 'lyrics', 'movie', 'movies', 'film', 'insects',
+  'bugs', 'heights', 'tiktok', 'instagram', 'netflix', 'documentary', 'gif', 'cartoon',
+  'joke', 'jokes', 'game', 'games',
+  // Tech-solution seekers
+  'vr', 'virtual reality', 'simulator', 'flight simulator', 'ai',
+  // Competitor programs + airline brands
+  'soar', 'tom bunn', 'dial', 'fearless flyer',
+  'delta', 'united', 'american airlines', 'southwest', 'jetblue', 'british airways',
+  'ryanair', 'easyjet', 'alaska airlines', 'spirit airlines', 'frontier', 'emirates',
+  'qantas', 'lufthansa', 'klm', 'air france', 'air canada', 'turkish airlines',
+  // Local-intent leftovers
+  'near me', 'cheap'
+];
+
+function exportSemNegatives() {
+  var extra = (ARK.semrushKeywords || []).filter(function(k) { return Number(k.negative) === 1; })
+    .map(function(k) { return String(k.keyword || '').trim().toLowerCase(); }).filter(Boolean);
+  var seen = {};
+  var lines = [];
+  SEM_NEGATIVE_LIST.concat(extra).forEach(function(w) {
+    if (!w || seen[w]) return;
+    seen[w] = 1;
+    lines.push(w);
+  });
+  downloadTextFile('google-ads-negatives.txt', lines.join('\n'));
+  toast('Exported ' + lines.length + ' negatives — add as campaign-level negative keyword list');
 }
 
 async function markSemKeyword(id, kind) {
@@ -2253,7 +2761,7 @@ function renderEmailNav(el) {
     { slug: 'all', name: 'All' },
     { slug: 'trash', name: 'Trash' }
   ];
-  var html = '<button type="button" class="email-compose-btn" onclick="toggleEmailCompose(true)">✎ Compose</button>';
+  var html = '<button type="button" class="email-compose-btn" onclick="toggleEmailCompose(true)">Γ£Ä Compose</button>';
   systemNav.forEach(function(f) {
     var active = f.slug === EMAIL_FOLDER ? ' active' : '';
     var count = f.slug === 'all'
@@ -2270,7 +2778,7 @@ function renderEmailNav(el) {
   html += '<div class="email-nav-section"><span>Folders</span>';
   html += '<select id="emailFolderTool" onchange="onEmailFolderTool(this.value); this.value=\'\';" title="Folder actions">';
   html += '<option value="">+</option>';
-  html += '<option value="__new__">New folder…</option>';
+  html += '<option value="__new__">New folder...</option>';
   (EMAIL_FOLDER_META.custom || []).forEach(function(f) {
     html += '<option value="__del__:' + escapeHtml(f.slug) + '">Delete ' + escapeHtml(f.name) + ' (' + (f.count || 0) + ')</option>';
   });
@@ -2282,7 +2790,7 @@ function renderEmailNav(el) {
     html += '<div class="email-nav-folder">';
     html += '<button type="button" class="email-nav-item' + active + '" onclick="switchEmailFolder(\'' + escapeHtml(f.slug) + '\')">' +
       escapeHtml(f.name) + count + '</button>';
-    html += '<button type="button" class="email-nav-del" title="Delete folder" onclick="event.stopPropagation();deleteEmailFolder(\'' + escapeHtml(f.slug) + '\')">×</button>';
+    html += '<button type="button" class="email-nav-del" title="Delete folder" onclick="event.stopPropagation();deleteEmailFolder(\'' + escapeHtml(f.slug) + '\')">├ù</button>';
     html += '</div>';
   });
   el.innerHTML = html;
@@ -2305,14 +2813,14 @@ function renderEmail() {
   html += '<label>Domain<select id="emailDomainSelect" onchange="switchEmailDomain(this.value)"></select></label>';
   html += '<div class="email-mailbox-tools">';
   html += '<button type="button" class="btn btn-ghost" onclick="createEmailDomain()" title="Add a domain">+ Domain</button>';
-  html += '<button type="button" class="btn btn-ghost" onclick="deleteEmailDomain()" title="Remove selected domain">− Domain</button>';
+  html += '<button type="button" class="btn btn-ghost" onclick="deleteEmailDomain()" title="Remove selected domain">ΓêÆ Domain</button>';
   html += '</div>';
   html += '<label>Mailbox<select id="emailMailboxSelect" onchange="switchEmailMailbox(this.value)"></select></label>';
   html += '<div class="email-mailbox-tools">';
   html += '<button type="button" class="btn btn-ghost" onclick="createEmailMailbox()" title="Add a mailbox address">+ Email</button>';
-  html += '<button type="button" class="btn btn-ghost" onclick="deleteEmailMailbox()" title="Remove selected mailbox">− Email</button>';
+  html += '<button type="button" class="btn btn-ghost" onclick="deleteEmailMailbox()" title="Remove selected mailbox">ΓêÆ Email</button>';
   html += '</div>';
-  html += '<input type="search" id="emailFilter" placeholder="Search mail…" value="' + escapeHtml(EMAIL_FILTER) + '" oninput="EMAIL_FILTER=this.value;renderEmailList()" title="Filters the conversation list by sender, subject, or preview"/>';
+  html += '<input type="search" id="emailFilter" placeholder="Search mail..." value="' + escapeHtml(EMAIL_FILTER) + '" oninput="EMAIL_FILTER=this.value;renderEmailList()" title="Filters the conversation list by sender, subject, or preview"/>';
   html += '<button type="button" class="btn btn-ghost" onclick="loadEmailInbox()">Refresh</button>';
   html += '<button type="button" class="btn btn-ghost" style="display:none;" id="emailFoldersMobileBtn" onclick="document.getElementById(\'emailLayout\').classList.toggle(\'show-nav\')">Folders</button>';
   html += '</div>';
@@ -2321,11 +2829,11 @@ function renderEmail() {
     html += '<div class="email-compose" id="emailCompose">';
     html += '<div class="email-compose-row"><label>From</label><input type="text" id="composeFrom" value="' + escapeHtml(EMAIL_MAILBOX) + '" readonly style="opacity:0.85;"/></div>';
     html += '<div class="email-compose-row"><label>To</label><div class="email-to-wrap">';
-    html += '<input type="email" id="composeTo" placeholder="Start typing a name or email…" autocomplete="off" oninput="onComposeToInput(event)" onkeydown="onComposeToKey(event)" onfocus="onComposeToInput(event)" onblur="setTimeout(hideComposeAc,150)"/>';
+    html += '<input type="email" id="composeTo" placeholder="Start typing a name or email..." autocomplete="off" oninput="onComposeToInput(event)" onkeydown="onComposeToKey(event)" onfocus="onComposeToInput(event)" onblur="setTimeout(hideComposeAc,150)"/>';
     html += '<div class="email-ac" id="composeAc"></div>';
     html += '</div></div>';
     html += '<div class="email-compose-row"><label>Subject</label><input type="text" id="composeSubject" placeholder="Subject"/></div>';
-    html += '<div class="email-compose-row"><label>Message</label><textarea id="composeBody" placeholder="Write your message…"></textarea></div>';
+    html += '<div class="email-compose-row"><label>Message</label><textarea id="composeBody" placeholder="Write your message..."></textarea></div>';
     html += '<div class="email-compose-row"><label>Attach</label><div>';
     html += '<input type="file" id="composeFiles" multiple accept="image/*,.pdf,.doc,.docx,.txt,.csv,.zip,application/*" onchange="onComposeFiles(event)"/>';
     html += '<div class="email-attach-list" id="composeAttachList"></div>';
@@ -2345,7 +2853,7 @@ function renderEmail() {
     html += '<div class="email-empty">Select a conversation</div>';
   } else {
     html += '<div class="email-detail-head">';
-    html += '<button type="button" class="btn btn-ghost" style="margin-bottom:0.35rem;display:none;" id="emailBackBtn" onclick="EMAIL_SELECTED_THREAD=null;EMAIL_SELECTED=null;EMAIL_THREAD_MESSAGES=[];EMAIL_REPLY_OPEN=false;document.getElementById(\'emailLayout\').classList.remove(\'show-detail\');renderEmail()">← Conversations</button>';
+    html += '<button type="button" class="btn btn-ghost" style="margin-bottom:0.35rem;display:none;" id="emailBackBtn" onclick="EMAIL_SELECTED_THREAD=null;EMAIL_SELECTED=null;EMAIL_THREAD_MESSAGES=[];EMAIL_REPLY_OPEN=false;document.getElementById(\'emailLayout\').classList.remove(\'show-detail\');renderEmail()">ΓåÉ Conversations</button>';
     html += '<div style="font-size:0.95rem;font-weight:500;margin-bottom:0.2rem;" id="emailDetailSubject"></div>';
     html += '<div class="email-meta" id="emailDetailMeta"></div>';
     html += '<div class="email-actions" id="emailDetailActions"></div>';
@@ -2354,7 +2862,7 @@ function renderEmail() {
     if (EMAIL_REPLY_OPEN && EMAIL_FOLDER !== 'sent') {
       html += '<div class="email-reply">';
       html += '<div class="email-meta" style="margin-bottom:0.35rem;">Replying as ' + escapeHtml(EMAIL_MAILBOX) + '</div>';
-      html += '<textarea id="emailReplyText" placeholder="Write a reply…"></textarea>';
+      html += '<textarea id="emailReplyText" placeholder="Write a reply..."></textarea>';
       html += '<div style="margin-top:0.45rem;"><input type="file" id="replyFiles" multiple accept="image/*,.pdf,.doc,.docx,.txt,.csv,.zip,application/*" onchange="onReplyFiles(event)"/>';
       html += '<div class="email-attach-list" id="replyAttachList"></div></div>';
       html += '<div style="display:flex;justify-content:space-between;align-items:center;gap:0.5rem;margin-top:0.45rem;">';
@@ -2444,7 +2952,7 @@ function renderComposeAttachList() {
   el.innerHTML = EMAIL_COMPOSE_FILES.map(function(f, i) {
     var kb = Math.max(1, Math.round(f.size / 1024));
     return '<span class="email-attach-chip">' + escapeHtml(f.name) + ' (' + kb + ' KB)'
-      + '<button type="button" onclick="removeComposeFile(' + i + ')" title="Remove">×</button></span>';
+      + '<button type="button" onclick="removeComposeFile(' + i + ')" title="Remove">├ù</button></span>';
   }).join('');
 }
 
@@ -2473,7 +2981,7 @@ function renderReplyAttachList() {
   el.innerHTML = EMAIL_REPLY_FILES.map(function(f, i) {
     var kb = Math.max(1, Math.round(f.size / 1024));
     return '<span class="email-attach-chip">' + escapeHtml(f.name) + ' (' + kb + ' KB)'
-      + '<button type="button" onclick="removeReplyFile(' + i + ')" title="Remove">×</button></span>';
+      + '<button type="button" onclick="removeReplyFile(' + i + ')" title="Remove">├ù</button></span>';
   }).join('');
 }
 
@@ -2600,7 +3108,7 @@ async function sendComposeEmail() {
     return;
   }
   if (btn) btn.disabled = true;
-  if (status) { status.textContent = 'Sending…'; status.style.color = ''; }
+  if (status) { status.textContent = 'Sending...'; status.style.color = ''; }
   try {
     var attachments = await filesToAttachments(EMAIL_COMPOSE_FILES);
     var payload = {
@@ -2659,7 +3167,7 @@ function renderEmailList() {
       html += '<button type="button" class="btn btn-red" onclick="emailBulkAction(\'delete\')">Delete</button>';
     }
     html += '<select id="emailBulkMove" onchange="emailBulkAction(\'move\', this.value); this.value=\'\';">';
-    html += '<option value="">Move to…</option>';
+    html += '<option value="">Move to...</option>';
     [{ slug: 'inbox', name: 'Inbox' }, { slug: 'archive', name: 'Archive' }, { slug: 'trash', name: 'Trash' }]
       .concat(EMAIL_FOLDER_META.custom || []).forEach(function(f) {
         if (f.slug === EMAIL_FOLDER) return;
@@ -2949,7 +3457,7 @@ function getDriveClientId() {
 function ensureDriveClientId() {
   var id = getDriveClientId();
   if (id) return id;
-  var entered = prompt('Paste your Google OAuth Client ID to save files to Drive (Google Cloud → Credentials → OAuth client). Leave blank to cancel.');
+  var entered = prompt('Paste your Google OAuth Client ID to save files to Drive (Google Cloud -> Credentials -> OAuth client). Leave blank to cancel.');
   if (!entered || !entered.trim()) return '';
   try { localStorage.setItem('emailGoogleDriveClientId', entered.trim()); } catch (e) {}
   return entered.trim();
@@ -2964,7 +3472,7 @@ async function saveEmailAttToDrive(id) {
   var clientId = ensureDriveClientId();
   if (!clientId) return;
   try {
-    toast('Connecting to Google…');
+    toast('Connecting to Google...');
     await loadGoogleIdentity();
     var token = await new Promise(function(resolve, reject) {
       var client = google.accounts.oauth2.initTokenClient({
@@ -3087,7 +3595,7 @@ function renderEmailActions(m) {
   var moveOpts = [{ slug: 'inbox', name: 'Inbox' }, { slug: 'archive', name: 'Archive' }, { slug: 'trash', name: 'Trash' }]
     .concat(EMAIL_FOLDER_META.custom || []);
   html += '<select class="email-move-select" id="emailMoveSelect" onchange="emailMoveTo(this.value); this.value=\'\';">';
-  html += '<option value="">Move to…</option>';
+  html += '<option value="">Move to...</option>';
   moveOpts.forEach(function(f) {
     if (f.slug === EMAIL_FOLDER) return;
     html += '<option value="' + escapeHtml(f.slug) + '">' + escapeHtml(f.name) + '</option>';
@@ -3277,7 +3785,7 @@ function deleteEmailDomain() {
 
   if (protection) {
     var serious =
-      '⚠ SERIOUS WARNING — THIS DOMAIN IS USED IN YOUR PROGRAMS\n\n' +
+      'ΓÜá SERIOUS WARNING — THIS DOMAIN IS USED IN YOUR PROGRAMS\n\n' +
       domain + '\n\n' +
       protection + '\n\n' +
       'Removing it from this list does NOT change Cloudflare DNS or Email Routing.\n' +
@@ -3299,7 +3807,7 @@ function deleteEmailDomain() {
 
   saveRemovedDomain(domain);
 
-  // hide mailboxes for this domain from the active list (same as − Email for each)
+  // hide mailboxes for this domain from the active list (same as ΓêÆ Email for each)
   boxes.forEach(function(b) {
     if (b.builtin) {
       try {
@@ -3374,7 +3882,7 @@ function deleteEmailMailbox() {
 
   if (protection) {
     var serious =
-      '⚠ SERIOUS WARNING — THIS ADDRESS IS USED IN YOUR PROGRAMS\n\n' +
+      'ΓÜá SERIOUS WARNING — THIS ADDRESS IS USED IN YOUR PROGRAMS\n\n' +
       email + '\n\n' +
       protection + '\n\n' +
       'Deleting it from this list does NOT stop Cloudflare routing or code that sends from it.\n' +
@@ -3466,7 +3974,7 @@ async function sendEmailReply() {
     return;
   }
   if (btn) btn.disabled = true;
-  if (status) { status.textContent = 'Sending…'; status.style.color = ''; }
+  if (status) { status.textContent = 'Sending...'; status.style.color = ''; }
   try {
     var replyToId = EMAIL_SELECTED.id;
     for (var i = EMAIL_THREAD_MESSAGES.length - 1; i >= 0; i--) {
@@ -3545,11 +4053,21 @@ function switchTab(tab, el) {
     if (nav) nav.classList.add('active');
   }
   var main = document.querySelector('.main');
-  if (main) main.classList.toggle('email-mode', tab === 'email');
+  if (main) {
+    main.classList.toggle('email-mode', tab === 'email');
+    main.classList.toggle('evolve-mode', tab === 'evolve');
+  }
   if (tab === 'schedule') renderSchedule();
   if (tab === 'email') loadEmailInbox();
   if (tab === 'semrush') renderSemrush();
   if (tab === 'ads') renderAds();
+  if (tab === 'evolve') {
+    EVOLVE_FORCE_SCROLL = true;
+    renderEvolve();
+  } else if (EVOLVE_POLL_TIMER) {
+    clearInterval(EVOLVE_POLL_TIMER);
+    EVOLVE_POLL_TIMER = null;
+  }
   if (window.innerWidth <= 900) {
     var sb = document.getElementById('sidebar');
     if (sb && sb.classList.contains('open')) toggleSidebar();
@@ -3588,7 +4106,7 @@ function updateStatus(id, status) {
 }
 
 function deleteConsult(id) {
-  if (!confirm('Delete this consultation?')) return;
+  if (!confirm('Delete this consultation?\n\nRelated unpaid payment links and therapy sessions will also be removed. Paid payment records are kept.')) return;
   ajax({ ajax_action: 'delete_consultation', id: id }).then(function(res) {
     if (res.error) { toast(res.error); return; }
     CONSULTATIONS = CONSULTATIONS.filter(function(c) { return c.id != id; });
@@ -3602,6 +4120,7 @@ function clearVisitorLog() {
   ajax({ ajax_action: 'clear_visitor_log' }).then(function(res) {
     if (res.error) { toast(res.error); return; }
     VISITOR_LOGS = [];
+    PAGE_HITS = [];
     toast('Log cleared');
     refreshViews();
   });
@@ -3612,6 +4131,18 @@ function deleteVisitor(vid) {
   ajax({ ajax_action: 'delete_visitor', vid: vid }).then(function(res) {
     if (res.error) { toast(res.error); return; }
     VISITOR_LOGS = VISITOR_LOGS.filter(function(v) { return v.vid !== vid; });
+    PAGE_HITS = (PAGE_HITS || []).filter(function(h) { return h.vid !== vid; });
+    toast('Deleted');
+    refreshViews();
+  });
+}
+
+function deletePageHit(id) {
+  id = parseInt(id, 10);
+  if (!id || !confirm('Delete this page hit?')) return;
+  ajax({ ajax_action: 'delete_page_hit', id: id }).then(function(res) {
+    if (res.error) { toast(res.error); return; }
+    PAGE_HITS = (PAGE_HITS || []).filter(function(h) { return h.id != id; });
     toast('Deleted');
     refreshViews();
   });
@@ -3705,10 +4236,20 @@ function viewConsult(id) {
     ['Life impact', c.q_impact || '—'], ['Cost to life', c.q_cost || '—'],
     ['Without fear', c.q_outcome || '—'], ['Previous therapies', c.q_previous || '—']
   ];
+  if (c.gclid || c.utm_source) {
+    fields.push(['ADS_SEP', '']);
+    fields.push(['Source', (c.utm_source || '—') + (c.utm_medium ? ' / ' + c.utm_medium : '')]);
+    fields.push(['Campaign', c.utm_campaign || '—']);
+    fields.push(['Keyword', c.utm_term || '—']);
+    fields.push(['Landing page', c.landing_page || '—']);
+    if (c.gclid) fields.push(['Google click', 'yes (gclid captured)']);
+  }
   var html = '';
   fields.forEach(function(f) {
     if (f[0] === 'SEP') {
       html += '<div style="font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);margin:1rem 0 0.5rem;">Pre-Consultation Answers</div>';
+    } else if (f[0] === 'ADS_SEP') {
+      html += '<div style="font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);margin:1rem 0 0.5rem;">How They Found You (Ads)</div>';
     } else {
       html += '<div class="detail-row"><div class="detail-label">' + escapeHtml(f[0]) + '</div><div class="detail-value">' + escapeHtml(f[1] || '—') + '</div></div>';
     }
@@ -3795,7 +4336,7 @@ function generatePayLink() {
     return;
   }
   var btn = document.querySelector('#paymentModal .btn-gold');
-  if (btn) { btn.disabled = true; btn.textContent = 'Creating…'; }
+  if (btn) { btn.disabled = true; btn.textContent = 'Creating...'; }
   var payload = {
     ajax_action: 'gen_payment',
     name: name,
@@ -4050,7 +4591,7 @@ if (!resetToken) {
     var params = new URLSearchParams(window.location.search);
     var oauthCode = params.get('code');
     if (oauthCode && (params.get('scope') || params.get('state') === 'ads' || params.get('authuser') != null)) {
-      toast('Finishing Google authorization…');
+      toast('Finishing Google authorization...');
       var ex = await ajax({ action: 'exchange_google_ads_code', code: oauthCode });
       history.replaceState({}, '', location.pathname);
       if (ex.error) {

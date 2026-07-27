@@ -130,6 +130,23 @@ CREATE TABLE IF NOT EXISTS visitor_messages (
     created_at TEXT DEFAULT CURRENT_TIMESTAMP
 );
 
+-- Signed testimonial / media releases (written, video, etc.)
+CREATE TABLE IF NOT EXISTS testimonial_releases (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    full_name TEXT NOT NULL,
+    email TEXT NOT NULL,
+    phone TEXT,
+    display_name TEXT,
+    media_types TEXT,
+    notes TEXT,
+    agreement_version TEXT,
+    signature_data TEXT,
+    page_url TEXT,
+    ip_address TEXT,
+    user_agent TEXT,
+    signed_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
+
 CREATE TABLE IF NOT EXISTS settings (
     setting_key TEXT PRIMARY KEY,
     setting_value TEXT

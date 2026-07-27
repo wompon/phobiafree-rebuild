@@ -37,7 +37,8 @@
       "/my_fear",
       "/my_fear/",
       "/my_fear.php",
-      "/fear-of-*"
+      "/fear-of-*",
+      "/pfl-*"
     ]
   },
   "routes": [

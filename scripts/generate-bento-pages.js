@@ -938,11 +938,19 @@ function main() {
 
   console.log(`generated ${PHOBIAS.length} page packs`);
 
-  // Services page (static HTML list — no JS needed to show the menu)
+  // Services page — thumbnail gallery of every phobia site
   const servicesTpl = fs.readFileSync(path.join(BENTO, 'services.template.html'), 'utf8');
-  const servicesHtml = PHOBIAS.map(
-    (p) => `      <a class="service-link" href="/${p.slug}"><span>${p.label}</span></a>`
-  ).join('\n');
+  const servicesHtml = PHOBIAS.map((p) => {
+    const src = `/${p.slug}/img/${p.image}`;
+    return [
+      `      <a class="service-thumb" href="/${p.slug}">`,
+      `        <span class="service-thumb-media">`,
+      `          <img src="${src}" alt="" loading="lazy" decoding="async" width="360" height="450">`,
+      `        </span>`,
+      `        <span class="service-thumb-label">${p.label}</span>`,
+      `      </a>`
+    ].join('\n');
+  }).join('\n');
   fs.writeFileSync(
     path.join(PUBLIC, 'services.html'),
     servicesTpl.replace('__SERVICES_HTML__', servicesHtml)

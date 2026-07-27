@@ -46,7 +46,7 @@
     <a href="#pricing" onclick="openInvestment(event)">Pricing</a>
     <a href="/services">Services</a>
   </nav>
-  <a class="nav-cta btn-book" href="#" onclick="openModal(event)">Book Consultation</a>
+  <a class="nav-cta btn-book" href="#" onclick="openModal(event)">Book Free Consultation</a>
 </header>
 
 
@@ -58,7 +58,7 @@
     <h1>Take the wheel. Calm and confident. Finally.</h1>
     <p>One peaceful Zoom session. No trance. No reliving trauma. No long-term therapy — a calmer, freer you on your terms.</p>
     <div class="hero-actions">
-      <a class="btn btn-book" href="#" onclick="openModal(event)">Book Consultation</a>
+      <a class="btn btn-book" href="#" onclick="openModal(event)">Book Free Consultation</a>
     </div>
   </div>
 </section>
@@ -133,7 +133,7 @@
         <p>A quick chat over Zoom. You share your fear, your history, and how you want to feel instead.</p>
         <span class="chip">Complimentary · No obligation</span>
         <div class="step-cta">
-          <a class="btn btn-book" href="#" onclick="openModal(event)">Book Consultation</a>
+          <a class="btn btn-book" href="#" onclick="openModal(event)">Book Free Consultation</a>
         </div>
       </article>
       <article class="tile span-4">
@@ -223,7 +223,7 @@
         <h2>Your next drive is one session away</h2>
         <p class="lead">The consultation is complimentary, the process is peaceful, and your satisfaction is guaranteed.</p>
         <div class="cta-actions">
-          <a class="btn btn-solid btn-book" href="#" onclick="openModal(event)">Book Consultation</a>
+          <a class="btn btn-solid btn-book" href="#" onclick="openModal(event)">Book Free Consultation</a>
         </div>
         <p class="footnote">"I can't remember ever being afraid of driving" - the most common thing clients express after their session.</p>
       </article>
@@ -378,7 +378,7 @@
       <label for="sms_consent">I agree to receive text messages from PhobiaFree.life regarding my consultation appointment, session reminders, and follow-up. Message and data rates may apply. Reply STOP to unsubscribe.</label>
     </div>
 
-    <button type="button" class="form-submit btn-book" id="consultSubmitBtn" onclick="submitConsultForm(event)">Book Consultation</button>
+    <button type="button" class="form-submit btn-book" id="consultSubmitBtn" onclick="submitConsultForm(event)">Book Free Consultation</button>
     <button type="button" class="form-submit btn-book" id="consultDetailsBtn" onclick="submitConsultDetails(event)" hidden>Save answers</button>
     <button type="button" class="form-skip" id="consultSkipBtn" onclick="finishConsultFlow()" hidden>Skip for now</button>
     <div id="consultMsg" class="consult-msg" hidden></div>
@@ -418,7 +418,7 @@
         </div>
         <h3>Book Consultation with future session</h3>
         <p>Schedule a consultation, then book an available session for a time that works for you.</p>
-        <button type="button" class="btn btn-solid" onclick="closeInvestment(); openModal(event);">Book Consultation</button>
+        <button type="button" class="btn btn-solid" onclick="closeInvestment(); openModal(event);">Book Free Consultation</button>
       </div>
 
       <div class="price-card">
@@ -431,7 +431,7 @@
         </div>
         <h3>Book Consultation with future session and leave an honest review</h3>
         <p>Schedule a consultation, then book an available session for a time that works for you.</p>
-        <button type="button" class="btn btn-solid" onclick="closeInvestment(); openModal(event);">Book Consultation</button>
+        <button type="button" class="btn btn-solid" onclick="closeInvestment(); openModal(event);">Book Free Consultation</button>
       </div>
 
       <div class="price-card">
@@ -550,7 +550,7 @@
     document.getElementById('consultConsent').hidden = false;
     document.getElementById('consultSubmitBtn').hidden = false;
     document.getElementById('consultSubmitBtn').disabled = false;
-    document.getElementById('consultSubmitBtn').textContent = 'Book Consultation';
+    document.getElementById('consultSubmitBtn').textContent = 'Book Free Consultation';
     document.getElementById('consultSubmitBtn').style.display = '';
     document.getElementById('consultDetailsBtn').hidden = true;
     document.getElementById('consultSkipBtn').hidden = true;
@@ -653,6 +653,22 @@
       sms_consent: true
     };
 
+    // Attach ad attribution captured on landing (tracker stores pf_attr) so the
+    // booking record shows which keyword/campaign paid for this consult.
+    try {
+      var _attr = JSON.parse(localStorage.getItem('pf_attr') || 'null');
+      if (_attr && (_attr.gclid || _attr.utm_source)) {
+        payload.gclid = _attr.gclid || '';
+        payload.utm_source = _attr.utm_source || '';
+        payload.utm_medium = _attr.utm_medium || '';
+        payload.utm_campaign = _attr.utm_campaign || '';
+        payload.utm_term = _attr.utm_term || '';
+        payload.utm_content = _attr.utm_content || '';
+        payload.landing_page = _attr.landing || '';
+        payload.attr_ts = _attr.ts || '';
+      }
+    } catch (e) {}
+
     if (PF_CONSULT_FORM === 'single') {
       var extras = collectExtras();
       for (var k in extras) payload[k] = extras[k];
@@ -702,14 +718,14 @@
         } else {
           showMsg(msg, res.message || 'Booking failed.', 'error');
           btn.disabled = false;
-          btn.textContent = 'Book Consultation';
+          btn.textContent = 'Book Free Consultation';
           if ((res.message || '').indexOf('slot was just taken') !== -1) loadSlots();
         }
       })
       .catch(function () {
         showMsg(msg, 'Something went wrong. Please try again or contact us directly.', 'error');
         btn.disabled = false;
-        btn.textContent = 'Book Consultation';
+        btn.textContent = 'Book Free Consultation';
       });
   }
 
@@ -807,11 +823,13 @@
     var el = document.getElementById('investmentModal');
     if (el) el.classList.add('active');
     document.body.style.overflow = 'hidden';
+    if (typeof window.pfTrackFlush === 'function') window.pfTrackFlush();
   };
 
   window.closeInvestment = function () {
     var el = document.getElementById('investmentModal');
     if (el) el.classList.remove('active');
+    if (typeof window.pfTrackFlush === 'function') window.pfTrackFlush();
     var consult = document.getElementById('consultModal');
     if (!consult || !consult.classList.contains('active')) {
       document.body.style.overflow = '';
@@ -827,9 +845,11 @@
   var navLinks = document.getElementById('navLinks');
   function setNavOpen(open) {
     if (!nav) return;
+    var was = nav.classList.contains('is-open');
     nav.classList.toggle('is-open', open);
     if (navToggle) navToggle.setAttribute('aria-expanded', open ? 'true' : 'false');
     if (navToggle) navToggle.setAttribute('aria-label', open ? 'Close menu' : 'Open menu');
+    if (was !== !!open && typeof window.pfTrackFlush === 'function') window.pfTrackFlush();
   }
   if (navToggle) {
     navToggle.addEventListener('click', function () {
@@ -1403,6 +1423,24 @@ setInterval(checkStatus, 3000);
 
 <script>
 (function () {
+  // Remember ad/campaign attribution (last touch) so the consult booking can
+  // report which keyword/campaign paid for it. Survives navigation between pages.
+  try {
+    var _aq = new URLSearchParams(window.location.search || '');
+    if (_aq.get('gclid') || _aq.get('utm_source')) {
+      localStorage.setItem('pf_attr', JSON.stringify({
+        gclid: _aq.get('gclid') || '',
+        utm_source: _aq.get('utm_source') || '',
+        utm_medium: _aq.get('utm_medium') || '',
+        utm_campaign: _aq.get('utm_campaign') || '',
+        utm_term: _aq.get('utm_term') || '',
+        utm_content: _aq.get('utm_content') || '',
+        landing: window.location.pathname || '/',
+        ts: new Date().toISOString()
+      }));
+    }
+  } catch (e) {}
+
   if (window.location.search.indexOf('notrack=1') !== -1) return;
   // Automation/headless browsers (Selenium, Playwright, Puppeteer, most crawlers)
   // set navigator.webdriver. Never track them — they're bots, not visitors.
@@ -1434,6 +1472,17 @@ setInterval(checkStatus, 3000);
   var INTERACT_KEY = 'pf_interacted';
   var hasInteracted = false;
   try { hasInteracted = sessionStorage.getItem(INTERACT_KEY) === '1'; } catch (e) {}
+  // Monotonic ping generation across same-tab navigations. Leave beacons from
+  // the previous page can arrive AFTER the next page's first ping; without this
+  // the leave would wipe the fresh live card (looks like "/services broke it").
+  var GEN_KEY = 'pf_gen';
+  var pingGen = 0;
+  try { pingGen = parseInt(sessionStorage.getItem(GEN_KEY) || '0', 10) || 0; } catch (e) {}
+  function nextGen() {
+    pingGen += 1;
+    try { sessionStorage.setItem(GEN_KEY, String(pingGen)); } catch (e) {}
+    return pingGen;
+  }
   function markActivity() {
     lastActivity = Date.now();
     idleLeft = false;
@@ -1476,13 +1525,31 @@ setInterval(checkStatus, 3000);
   }
 
   function selectorFor(el) {
+    // Build a path selector unique enough for the /visitors mirror to find the
+    // SAME element. A bare tag ('a') used to resolve to the first anchor on the
+    // page — the nav brand link — making the mirror navigate to /my_fear.
     try {
-      if (!el) return '';
-      if (el.id) return '#' + el.id;
-      if (el.className && typeof el.className === 'string') {
-        return el.tagName.toLowerCase() + '.' + el.className.trim().split(/\s+/)[0];
+      if (!el || !el.tagName) return '';
+      var path = [], t = el, depth = 0;
+      while (t && t.tagName && t.tagName !== 'HTML' && depth < 6) {
+        if (t.id) {
+          path.unshift('#' + ((window.CSS && CSS.escape) ? CSS.escape(t.id) : t.id));
+          break;
+        }
+        var seg = t.tagName.toLowerCase();
+        var p = t.parentElement;
+        if (p) {
+          var kids = p.children, n = 0, idx = 0;
+          for (var i = 0; i < kids.length; i++) {
+            if (kids[i].tagName === t.tagName) { n++; if (kids[i] === t) idx = n; }
+          }
+          if (n > 1) seg += ':nth-of-type(' + idx + ')';
+        }
+        path.unshift(seg);
+        if (t.tagName === 'BODY') break;
+        t = p; depth++;
       }
-      return el.tagName ? el.tagName.toLowerCase() : '';
+      return path.join('>');
     } catch (e) {
       return '';
     }
@@ -1522,6 +1589,12 @@ setInterval(checkStatus, 3000);
     return modal.querySelector('.modal-box');
   }
 
+  function getInvBox() {
+    var m = document.getElementById('investmentModal');
+    if (!m || !m.classList.contains('active')) return null;
+    return m.querySelector('.modal-box');
+  }
+
   function getScrollMetrics() {
     var box = getModalBox();
     if (box) {
@@ -1532,6 +1605,19 @@ setInterval(checkStatus, 3000);
         scrollPct: sp,
         modalScroll: true,
         section: 'consult-modal'
+      };
+    }
+    // Pricing modal open (and consult not on top): report ITS inner scroll so
+    // the mirror scrolls the modal, not the page frozen behind it.
+    var invBox = getInvBox();
+    if (invBox) {
+      var ish = invBox.scrollHeight - invBox.clientHeight;
+      var isp = ish > 0 ? Math.round((invBox.scrollTop / ish) * 1000) / 1000 : 0;
+      return {
+        scrollY: Math.round(invBox.scrollTop || 0),
+        scrollPct: isp,
+        modalScroll: false,
+        section: page
       };
     }
     var pageSh = document.documentElement.scrollHeight - window.innerHeight;
@@ -1546,10 +1632,17 @@ setInterval(checkStatus, 3000);
 
   function bindModalScroll() {
     var box = getModalBox();
-    if (!box || box._pfScrollBound) return;
-    box._pfScrollBound = true;
-    box.addEventListener('scroll', send, { passive: true });
-    modalScrollBound = true;
+    if (box && !box._pfScrollBound) {
+      box._pfScrollBound = true;
+      box.addEventListener('scroll', send, { passive: true });
+      modalScrollBound = true;
+    }
+    var im = document.getElementById('investmentModal');
+    var ibox = im && im.querySelector('.modal-box');
+    if (ibox && !ibox._pfScrollBound) {
+      ibox._pfScrollBound = true;
+      ibox.addEventListener('scroll', send, { passive: true });
+    }
   }
 
   window.pfTrackAttachModalScroll = function () {
@@ -1575,6 +1668,138 @@ setInterval(checkStatus, 3000);
       if (faqs[i].open) open.push(i);
     }
     return open;
+  }
+
+  // Consult modal "What is your phobia or fear?"
+  // Native OS pickers can't be mirrored (no hover/scroll events). Open an
+  // in-page listbox instead so selected row + list scroll are real DOM state.
+  var cfPhobiaOpen = false;
+  var cfPhobiaScroll = 0;
+  function getCfPhobiaSel() {
+    return document.getElementById('cf_phobia');
+  }
+  function getCfPhobia() {
+    var sel = getCfPhobiaSel();
+    if (!sel || sel.selectedIndex < 0) return '';
+    var opt = sel.options[sel.selectedIndex];
+    return (opt && (opt.getAttribute('data-slug') || opt.value)) || '';
+  }
+  function getCfPhobiaIdx() {
+    var sel = getCfPhobiaSel();
+    return sel ? sel.selectedIndex : -1;
+  }
+  function openCfPhobiaList(sel) {
+    if (!sel) return;
+    var n = Math.min(sel.options.length, 10);
+    sel.size = n;
+    sel.classList.add('pf-phobia-open');
+    cfPhobiaOpen = true;
+    paintCfPhobiaHighlight(sel);
+    try { sel.scrollIntoView({ block: 'nearest' }); } catch (e) {}
+  }
+  function closeCfPhobiaList(sel) {
+    if (!sel) return;
+    sel.size = 1;
+    sel.classList.remove('pf-phobia-open');
+    cfPhobiaOpen = false;
+    cfPhobiaScroll = 0;
+    paintCfPhobiaHighlight(sel); // clears row styles when collapsed
+  }
+  // Native listbox highlight is easy to lose under custom select CSS — paint it.
+  function paintCfPhobiaHighlight(sel) {
+    if (!sel) return;
+    var open = sel.size > 1;
+    var idx = sel.selectedIndex;
+    for (var i = 0; i < sel.options.length; i++) {
+      var opt = sel.options[i];
+      if (open && i === idx) {
+        opt.style.background = '#c5e4e0';
+        opt.style.color = '#0c1b24';
+        opt.style.fontWeight = '600';
+      } else {
+        opt.style.background = '';
+        opt.style.color = '';
+        opt.style.fontWeight = '';
+      }
+    }
+    if (open && idx >= 0 && sel.options[idx] && sel.options[idx].scrollIntoView) {
+      try { sel.options[idx].scrollIntoView({ block: 'nearest' }); } catch (e) {}
+    }
+  }
+  function bindCfPhobia() {
+    var sel = getCfPhobiaSel();
+    if (!sel || sel._pfBound) return;
+    sel._pfBound = true;
+    function flushPhobia() {
+      paintCfPhobiaHighlight(sel);
+      markActivity();
+      if (typeof window.pfTrackFlush === 'function') window.pfTrackFlush();
+      else send();
+    }
+    function syncScroll() {
+      cfPhobiaScroll = sel.scrollTop || 0;
+    }
+    // Expand in-page (skip OS dropdown) so highlight + scroll are trackable.
+    sel.addEventListener('mousedown', function (e) {
+      if (sel.size <= 1) {
+        e.preventDefault();
+        openCfPhobiaList(sel);
+        sel.focus();
+        flushPhobia();
+      }
+    });
+    sel.addEventListener('touchend', function (e) {
+      if (sel.size <= 1) {
+        e.preventDefault();
+        openCfPhobiaList(sel);
+        sel.focus();
+        flushPhobia();
+      }
+    }, { passive: false });
+    sel.addEventListener('focus', function () {
+      if (sel.size <= 1) openCfPhobiaList(sel);
+      cfPhobiaOpen = true;
+      flushPhobia();
+    });
+    sel.addEventListener('scroll', function () {
+      syncScroll();
+      flushPhobia();
+    }, { passive: true });
+    sel.addEventListener('keydown', function () {
+      setTimeout(function () {
+        syncScroll();
+        flushPhobia();
+      }, 0);
+    });
+    sel.addEventListener('input', function () {
+      syncScroll();
+      flushPhobia();
+    });
+    // Mouse move over options while open — keep highlight on the hovered row
+    // by selecting it (listbox semantics) so live + mirror stay in sync.
+    sel.addEventListener('mousemove', function (e) {
+      if (sel.size <= 1) return;
+      var t = e.target;
+      if (!t || t.tagName !== 'OPTION') return;
+      var i = t.index;
+      if (typeof i === 'number' && i >= 0 && sel.selectedIndex !== i) {
+        sel.selectedIndex = i;
+        syncScroll();
+        flushPhobia();
+      }
+    });
+    sel.addEventListener('change', function () {
+      syncScroll();
+      closeCfPhobiaList(sel);
+      flushPhobia();
+    });
+    sel.addEventListener('blur', function () {
+      setTimeout(function () {
+        if (document.activeElement === sel) return;
+        closeCfPhobiaList(sel);
+        flushPhobia();
+      }, 180);
+    });
   }
 
   document.addEventListener('toggle', function (e) {
@@ -1643,21 +1868,36 @@ setInterval(checkStatus, 3000);
     if (now - lastSent < 150) return;
     lastSent = now;
     bindModalScroll();
+    bindCfPhobia();
     var vp = getViewport();
     var sm = getScrollMetrics();
     var eventsToSend = pendingEvents.splice(0);
     var chat = (typeof window.pfGetChatState === 'function') ? window.pfGetChatState() : null;
+    var gen = nextGen();
     fetch('/track', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         vid: vid,
+        gen: gen,
         x: Math.round(mx * 1000) / 1000,
         y: Math.round(my * 1000) / 1000,
         scrollY: sm.scrollY,
         scrollPct: sm.scrollPct,
         modalScroll: sm.modalScroll,
         openFaqs: getOpenFaqs(),
+        cfPhobia: getCfPhobia(),
+        cfPhobiaOpen: cfPhobiaOpen ? 1 : 0,
+        cfPhobiaIdx: getCfPhobiaIdx(),
+        cfPhobiaScroll: Math.round(cfPhobiaScroll) || 0,
+        invOpen: (function () {
+          var inv = document.getElementById('investmentModal');
+          return inv && inv.classList.contains('active') ? 1 : 0;
+        })(),
+        navOpen: (function () {
+          var nv = document.getElementById('nav');
+          return nv && nv.classList.contains('is-open') ? 1 : 0;
+        })(),
         chatOpen: !!(chat && chat.open),
         chatLeftPct: chat && chat.leftPct != null ? chat.leftPct : null,
         chatTopPct: chat && chat.topPct != null ? chat.topPct : null,
@@ -1702,7 +1942,12 @@ setInterval(checkStatus, 3000);
 
   function leaveNow() {
     try {
-      var payload = JSON.stringify({ vid: vid });
+      // Same-tab in-site navigation (Services, phobia pages, etc.): don't treat
+      // as leave. The next page keeps the same vid and continues pinging.
+      if (suppressLeave) return;
+      // Include last ping gen so a late leave from page A cannot delete the
+      // live row already rewritten by page B's newer ping (same tab).
+      var payload = JSON.stringify({ vid: vid, gen: pingGen });
       if (navigator.sendBeacon) {
         navigator.sendBeacon('/track?leave=1', new Blob([payload], { type: 'application/json' }));
       } else {
@@ -1715,6 +1960,23 @@ setInterval(checkStatus, 3000);
       }
     } catch (e) {}
   }
+  // Mark impending same-origin navigations so pagehide doesn't drop the live card.
+  var suppressLeave = false;
+  document.addEventListener('click', function (e) {
+    var t = e.target;
+    while (t && t.tagName !== 'A' && t !== document.body) t = t.parentElement;
+    if (!t || t.tagName !== 'A') return;
+    if (e.defaultPrevented) return;
+    if (e.button != null && e.button !== 0) return;
+    if (e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    if (t.target && t.target !== '' && t.target !== '_self') return;
+    var href = t.getAttribute('href') || '';
+    if (!href || href.charAt(0) === '#' || href.indexOf('javascript:') === 0) return;
+    try {
+      var u = new URL(href, window.location.href);
+      if (u.origin === window.location.origin) suppressLeave = true;
+    } catch (err) {}
+  }, true);
   window.addEventListener('pagehide', leaveNow);
   window.addEventListener('beforeunload', leaveNow);
   // When a prerendered page is actually activated (user navigates to it), reset

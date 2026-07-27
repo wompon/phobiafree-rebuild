@@ -1,0 +1,590 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <!-- pf-release-v2 -->
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Testimonial and media release agreement for PhobiaFree.life — written or video use on YouTube, website, and other channels.">
+  <meta name="robots" content="noindex">
+  <title>Testimonial Release — PhobiaFree.life</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&family=Sora:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="/fear-of-flying/styles.css">
+  <style>
+    .release-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.65rem;
+      margin: 0 0 1.5rem;
+    }
+    .release-actions .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      border: 0;
+      text-decoration: none;
+    }
+    .btn-ghost {
+      background: rgba(255, 255, 255, 0.55);
+      color: var(--ink);
+      border: 1px solid rgba(12, 27, 36, 0.12);
+      border-radius: 999px;
+      padding: 0.55rem 1.1rem;
+      font-family: var(--font-body);
+      font-size: 0.82rem;
+      font-weight: 600;
+    }
+    .btn-ghost:hover { background: #fff; }
+    .sign-box {
+      margin-top: 1.75rem;
+      padding: 1.35rem 1.4rem 1.5rem;
+      background: rgba(255, 255, 255, 0.55);
+      border: 1px solid rgba(255, 255, 255, 0.6);
+      border-radius: 18px;
+    }
+    .sign-box h2 {
+      font-family: var(--font-display);
+      font-size: 1.35rem;
+      font-weight: 600;
+      color: var(--ink);
+      margin: 0 0 0.45rem;
+    }
+    .sign-box > p {
+      font-size: 0.88rem;
+      line-height: 1.6;
+      color: var(--ink-soft);
+      margin: 0 0 1.15rem;
+    }
+    .sig-pad-wrap {
+      margin: 0.35rem 0 0.75rem;
+      background: #fff;
+      border: 1px solid rgba(12, 27, 36, 0.15);
+      border-radius: 12px;
+      overflow: hidden;
+    }
+    #sigPad {
+      display: block;
+      width: 100%;
+      height: 140px;
+      touch-action: none;
+      cursor: crosshair;
+    }
+    .sig-pad-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+    .sig-pad-actions button {
+      background: transparent;
+      border: 0;
+      color: var(--teal);
+      font-family: var(--font-body);
+      font-size: 0.78rem;
+      font-weight: 600;
+      cursor: pointer;
+      padding: 0;
+    }
+    .consent-row {
+      display: flex;
+      gap: 0.65rem;
+      align-items: flex-start;
+      margin: 0.25rem 0 1.1rem;
+      font-size: 0.82rem;
+      line-height: 1.55;
+      color: var(--ink);
+    }
+    .consent-row input {
+      margin-top: 0.2rem;
+      flex-shrink: 0;
+      width: 1rem;
+      height: 1rem;
+      accent-color: var(--teal);
+    }
+    #releaseStatus {
+      margin-top: 0.85rem;
+      font-size: 0.85rem;
+      line-height: 1.5;
+      min-height: 1.25rem;
+    }
+    #releaseStatus.ok { color: #3d6b42; }
+    #releaseStatus.err { color: #8b2020; }
+    .print-only { display: none; }
+    @media print {
+      .page-photo, .nav, .footer, .release-actions, .legal-close, .no-print { display: none !important; }
+      body.is-legal { background: #fff; }
+      .legal-main { padding: 0; min-height: 0; }
+      .legal-card {
+        box-shadow: none;
+        border: 0;
+        max-width: none;
+        padding: 0;
+        background: #fff;
+      }
+      .sign-box {
+        break-inside: avoid;
+        background: #fff;
+        border: 1px solid #ccc;
+      }
+      .print-only { display: block; }
+      #sigPad { border-bottom: 1px solid #999; }
+    }
+  </style>
+</head>
+<body class="is-legal">
+
+<div class="page-photo" aria-hidden="true"></div>
+
+<header class="nav is-scrolled" id="nav">
+  <a class="brand" href="/fear-of-flying">Phobia<span>Free</span>.life</a>
+  <nav class="nav-links" aria-label="Legal">
+    <a href="/pfl-privacy">Privacy</a>
+    <a href="/pfl-terms">Terms</a>
+    <a href="/pfl-contact">Contact</a>
+  </nav>
+  <a class="nav-cta" href="/fear-of-flying?modal=1">Book Consultation</a>
+</header>
+
+<main class="legal-main" id="legalMain">
+  <article class="legal-card" onclick="event.stopPropagation()">
+    <a class="legal-close no-print" href="/fear-of-flying" aria-label="Close">&times;</a>
+    <span class="eyebrow">PhobiaFree.life</span>
+    <h1>Testimonial &amp; Media Release</h1>
+    <p class="legal-updated">Last updated: July 2026</p>
+
+    <div class="release-actions no-print">
+      <button type="button" class="btn btn-ghost" onclick="window.print()">Print / Save PDF</button>
+      <a class="btn btn-solid" href="#sign">Sign this release</a>
+    </div>
+
+    <div class="legal-body">
+      <p>This Testimonial and Media Release Agreement (“Agreement”) is between the person signing below (“I,” “me,” or “Grantor”) and Steven Shaw / PhobiaFree.life (“Company,” “we,” or “us”), Naples, Florida.</p>
+
+      <h2>1. Permission to Use</h2>
+      <p>I grant Company a perpetual, worldwide, royalty-free, irrevocable, transferable, and sublicensable right and license to use, reproduce, publish, distribute, display, edit, adapt, create derivative works from, and otherwise exploit my testimonial(s) and related media, including without limitation:</p>
+      <ul>
+        <li>Written statements, quotes, reviews, and feedback (email, text, form, chat, or otherwise);</li>
+        <li>Video and audio recordings (including Zoom, phone, or in-person captures);</li>
+        <li>My name, first name, initials, likeness, image, voice, biographical details I provide, and any statements attributed to me.</li>
+      </ul>
+
+      <h2>2. Where It May Appear</h2>
+      <p>Company may use the materials described above in any media or channel it sees fit, now or in the future, including but not limited to:</p>
+      <ul>
+        <li>The PhobiaFree.life website and related landing pages;</li>
+        <li>YouTube and other video platforms;</li>
+        <li>Social media, email, blogs, and podcasts;</li>
+        <li>Paid advertising (including Google, Meta, and similar);</li>
+        <li>Print, presentations, training materials, press, and partner promotions.</li>
+      </ul>
+
+      <h2>3. Editing and Context</h2>
+      <p>I understand Company may edit for length, clarity, or format (for example, clipping a video or excerpting a quote), provided the edit does not knowingly misrepresent the substance of what I said. Company has no obligation to use my testimonial.</p>
+
+      <h2>4. No Compensation</h2>
+      <p>I acknowledge I will not receive payment or other compensation for this release or for any use of the materials, unless we agree otherwise in a separate writing.</p>
+
+      <h2>5. Confidentiality Override</h2>
+      <p>To the extent my testimonial would otherwise be confidential under the PhobiaFree.life Terms of Service or any client agreement, this signed release is my explicit written consent for Company to use the materials as described here. Session content beyond what I choose to share in the testimonial remains confidential.</p>
+
+      <h2>6. Ownership</h2>
+      <p>As between the parties, Company owns the recordings and edited materials it creates. I retain ownership of my own pre-existing writings, subject to the license granted in this Agreement.</p>
+
+      <h2>7. Release of Claims</h2>
+      <p>I release and discharge Company and its owners, employees, contractors, and agents from any claims arising from authorized use of the materials under this Agreement, including claims related to privacy, publicity, defamation, or copyright, to the fullest extent permitted by law.</p>
+
+      <h2>8. Age and Authority</h2>
+      <p>I confirm that I am at least 18 years of age and have the legal authority to grant this release. If I am signing for a minor, I am the parent or legal guardian and grant these rights on the minor’s behalf.</p>
+
+      <h2>9. Governing Law</h2>
+      <p>This Agreement is governed by the laws of the State of Florida. Disputes shall be resolved in the courts of Collier County, Florida.</p>
+
+      <h2>10. Entire Agreement</h2>
+      <p>This document is the entire agreement on testimonial and media use. It may be signed electronically. A printed or electronic copy is as valid as an original.</p>
+
+      <div class="legal-box">
+        <p><strong>Questions?</strong><br>
+        Email <a href="mailto:steven@stevenshawccht.com">steven@stevenshawccht.com</a> or visit <a href="/pfl-contact">Contact</a>.</p>
+      </div>
+    </div>
+
+    <section class="sign-box" id="sign">
+      <h2>Sign the release</h2>
+      <p>Complete the form below. You will receive a copy by email, and PhobiaFree.life will keep a signed record.</p>
+
+      <form id="releaseForm" novalidate>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="full_name">Full legal name *</label>
+            <input id="full_name" name="full_name" type="text" autocomplete="name" required maxlength="120">
+          </div>
+          <div class="form-group">
+            <label for="email">Email *</label>
+            <input id="email" name="email" type="email" autocomplete="email" required maxlength="160">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label for="phone">Phone (optional)</label>
+            <input id="phone" name="phone" type="tel" autocomplete="tel" maxlength="40">
+          </div>
+          <div class="form-group">
+            <label for="display_name">How may we attribute you?</label>
+            <input id="display_name" name="display_name" type="text" placeholder="e.g. Sarah M. — fear of flying" maxlength="120">
+          </div>
+        </div>
+        <div class="form-group">
+          <label for="media_types">What are you releasing? *</label>
+          <select id="media_types" name="media_types" required>
+            <option value="written">Written testimonial</option>
+            <option value="video">Video testimonial</option>
+            <option value="audio">Audio testimonial</option>
+            <option value="written_and_video" selected>Written and/or video</option>
+            <option value="all">All of the above / any format</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="notes">Anything we should know? (optional)</label>
+          <textarea id="notes" name="notes" maxlength="1000" placeholder="e.g. please use first name only; OK to post on YouTube"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Draw your signature *</label>
+          <div class="sig-pad-wrap">
+            <canvas id="sigPad" width="640" height="140" aria-label="Signature pad"></canvas>
+          </div>
+          <div class="sig-pad-actions">
+            <span class="form-help">Sign with mouse or finger</span>
+            <button type="button" id="clearSig">Clear signature</button>
+          </div>
+        </div>
+
+        <label class="consent-row">
+          <input type="checkbox" id="agree" name="agree" required>
+          <span>I have read this Testimonial &amp; Media Release and agree that PhobiaFree.life may use my written or video testimonial on YouTube, the website, advertising, and any other channel it sees fit, as described above.</span>
+        </label>
+
+        <button type="submit" class="btn btn-solid" id="submitBtn">Submit signed release</button>
+        <div id="releaseStatus" role="status" aria-live="polite"></div>
+      </form>
+
+      <div class="print-only">
+        <p style="margin-top:1.5rem;">Signature (print): _________________________________ Date: _______________</p>
+        <p>Printed name: _________________________________</p>
+      </div>
+    </section>
+  </article>
+</main>
+
+<footer class="footer">
+  <p>© 2026 PhobiaFree.life</p>
+  <div class="footer-links">
+    <a href="/pfl-privacy">Privacy Policy</a>
+    <a href="/pfl-terms">Terms of Service</a>
+    <a href="/pfl-testimonial-release">Testimonial Release</a>
+    <a href="/pfl-contact">Contact</a>
+  </div>
+</footer>
+
+<script>
+  (function () {
+    var BACK = '/fear-of-flying';
+    var main = document.getElementById('legalMain');
+    if (main) {
+      main.addEventListener('click', function (e) {
+        if (e.target === main) window.location.href = BACK;
+      });
+    }
+    document.addEventListener('keydown', function (e) {
+      if (e.key === 'Escape') window.location.href = BACK;
+    });
+  })();
+</script>
+<script>
+(function () {
+  var canvas = document.getElementById('sigPad');
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+  var drawing = false;
+  var hasInk = false;
+  var lastX = 0, lastY = 0;
+
+  function sizeCanvas() {
+    var ratio = window.devicePixelRatio || 1;
+    var rect = canvas.getBoundingClientRect();
+    var w = Math.max(280, Math.floor(rect.width));
+    var h = 140;
+    canvas.width = Math.floor(w * ratio);
+    canvas.height = Math.floor(h * ratio);
+    canvas.style.height = h + 'px';
+    ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+    ctx.lineWidth = 2.2;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.strokeStyle = '#0c1b24';
+    hasInk = false;
+  }
+
+  function pos(e) {
+    var rect = canvas.getBoundingClientRect();
+    var t = e.touches && e.touches[0] ? e.touches[0] : e;
+    return { x: t.clientX - rect.left, y: t.clientY - rect.top };
+  }
+
+  function start(e) {
+    e.preventDefault();
+    drawing = true;
+    var p = pos(e);
+    lastX = p.x; lastY = p.y;
+  }
+  function move(e) {
+    if (!drawing) return;
+    e.preventDefault();
+    var p = pos(e);
+    ctx.beginPath();
+    ctx.moveTo(lastX, lastY);
+    ctx.lineTo(p.x, p.y);
+    ctx.stroke();
+    lastX = p.x; lastY = p.y;
+    hasInk = true;
+  }
+  function end() { drawing = false; }
+
+  sizeCanvas();
+  window.addEventListener('resize', sizeCanvas);
+  canvas.addEventListener('mousedown', start);
+  canvas.addEventListener('mousemove', move);
+  window.addEventListener('mouseup', end);
+  canvas.addEventListener('touchstart', start, { passive: false });
+  canvas.addEventListener('touchmove', move, { passive: false });
+  canvas.addEventListener('touchend', end);
+
+  document.getElementById('clearSig').addEventListener('click', function () {
+    sizeCanvas();
+  });
+
+  var form = document.getElementById('releaseForm');
+  var statusEl = document.getElementById('releaseStatus');
+  var btn = document.getElementById('submitBtn');
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    statusEl.className = '';
+    statusEl.textContent = '';
+
+    var full_name = document.getElementById('full_name').value.trim();
+    var email = document.getElementById('email').value.trim();
+    var phone = document.getElementById('phone').value.trim();
+    var display_name = document.getElementById('display_name').value.trim();
+    var media_types = document.getElementById('media_types').value;
+    var notes = document.getElementById('notes').value.trim();
+    var agree = document.getElementById('agree').checked;
+
+    if (!full_name || !email) {
+      statusEl.className = 'err';
+      statusEl.textContent = 'Please enter your name and email.';
+      return;
+    }
+    if (!agree) {
+      statusEl.className = 'err';
+      statusEl.textContent = 'Please check the agreement box to continue.';
+      return;
+    }
+    if (!hasInk) {
+      statusEl.className = 'err';
+      statusEl.textContent = 'Please draw your signature before submitting.';
+      return;
+    }
+
+    var signature_data = '';
+    try { signature_data = canvas.toDataURL('image/png'); } catch (err) {}
+
+    btn.disabled = true;
+    btn.textContent = 'Submitting…';
+    statusEl.textContent = 'Sending your signed release…';
+
+    fetch('/api/consult/testimonial-release', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        full_name: full_name,
+        email: email,
+        phone: phone,
+        display_name: display_name,
+        media_types: media_types,
+        notes: notes,
+        agree: true,
+        signature_data: signature_data,
+        agreement_version: '2026-07',
+        page_url: location.href.split('#')[0]
+      })
+    }).then(function (r) { return r.json().catch(function () { return {}; }); })
+      .then(function (data) {
+        if (data && data.success) {
+          statusEl.className = 'ok';
+          statusEl.textContent = data.message || 'Thank you — your release was received.';
+          form.reset();
+          sizeCanvas();
+          btn.textContent = 'Submitted';
+        } else {
+          statusEl.className = 'err';
+          statusEl.textContent = (data && data.message) || 'Something went wrong. Please try again or email steven@stevenshawccht.com.';
+          btn.disabled = false;
+          btn.textContent = 'Submit signed release';
+        }
+      })
+      .catch(function () {
+        statusEl.className = 'err';
+        statusEl.textContent = 'Network error. Please try again or email steven@stevenshawccht.com.';
+        btn.disabled = false;
+        btn.textContent = 'Submit signed release';
+      });
+  });
+})();
+</script>
+<script>
+(function () {
+  if (window.location.search.indexOf('notrack=1') !== -1) return;
+
+  var vid = sessionStorage.getItem('pfvid') || '';
+  if (!vid) {
+    vid = 'v_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now().toString(36);
+  }
+  sessionStorage.setItem('pfvid', vid);
+
+  var path = (window.location.pathname || '/').replace(/\.html$/i, '').replace(/\/$/, '') || '/';
+  var parts = path.split('/').filter(Boolean);
+  var page = parts.length ? parts[parts.length - 1] : 'home';
+
+  var mx = 0.5, my = 0.5, lastSent = 0, pendingEvents = [];
+  var ua = navigator.userAgent, device = 'Desktop';
+  if (/iPhone|iPod/.test(ua)) device = 'iPhone';
+  else if (/iPad/.test(ua)) device = 'iPad';
+  else if (/Android/.test(ua) && /Mobile/.test(ua)) device = 'Android Phone';
+  else if (/Android/.test(ua)) device = 'Android Tablet';
+  else if (/Macintosh/.test(ua)) device = 'Mac';
+  else if (/Windows/.test(ua)) device = 'Windows';
+
+  function getViewport() {
+    if (window.visualViewport) {
+      return {
+        w: Math.round(window.visualViewport.width),
+        h: Math.round(window.visualViewport.height)
+      };
+    }
+    return { w: window.innerWidth, h: window.innerHeight };
+  }
+
+  function isModalTarget(el) {
+    var t = el;
+    while (t && t !== document && t !== document.body) {
+      try {
+        var oc = (t.getAttribute && t.getAttribute('onclick')) || '';
+        if (oc.indexOf('openModal') !== -1) return true;
+        if (t.classList && (t.classList.contains('btn-book') || t.classList.contains('nav-cta'))) {
+          if (oc.indexOf('openModal') !== -1 || (t.getAttribute('href') || '').indexOf('modal=1') !== -1) {
+            return true;
+          }
+        }
+      } catch (e) {}
+      t = t.parentElement;
+    }
+    return false;
+  }
+
+  function selectorFor(el) {
+    try {
+      if (!el) return '';
+      if (el.id) return '#' + el.id;
+      if (el.className && typeof el.className === 'string') {
+        return el.tagName.toLowerCase() + '.' + el.className.trim().split(/\s+/)[0];
+      }
+      return el.tagName ? el.tagName.toLowerCase() : '';
+    } catch (e) {
+      return '';
+    }
+  }
+
+  window.pfTrackPush = function (ev) {
+    if (!ev || typeof ev !== 'object') return;
+    pendingEvents.push(ev);
+    send();
+  };
+
+  document.addEventListener('mousemove', function (e) {
+    mx = e.clientX / window.innerWidth;
+    my = e.clientY / window.innerHeight;
+  });
+
+  document.addEventListener('click', function (e) {
+    var vp = getViewport();
+    pendingEvents.push({
+      type: 'click',
+      x: Math.round((e.clientX / vp.w) * 1000) / 1000,
+      y: Math.round(Math.max(0, Math.min(1, e.clientY / vp.h)) * 1000) / 1000,
+      modal: isModalTarget(e.target),
+      selector: selectorFor(e.target)
+    });
+    send();
+  });
+
+  var firstLoad = Math.floor(Date.now() / 1000);
+
+  function send() {
+    var now = Date.now();
+    if (now - lastSent < 150) return;
+    lastSent = now;
+    var vp = getViewport();
+    var sh = document.documentElement.scrollHeight - window.innerHeight;
+    var sp = sh > 0 ? Math.round((window.scrollY / sh) * 1000) / 1000 : 0;
+    var eventsToSend = pendingEvents.splice(0);
+    fetch('/track', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        vid: vid,
+        x: Math.round(mx * 1000) / 1000,
+        y: Math.round(my * 1000) / 1000,
+        scrollY: window.scrollY,
+        scrollPct: sp,
+        vw: vp.w,
+        vh: vp.h,
+        page: page,
+        section: page,
+        device: device,
+        first_load: firstLoad,
+        events: eventsToSend
+      })
+    }).catch(function () {});
+  }
+
+  document.addEventListener('mousemove', send);
+  document.addEventListener('scroll', send, { passive: true });
+
+  function leaveNow() {
+    try {
+      var payload = JSON.stringify({ vid: vid });
+      if (navigator.sendBeacon) {
+        navigator.sendBeacon('/track?leave=1', new Blob([payload], { type: 'application/json' }));
+      } else {
+        fetch('/track?leave=1', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: payload,
+          keepalive: true
+        }).catch(function () {});
+      }
+    } catch (e) {}
+  }
+  window.addEventListener('pagehide', leaveNow);
+  window.addEventListener('beforeunload', leaveNow);
+  setInterval(send, 5000);
+  setTimeout(send, 500);
+})();
+</script>
+
+</body>
+</html>

@@ -204,10 +204,38 @@ async function handleAction(request, env) {
     }
     case 'delete_consultation': {
       const id = parseInt(body.id, 10);
+      if (!id) return json({ error: 'Missing id' }, 400);
       const row = await env.phobiafree_db
         .prepare('SELECT google_event_id FROM consultations WHERE id = ?')
         .bind(id).first();
-      if (row?.google_event_id) await gcalDeleteEvent(env, row.google_event_id);
+      if (!row) return json({ error: 'Consultation not found' }, 404);
+      if (row.google_event_id) {
+        try { await gcalDeleteEvent(env, row.google_event_id); } catch {}
+      }
+      // payment_links.consultation_id has a D1 FK → consultations(id).
+      // Detach paid links (keep financial history); remove unpaid dependents.
+      const sessions = await env.phobiafree_db
+        .prepare('SELECT id, gcal_event_id FROM therapy_sessions WHERE consultation_id = ?')
+        .bind(id).all();
+      for (const s of (sessions.results || [])) {
+        if (s.gcal_event_id) {
+          try { await gcalDeleteEvent(env, s.gcal_event_id); } catch {}
+        }
+      }
+      await env.phobiafree_db
+        .prepare('UPDATE payment_links SET consultation_id = NULL WHERE consultation_id = ? AND IFNULL(paid, 0) = 1')
+        .bind(id).run();
+      await env.phobiafree_db
+        .prepare('DELETE FROM payment_links WHERE consultation_id = ?')
+        .bind(id).run();
+      await env.phobiafree_db
+        .prepare('DELETE FROM therapy_sessions WHERE consultation_id = ?')
+        .bind(id).run();
+      try {
+        await env.phobiafree_db
+          .prepare('DELETE FROM clients WHERE consultation_id = ?')
+          .bind(id).run();
+      } catch {}
       await env.phobiafree_db.prepare('DELETE FROM consultations WHERE id = ?').bind(id).run();
       return json({ success: true });
     }
@@ -307,6 +335,19 @@ async function handleAction(request, env) {
       await env.phobiafree_db.prepare('DELETE FROM session_snapshots WHERE vid = ?').bind(vid).run();
       await env.phobiafree_db.prepare('DELETE FROM visitor_log WHERE vid = ?').bind(vid).run();
       await env.phobiafree_db.prepare('DELETE FROM live_visitors WHERE vid = ?').bind(vid).run();
+      try {
+        await env.phobiafree_db.prepare('DELETE FROM page_hits WHERE vid = ?').bind(vid).run();
+      } catch (_) { /* page_hits may not exist yet */ }
+      return json({ success: true });
+    }
+    case 'delete_page_hit': {
+      const id = parseInt(body.id, 10);
+      if (!id) return json({ error: 'Missing id' }, 400);
+      try {
+        await env.phobiafree_db.prepare('DELETE FROM page_hits WHERE id = ?').bind(id).run();
+      } catch (e) {
+        return json({ error: String(e) }, 500);
+      }
       return json({ success: true });
     }
     case 'get_hours': {
@@ -372,6 +413,9 @@ async function handleAction(request, env) {
       await env.phobiafree_db.prepare('DELETE FROM session_snapshots').run();
       await env.phobiafree_db.prepare('DELETE FROM visitor_log').run();
       await env.phobiafree_db.prepare('DELETE FROM live_visitors').run();
+      try {
+        await env.phobiafree_db.prepare('DELETE FROM page_hits').run();
+      } catch (_) { /* page_hits may not exist yet */ }
       return json({ success: true });
     }
     case 'add_evolve_idea': {
@@ -500,6 +544,16 @@ async function ensureEvolveSchema(env) {
       updated_at TEXT DEFAULT CURRENT_TIMESTAMP
     )
   `).run();
+  for (const sql of [
+    'ALTER TABLE evolve_ideas ADD COLUMN allowed INTEGER DEFAULT 0',
+    'ALTER TABLE evolve_ideas ADD COLUMN agent_prompt TEXT',
+    'ALTER TABLE evolve_ideas ADD COLUMN run_note TEXT',
+    'ALTER TABLE evolve_ideas ADD COLUMN agent_id TEXT',
+    'ALTER TABLE evolve_ideas ADD COLUMN run_id TEXT',
+    'ALTER TABLE evolve_ideas ADD COLUMN chat_json TEXT',
+  ]) {
+    try { await env.phobiafree_db.prepare(sql).run(); } catch (_) { /* exists */ }
+  }
   const count = await env.phobiafree_db.prepare('SELECT COUNT(*) AS c FROM evolve_genes').first();
   if (!count || !count.c) {
     const seeds = [

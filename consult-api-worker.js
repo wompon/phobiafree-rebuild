@@ -5,6 +5,7 @@
  * Routes:
  *   GET  /api/consult/slots   -> available 30-min slots for next 30 days
  *   POST /api/consult/book    -> book a consultation (JSON body)
+ *   POST /api/consult/testimonial-release -> signed testimonial/media release
  *
  * What it does, same as the old PHP:
  *   1. Computes open slots from fixed daily windows, minus already-booked
@@ -62,6 +63,9 @@ export default {
       }
       if (url.pathname === '/api/consult/update' && request.method === 'POST') {
         return await updateConsultationDetails(request, env);
+      }
+      if (url.pathname === '/api/consult/testimonial-release' && request.method === 'POST') {
+        return await submitTestimonialRelease(request, env);
       }
       return json({ success: false, message: 'Unknown action.' }, 404);
     } catch (err) {
@@ -207,6 +211,17 @@ async function bookConsultation(request, env) {
   const q_cost = f('q_cost');
   const ip = request.headers.get('CF-Connecting-IP') || '';
 
+  // Ad attribution captured client-side on landing (keyword/campaign that paid
+  // for this consult). All optional; empty for organic/direct bookings.
+  const gclid = f('gclid').slice(0, 200);
+  const utm_source = f('utm_source').slice(0, 120);
+  const utm_medium = f('utm_medium').slice(0, 120);
+  const utm_campaign = f('utm_campaign').slice(0, 200);
+  const utm_term = f('utm_term').slice(0, 200);
+  const utm_content = f('utm_content').slice(0, 200);
+  const landing_page = f('landing_page').slice(0, 200);
+  const attr_ts = f('attr_ts').slice(0, 40);
+
   const sms_consent = body.sms_consent ? 1 : 0;
   const consent_ts = sms_consent ? new Date().toISOString().slice(0, 19).replace('T', ' ') : null;
 
@@ -246,12 +261,14 @@ async function bookConsultation(request, env) {
     INSERT INTO consultations
       (first_name, last_name, email, phone, phobia, appointment_dt, notes,
        q_duration, q_intensity, q_interference, q_cause, q_impact, q_cost, q_outcome, q_previous,
-       google_event_id, ip_address, sms_consent, consent_timestamp)
-    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
+       google_event_id, ip_address, sms_consent, consent_timestamp,
+       gclid, utm_source, utm_medium, utm_campaign, utm_term, utm_content, landing_page, attr_ts)
+    VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)
   `).bind(
     first_name, last_name, email, phone, phobia, appointment_dt, notes,
     q_duration, q_intensity, q_interference, q_cause, q_impact, q_cost, q_outcome, q_previous,
-    google_event_id, ip, sms_consent, consent_ts
+    google_event_id, ip, sms_consent, consent_ts,
+    gclid, utm_source, utm_medium, utm_campaign, utm_term, utm_content, landing_page, attr_ts
   ).run();
 
   const newId = res.meta.last_row_id;
@@ -584,6 +601,140 @@ async function sendSMS(env, to, bodyText) {
     }
   );
   return res.ok;
+}
+
+// ── TESTIMONIAL / MEDIA RELEASE ───────────────────────────────────────────
+async function ensureTestimonialReleasesTable(env) {
+  await env.phobiafree_db.prepare(`
+    CREATE TABLE IF NOT EXISTS testimonial_releases (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      full_name TEXT NOT NULL,
+      email TEXT NOT NULL,
+      phone TEXT,
+      display_name TEXT,
+      media_types TEXT,
+      notes TEXT,
+      agreement_version TEXT,
+      signature_data TEXT,
+      page_url TEXT,
+      ip_address TEXT,
+      user_agent TEXT,
+      signed_at TEXT DEFAULT CURRENT_TIMESTAMP
+    )
+  `).run();
+}
+
+async function submitTestimonialRelease(request, env) {
+  let body;
+  try {
+    body = await request.json();
+  } catch {
+    return json({ success: false, message: 'Invalid request.' }, 400);
+  }
+
+  const f = (k) => (body[k] || '').toString().trim();
+  const full_name = f('full_name');
+  const email = f('email');
+  const phone = f('phone');
+  const display_name = f('display_name');
+  const media_types = f('media_types') || 'written_and_video';
+  const notes = f('notes');
+  const agreement_version = f('agreement_version') || '2026-07';
+  const page_url = f('page_url');
+  const signature_data = (body.signature_data || '').toString();
+  const agree = !!(body.agree === true || body.agree === 1 || body.agree === '1' || body.agree === 'true');
+
+  if (!full_name || !email) {
+    return json({ success: false, message: 'Please fill in your name and email.' });
+  }
+  if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) {
+    return json({ success: false, message: 'Please enter a valid email address.' });
+  }
+  if (!agree) {
+    return json({ success: false, message: 'Please confirm you agree to the release.' });
+  }
+  if (!signature_data || !signature_data.startsWith('data:image/') || signature_data.length < 200) {
+    return json({ success: false, message: 'A drawn signature is required.' });
+  }
+  if (signature_data.length > 350000) {
+    return json({ success: false, message: 'Signature data too large. Please clear and sign again.' });
+  }
+
+  const ip = request.headers.get('CF-Connecting-IP') || '';
+  const user_agent = (request.headers.get('User-Agent') || '').slice(0, 400);
+
+  await ensureTestimonialReleasesTable(env);
+
+  const res = await env.phobiafree_db.prepare(`
+    INSERT INTO testimonial_releases
+      (full_name, email, phone, display_name, media_types, notes,
+       agreement_version, signature_data, page_url, ip_address, user_agent)
+    VALUES (?,?,?,?,?,?,?,?,?,?,?)
+  `).bind(
+    full_name, email, phone, display_name, media_types, notes,
+    agreement_version, signature_data, page_url, ip, user_agent
+  ).run();
+
+  const newId = res.meta.last_row_id;
+  const signedAt = new Date().toISOString();
+  const mediaLabel = ({
+    written: 'Written testimonial',
+    video: 'Video testimonial',
+    audio: 'Audio testimonial',
+    written_and_video: 'Written and/or video',
+    all: 'All formats',
+  })[media_types] || media_types;
+
+  const summary =
+    `Testimonial & Media Release signed\n\n` +
+    `  ID:           #${newId}\n` +
+    `  Name:         ${full_name}\n` +
+    `  Email:        ${email}\n` +
+    (phone ? `  Phone:        ${phone}\n` : '') +
+    (display_name ? `  Attribution:  ${display_name}\n` : '') +
+    `  Media:        ${mediaLabel}\n` +
+    `  Version:      ${agreement_version}\n` +
+    `  Signed at:    ${signedAt}\n` +
+    (notes ? `  Notes:        ${notes}\n` : '') +
+    (page_url ? `  Page:         ${page_url}\n` : '') +
+    `\nThis grants PhobiaFree.life permission to use the grantor's written or video\n` +
+    `testimonial on YouTube, the website, advertising, and other channels as described\n` +
+    `in the Testimonial & Media Release agreement.\n` +
+    `Signature image is stored with release #${newId} in the database.\n`;
+
+  try {
+    await sendEmail(
+      env,
+      env.NOTIFY_EMAIL || 'steven@stevenshawccht.com',
+      `Testimonial release signed — ${full_name}`,
+      summary,
+      email
+    );
+  } catch {}
+
+  const clientBody =
+    `Dear ${full_name.split(/\s+/)[0] || full_name},\n\n` +
+    `Thank you for signing the PhobiaFree.life Testimonial & Media Release.\n\n` +
+    `This confirms you grant permission for us to use your written and/or video\n` +
+    `testimonial on YouTube, our website, advertising, and other channels as\n` +
+    `described in the agreement you signed.\n\n` +
+    `  Reference:  #${newId}\n` +
+    `  Media type: ${mediaLabel}\n` +
+    `  Signed:     ${signedAt}\n\n` +
+    `If you have questions, reply to this email.\n\n` +
+    `Steven Shaw\n` +
+    `Certified Clinical Hypnotherapist\n` +
+    `PhobiaFree.life\n`;
+
+  try {
+    await sendEmail(env, email, 'Your signed Testimonial Release — PhobiaFree.life', clientBody, env.NOTIFY_EMAIL);
+  } catch {}
+
+  return json({
+    success: true,
+    id: newId,
+    message: `Thank you, ${full_name.split(/\s+/)[0] || full_name}. Your signed release was received and a copy was sent to ${email}.`,
+  });
 }
 
 // ── EMAIL (Cloudflare Email Sending only) ──────────────────────────────────

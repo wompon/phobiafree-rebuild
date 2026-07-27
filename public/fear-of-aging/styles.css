@@ -1531,6 +1531,28 @@ body.is-legal .nav {
   background: #fff;
 }
 
+/* In-page phobia listbox (opened instead of OS picker so /visitors can mirror) */
+#cf_phobia.pf-phobia-open,
+.form-group select#cf_phobia[size]:not([size="1"]) {
+  height: auto;
+  max-height: 14rem;
+  overflow: auto;
+  padding: 0.35rem;
+  background: #fff;
+  z-index: 30;
+  position: relative;
+}
+#cf_phobia.pf-phobia-open option {
+  padding: 0.45rem 0.55rem;
+  border-radius: 6px;
+  cursor: pointer;
+}
+#cf_phobia.pf-phobia-open option:checked,
+#cf_phobia.pf-phobia-open option:hover {
+  background-color: #c5e4e0 !important;
+  color: #0c1b24 !important;
+}
+
 .form-group textarea {
   resize: vertical;
   min-height: 90px;

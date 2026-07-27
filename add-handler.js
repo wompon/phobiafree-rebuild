@@ -43,8 +43,24 @@ async function handleAdmin(path, request, env) {
   }
   if (path === '/admin/consultation/delete') {
     const id = parseInt(data.id, 10) || 0;
-    try { await env.phobiafree_db.prepare('DELETE FROM consultations WHERE id = ?').bind(id).run(); }
-    catch (e) { return json({ ok: false, error: String(e) }); }
+    if (!id) return json({ ok: false, error: 'Missing id' });
+    try {
+      await env.phobiafree_db
+        .prepare('UPDATE payment_links SET consultation_id = NULL WHERE consultation_id = ? AND IFNULL(paid, 0) = 1')
+        .bind(id).run();
+      await env.phobiafree_db
+        .prepare('DELETE FROM payment_links WHERE consultation_id = ?')
+        .bind(id).run();
+      await env.phobiafree_db
+        .prepare('DELETE FROM therapy_sessions WHERE consultation_id = ?')
+        .bind(id).run();
+      try {
+        await env.phobiafree_db
+          .prepare('DELETE FROM clients WHERE consultation_id = ?')
+          .bind(id).run();
+      } catch (e) {}
+      await env.phobiafree_db.prepare('DELETE FROM consultations WHERE id = ?').bind(id).run();
+    } catch (e) { return json({ ok: false, error: String(e) }); }
     return json({ ok: true });
   }
   return json({ ok: false, error: 'unknown admin route' }, 404);

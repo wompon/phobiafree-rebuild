@@ -11,7 +11,19 @@ import emailApi from './email-api-worker.js';
 import payment from './payment-api-worker.js';
 import editor from './editor-api-worker.js';
 import { serveSiteImageOverride } from './editor-images.js';
-import { composeFearPage, composePageCss } from './lib/bento-compose.js';
+import { composeFearPage, composePageCss, loadEditorText } from './lib/bento-compose.js';
+import { pollEvolveAgents } from './lib/ark.js';
+import { loadGoogleAdsPrefs, syncGoogleAdsReports, googleAdsConfigStatus } from './lib/google-ads.js';
+
+const ADS_SYNC_INTERVAL_MS = 6 * 60 * 60 * 1000;
+
+async function autoSyncGoogleAds(env) {
+  const prefs = await loadGoogleAdsPrefs(env);
+  if (!googleAdsConfigStatus(env, prefs).ready) return;
+  const last = Date.parse(prefs.last_sync || '') || 0;
+  if (Date.now() - last < ADS_SYNC_INTERVAL_MS) return;
+  await syncGoogleAdsReports(env, prefs, { replace: true });
+}
 
 /** Legacy admin URLs → CRM dashboard HTML (served in-place with no-cache). */
 const ADMIN_PAGES = {
@@ -89,7 +101,8 @@ function rewriteLegacyApi(url) {
   const u = new URL(url);
   const p = u.pathname;
 
-  if (p === '/cursor_track.php' || p === '/track' || p.startsWith('/track')) {
+  // Exact /track only — never swallow /tracker.js (static pages load that script).
+  if (p === '/cursor_track.php' || p === '/track') {
     u.pathname = '/track';
     return u.toString();
   }
@@ -170,7 +183,7 @@ async function dispatchApi(request, env, ctx) {
   const req = new Request(rewritten.toString(), request);
   const path = rewritten.pathname;
 
-  if (path.startsWith('/track')) return tracker.fetch(req, env, ctx);
+  if (path === '/track') return tracker.fetch(req, env, ctx);
   if (path.startsWith('/api/consult')) return consult.fetch(req, env, ctx);
   if (path.startsWith('/api/crm')) return crm.fetch(req, env, ctx);
   if (path.startsWith('/api/email')) return emailApi.fetch(req, env, ctx);
@@ -213,7 +226,7 @@ export default {
       path === '/chat_handler.php' ||
       path === '/steven_status.php' ||
       path === '/consult_handler.php' ||
-      path.startsWith('/track') ||
+      path === '/track' ||
       path.startsWith('/api/') ||
       path.startsWith('/file/')
     ) {
@@ -222,6 +235,30 @@ export default {
 
     if (path === '/editor' || path === '/editor/') {
       return env.ASSETS.fetch(new Request(new URL('/editor.html', url.origin), request));
+    }
+
+    // Shared visitor tracker for static pages (services, payment, thank-you…).
+    // Served from the SAME source as composed pages (R2 override → editor-src
+    // asset), so there is exactly one tracker to maintain and every page —
+    // composed or static — always runs the current version.
+    if (path === '/tracker.js') {
+      try {
+        const inc = await loadEditorText(env, 'includes/tracker.html');
+        if (inc) {
+          const js = inc
+            .replace(/^\s*<script[^>]*>/i, '')
+            .replace(/<\/script>\s*$/i, '');
+          return new Response(js, {
+            headers: {
+              'content-type': 'application/javascript; charset=utf-8',
+              'cache-control': 'public, max-age=60',
+            },
+          });
+        }
+      } catch (e) {}
+      return new Response('', {
+        headers: { 'content-type': 'application/javascript; charset=utf-8' },
+      });
     }
 
     // Edge cache for live-composed pages. Worker responses aren't cached by
@@ -305,5 +342,11 @@ export default {
     if (consult.scheduled) {
       ctx.waitUntil(consult.scheduled(event, env, ctx));
     }
+    ctx.waitUntil(
+      pollEvolveAgents(env).catch((e) => console.error('pollEvolveAgents', e?.message || e)),
+    );
+    ctx.waitUntil(
+      autoSyncGoogleAds(env).catch((e) => console.error('autoSyncGoogleAds', e?.message || e)),
+    );
   },
 };

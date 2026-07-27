@@ -3,16 +3,16 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="PhobiaFree.life services — one-session relief for fear of flying, heights, driving, and more.">
+  <meta name="description" content="PhobiaFree.life services — browse every phobia we treat, one peaceful Zoom session at a time.">
   <title>Services — PhobiaFree.life</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&family=Sora:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Quicksand:wght@300;400;500&family=Sora:wght@400;500;600&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/fear-of-flying/styles.css">
 </head>
-<body class="is-legal">
+<body class="is-services">
 
-<div class="page-photo" aria-hidden="true"></div>
+<div class="services-atmosphere" aria-hidden="true"></div>
 
 <header class="nav is-scrolled" id="nav">
   <a class="brand" href="/my_fear">Phobia<span>Free</span>.life</a>
@@ -31,19 +31,20 @@
   <a class="nav-cta btn-book" href="/my_fear?modal=1">Book Consultation</a>
 </header>
 
-<main class="legal-main" id="legalMain">
-  <article class="legal-card" onclick="event.stopPropagation()">
-    <a class="legal-close" href="/my_fear" aria-label="Close">&times;</a>
-    <span class="eyebrow">PhobiaFree.life</span>
-    <h1>Services</h1>
-    <p class="legal-lead">One peaceful Zoom session for the fear that’s been running the show. Pick yours to learn more — or book a complimentary consultation.</p>
-    <div class="services-grid" id="servicesGrid">
+<main class="services-main" id="servicesMain">
+  <header class="services-intro">
+    <button type="button" class="services-back" id="legalClose" aria-label="Go back">← Back</button>
+    <p class="services-eyebrow">PhobiaFree.life</p>
+    <h1 class="services-title">Services</h1>
+    <p class="services-lead">Every fear we treat — open a page to see how one peaceful Zoom session can change it.</p>
+  </header>
+
+  <div class="services-grid" id="servicesGrid">
 __SERVICES_HTML__
-    </div>
-  </article>
+  </div>
 </main>
 
-<footer class="footer">
+<footer class="footer services-footer">
   <p>© 2026 PhobiaFree.life</p>
   <div class="footer-links">
     <a href="/pfl-privacy">Privacy Policy</a>
@@ -54,11 +55,23 @@ __SERVICES_HTML__
 
 <script>
   (function () {
-    var BACK = '/my_fear';
-    var main = document.getElementById('legalMain');
+    var FALLBACK = '/my_fear';
+    var closeBtn = document.getElementById('legalClose');
     var nav = document.getElementById('nav');
     var navToggle = document.getElementById('navToggle');
     var navLinks = document.getElementById('navLinks');
+    function goBack() {
+      try {
+        if (window.history.length > 1 && document.referrer) {
+          var ref = new URL(document.referrer);
+          if (ref.origin === window.location.origin && ref.pathname !== window.location.pathname) {
+            window.history.back();
+            return;
+          }
+        }
+      } catch (e) {}
+      window.location.href = FALLBACK;
+    }
     function setNavOpen(open) {
       if (!nav) return;
       nav.classList.toggle('is-open', open);
@@ -77,9 +90,10 @@ __SERVICES_HTML__
         a.addEventListener('click', function () { setNavOpen(false); });
       });
     }
-    if (main) {
-      main.addEventListener('click', function (e) {
-        if (e.target === main) window.location.href = BACK;
+    if (closeBtn) {
+      closeBtn.addEventListener('click', function (e) {
+        e.preventDefault();
+        goBack();
       });
     }
     document.addEventListener('keydown', function (e) {
@@ -88,36 +102,192 @@ __SERVICES_HTML__
         setNavOpen(false);
         return;
       }
-      window.location.href = BACK;
+      goBack();
     });
   })();
 </script>
 <style>
+  :root {
+    --services-font: "Quicksand", system-ui, sans-serif;
+    --services-ink: #f4f7f8;
+    --services-mute: rgba(244, 247, 248, 0.62);
+    --services-deep: #061018;
+    --services-mid: #0c2a32;
+  }
+
+  body.is-services {
+    min-height: 100vh;
+    background: var(--services-deep);
+    color: var(--services-ink);
+  }
+
+  .services-atmosphere {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background:
+      radial-gradient(ellipse 70% 55% at 50% 28%, rgba(18, 77, 82, 0.55), transparent 70%),
+      radial-gradient(ellipse 90% 70% at 50% 100%, rgba(6, 16, 24, 0.9), var(--services-deep));
+  }
+  .services-atmosphere::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    opacity: 0.18;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    mix-blend-mode: overlay;
+  }
+
+  body.is-services .nav {
+    position: relative;
+    z-index: 5;
+  }
+  body.is-services .nav .brand,
+  body.is-services .nav .nav-links a {
+    color: var(--services-ink);
+  }
+  body.is-services .nav .nav-links a[aria-current="page"] {
+    color: #9ecbd0;
+  }
+
+  .services-main {
+    position: relative;
+    z-index: 1;
+    width: min(1180px, calc(100% - 2rem));
+    margin: 0 auto;
+    padding: 1.25rem 0 4rem;
+  }
+
+  .services-intro {
+    text-align: center;
+    margin: 0 auto 2.25rem;
+    max-width: 36rem;
+  }
+  .services-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-bottom: 1.25rem;
+    padding: 0.35rem 0.7rem;
+    border: 0;
+    background: transparent;
+    color: var(--services-mute);
+    font-family: var(--services-font);
+    font-weight: 400;
+    font-size: 0.95rem;
+    letter-spacing: 0.02em;
+    cursor: pointer;
+  }
+  .services-back:hover {
+    color: var(--services-ink);
+  }
+  .services-eyebrow {
+    margin: 0 0 0.65rem;
+    font-family: var(--services-font);
+    font-weight: 300;
+    font-size: 0.85rem;
+    letter-spacing: 0.28em;
+    text-transform: uppercase;
+    color: var(--services-mute);
+  }
+  .services-title {
+    margin: 0 0 0.75rem;
+    font-family: var(--services-font);
+    font-weight: 300;
+    font-size: clamp(2.4rem, 6vw, 3.6rem);
+    letter-spacing: 0.04em;
+    line-height: 1.05;
+    color: #fff;
+  }
+  .services-lead {
+    margin: 0;
+    font-family: var(--services-font);
+    font-weight: 300;
+    font-size: 1.05rem;
+    line-height: 1.55;
+    color: var(--services-mute);
+  }
+
   .services-grid {
     display: grid;
-    grid-template-columns: repeat(auto-fill, minmax(210px, 1fr));
-    gap: 0.75rem;
-    margin-top: 0.75rem;
+    grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    gap: 1.6rem 1.1rem;
   }
-  .service-link {
-    display: block;
-    padding: 1rem 1.1rem;
-    border-radius: 14px;
-    background: #fff;
-    border: 1px solid rgba(12, 27, 36, 0.12);
-    color: var(--ink);
+  @media (min-width: 720px) {
+    .services-grid {
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 2rem 1.35rem;
+    }
+  }
+
+  .service-thumb {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.7rem;
     text-decoration: none;
-    font-size: 0.92rem;
-    font-weight: 600;
-    box-shadow: 0 6px 18px rgba(8, 24, 36, 0.06);
-    transition: transform 0.15s ease, border-color 0.15s ease, box-shadow 0.15s ease;
+    color: inherit;
+    min-width: 0;
   }
-  .service-link:hover {
-    transform: translateY(-2px);
-    border-color: rgba(13, 92, 99, 0.35);
-    box-shadow: 0 10px 24px rgba(8, 24, 36, 0.1);
+  .service-thumb-media {
+    display: block;
+    width: 100%;
+    aspect-ratio: 16 / 10;
+    overflow: hidden;
+    border-radius: 4px;
+    background: var(--services-mid);
+    box-shadow: 0 12px 36px rgba(0, 0, 0, 0.35);
+    transform: translateY(0);
+    transition: transform 0.35s ease, box-shadow 0.35s ease;
+  }
+  .service-thumb-media img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: cover;
+    /* Action lives in the upper-right of each hero — pin crop there. */
+    object-position: right top !important;
+    transition: transform 0.55s ease;
+  }
+  .service-thumb:hover .service-thumb-media,
+  .service-thumb:focus-visible .service-thumb-media {
+    transform: translateY(-4px);
+    box-shadow: 0 18px 44px rgba(0, 0, 0, 0.45);
+  }
+  .service-thumb:hover .service-thumb-media img,
+  .service-thumb:focus-visible .service-thumb-media img {
+    transform: scale(1.03);
+    transform-origin: right top;
+  }
+  .service-thumb-label {
+    display: block;
+    width: 100%;
+    text-align: center;
+    font-family: var(--services-font);
+    font-weight: 300;
+    font-size: clamp(0.92rem, 2.2vw, 1.05rem);
+    letter-spacing: 0.02em;
+    line-height: 1.3;
+    color: #fff;
+  }
+
+  .services-footer {
+    position: relative;
+    z-index: 1;
+    background: transparent;
+    border-top: 1px solid rgba(244, 247, 248, 0.1);
+    color: var(--services-mute);
+  }
+  .services-footer a {
+    color: var(--services-mute);
+  }
+  .services-footer a:hover {
+    color: #fff;
   }
 </style>
 
+<script src="/tracker.js" defer></script>
 </body>
 </html>

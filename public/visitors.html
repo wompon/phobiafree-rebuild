@@ -56,6 +56,10 @@ html{height:100%;}
 .screen-wrap{position:relative;overflow:hidden;flex-shrink:0;}
 .screen-iframe{border:none;transform-origin:top left;display:block;pointer-events:none;backface-visibility:hidden;-webkit-font-smoothing:antialiased;}
 .replay-card .screen-iframe{/* visitor paint size + display-only CSS scale */}
+.live-badge{color:#22c55e;font-weight:700;font-size:0.62rem;letter-spacing:0.08em;margin-right:0.45rem;white-space:nowrap;animation:livePulse 1.6s ease-in-out infinite;}
+@keyframes livePulse{0%,100%{opacity:1}50%{opacity:0.4}}
+.rec-badge{background:#3d1f1f;color:#f87171;font-weight:700;font-size:0.6rem;letter-spacing:0.08em;padding:1px 6px;border-radius:3px;margin-right:0.45rem;white-space:nowrap;}
+.rec-live-hint{color:#22c55e;font-size:0.62rem;margin-left:0.45rem;white-space:nowrap;}
 .replay-card.expanded{position:relative;z-index:5;box-shadow:0 12px 48px rgba(0,0,0,0.55);}
 .rpbtn.active{background:var(--teal);color:#fff;}
 .cursor-dot{position:absolute;width:14px;height:14px;border:2.5px solid var(--gold);border-radius:50%;transform:translate(-50%,-50%);pointer-events:none;z-index:10;box-shadow:0 0 10px rgba(201,168,76,0.7);transition:left 0.12s ease,top 0.12s ease;}
@@ -282,15 +286,18 @@ var PAGE_URLS = {
   'pfl-privacy': '/pfl-privacy?notrack=1',
   'pfl-terms': '/pfl-terms?notrack=1',
   'pfl-contact': '/pfl-contact?notrack=1',
+  'pfl-testimonial-release': '/pfl-testimonial-release?notrack=1',
   'privacy': '/pfl-privacy?notrack=1',
   'terms': '/pfl-terms?notrack=1',
-  'contact': '/pfl-contact?notrack=1'
+  'contact': '/pfl-contact?notrack=1',
+  'testimonial-release': '/pfl-testimonial-release?notrack=1'
 };
 function getPageUrl(slug){
   if (PAGE_URLS[slug]) return PAGE_URLS[slug];
-  if (slug && /^fear-of-/.test(slug)) return '/'+slug+'?notrack=1';
-  if (slug && /^pfl-/.test(slug)) return '/'+slug+'?notrack=1';
   if (slug === 'my_fear' || slug === 'my-fear') return '/my_fear?notrack=1';
+  // ANY other page mirrors at its own URL — no hardcoded list to maintain.
+  // Falling back to home here is how /services silently showed the wrong page.
+  if (slug && /^[a-z0-9_-]+$/i.test(slug)) return '/'+slug+'?notrack=1';
   return PAGE_URLS['home'];
 }
 
@@ -487,12 +494,15 @@ var pageLabels = {
   'deipnophobia':'Fear of Eating in Public',
   'my_fear':'My Fear',
   'my-fear':'My Fear',
+  'services':'Services',
   'pfl-privacy':'Privacy Policy',
   'pfl-terms':'Terms of Service',
   'pfl-contact':'Contact',
+  'pfl-testimonial-release':'Testimonial Release',
   'privacy':'Privacy Policy',
   'terms':'Terms of Service',
   'contact':'Contact',
+  'testimonial-release':'Testimonial Release',
   'home':'Home','welcome':'Welcome'
 };
 
@@ -851,9 +861,11 @@ function loadReplay(vid, rowEl) {
     el.className = 'visitor-card replay-card';
     el.id = 'rvc_'+vid;
     el.style.width = cardW+'px';
+    var recWhen = new Date(t0).toLocaleString([], {month:'short', day:'numeric', hour:'numeric', minute:'2-digit'});
     el.innerHTML =
       '<div class="card-header">'
-      +'<span class="card-section" id="rcs_'+vid+'">📼 '+loc+'</span>'
+      +'<span class="card-section" id="rcs_'+vid+'"><span class="rec-badge">📼 RECORDING</span>'+loc+' · '+recWhen
+      +'<span class="rec-live-hint" id="rlh_'+vid+'" style="display:none;">● on site NOW — see Live tab</span></span>'
       +'<button class="delete-btn replay-close-hdr" type="button" data-close-replay="'+vid+'" title="Close replay" aria-label="Close replay">✕</button>'
       +'</div>'
       +'<div class="screen-wrap" id="rsw_'+vid+'" style="width:'+cardW+'px;height:'+dh+'px;">'
@@ -958,26 +970,26 @@ function appendReplaySnaps(vid, newSnaps) {
   var dm = Math.floor(durationSec / 60), ds = durationSec % 60;
   var durStr = dm > 0 ? dm + 'm ' + ds + 's' : ds + 's';
   var rts = document.getElementById('rts_' + vid);
-  if (rts) rts.textContent = durStr + (rs.stillLive ? ' · REC' : '');
+  if (rts) rts.textContent = durStr + (rs.stillLive ? ' · still recording' : '');
   // If playback had reached the old end, keep rolling into the new frames.
   if (wasAtEnd && rs.playing) rs.pos = Math.min(rs.pos, rs.duration);
   return added;
 }
 function updateReplayLiveBadge(vid, live) {
+  // A replay card is ALWAYS a recording. If the same visitor is on the site
+  // right now, show an explicit pointer to the Live tab — never "LIVE" alone,
+  // which reads as "this playback is live".
   var rs = replayState[vid];
   if (!rs) return;
   rs.stillLive = !!live;
-  var hdr = document.getElementById('rcs_' + vid);
-  if (!hdr) return;
-  var base = hdr.getAttribute('data-base') || hdr.textContent.replace(/\s*●\s*LIVE$/, '').replace(/\s*·\s*REC$/, '');
-  hdr.setAttribute('data-base', base);
-  hdr.textContent = live ? base + ' ● LIVE' : base;
+  var hint = document.getElementById('rlh_' + vid);
+  if (hint) hint.style.display = live ? '' : 'none';
   var rts = document.getElementById('rts_' + vid);
   if (rts) {
     var durationSec = Math.round(rs.duration / 1000);
     var dm = Math.floor(durationSec / 60), ds = durationSec % 60;
     var durStr = dm > 0 ? dm + 'm ' + ds + 's' : ds + 's';
-    rts.textContent = live ? durStr + ' · REC' : durStr;
+    rts.textContent = live ? durStr + ' · still recording' : durStr;
   }
 }
 function tailReplay(vid) {
@@ -1121,12 +1133,27 @@ function renderReplayFrame(vid) {
   if (mapReady && pageSlug !== 'welcome' && iframe.contentWindow) {
     try {
       var rdoc = iframe.contentDocument;
+      var rwin = iframe.contentWindow;
       var rModal = rdoc && rdoc.getElementById('consultModal');
       // Mirror FAQ accordion state from the snapshot (same as live view).
       mirrorFaqState(rdoc, snap.openFaqs);
+      mirrorCfPhobia(rdoc, snap.cfPhobia, snap.cfPhobiaOpen, snap.cfPhobiaIdx, snap.cfPhobiaScroll);
+      // Mirror BOTH modals from snapshot state (open and close) so replays
+      // track the visitor exactly — click replay alone left modals stuck.
+      var rModalOpen = rModal && rModal.classList.contains('active');
+      var rWant = (snap.section === 'consult-modal') || snap.modalScroll;
+      if (rWant && !rModalOpen && typeof rwin.openModal === 'function') { rwin.openModal(); }
+      else if (!rWant && rModalOpen && typeof rwin.closeModal === 'function') { rwin.closeModal(); }
+      var rInv = rdoc && rdoc.getElementById('investmentModal');
+      var rInvOpen = rInv && rInv.classList.contains('active');
+      if (snap.invOpen && !rInvOpen && typeof rwin.openInvestment === 'function') { rwin.openInvestment(); }
+      else if (!snap.invOpen && rInvOpen && typeof rwin.closeInvestment === 'function') { rwin.closeInvestment(); }
+      var rNav = rdoc && rdoc.getElementById('nav');
+      if (rNav) rNav.classList.toggle('is-open', !!snap.navOpen);
       var rBox = (snap.modalScroll || snap.section === 'consult-modal' || (rModal && rModal.classList.contains('active')))
         ? rdoc.querySelector('#consultModal .modal-box')
         : null;
+      if (!rBox && snap.invOpen) rBox = rdoc.querySelector('#investmentModal .modal-box');
       if (rBox) {
         var msh = rBox.scrollHeight - rBox.clientHeight;
         if (msh > 10) {
@@ -1450,7 +1477,7 @@ function makeCard(vid,d){
   viframePage[vid]=pageSlug;viframeScene[vid]='';viframeReady[vid]=false;viframeFirstLoad[vid]=d.first_load||0;
   var isWelcome=(pageSlug==='welcome');var sectionText=isWelcome?welcomeSceneLabel(d.section):(sectionLabels[d.section]||d.section||'—');
   var el=document.createElement('div');el.className='visitor-card new';el.draggable=true;el.id='vc_'+vid;el.style.width=cardW+'px';el.style.maxWidth='100%';el.style.overflow='visible';
-  el.innerHTML='<div class="card-header"><span class="card-section" id="cs_'+vid+'">'+(d.location?'📍 '+d.location.replace(/,\s*[A-Z]{2}$/,'')+' · ':'')+(isWelcome?'<span class="welcome-badge" id="wb_'+vid+'">'+sectionText+'</span>':(sectionLabels[d.section]||d.section||'—'))+'</span><span id="cpg_'+vid+'" style="display:none;"></span><button class="delete-btn" data-vid="'+vid+'">&times;</button><div class="cdot" id="cdot_'+vid+'"></div></div><div class="screen-wrap" id="sw_'+vid+'" style="width:'+cardW+'px;height:'+dh+'px;"><iframe id="if_'+vid+'" src="'+getPageUrl(pageSlug)+'" class="screen-iframe" style="width:'+fit.paintW+'px;height:'+fit.paintH+'px;transform:scale('+fit.scale+');transform-origin:top left;"></iframe><div class="cursor-dot" id="cu_'+vid+'" style="left:'+Math.round(d.x*cardW)+'px;top:'+Math.round(d.y*dh)+'px;"></div></div><div class="card-footer"><span>'+d.vw+'×'+d.vh+'</span><span id="csc_'+vid+'">—</span><span id="ct_'+vid+'">0s</span><button class="msg-btn" data-vid="'+vid+'">💬</button></div>';
+  el.innerHTML='<div class="card-header"><span class="live-badge">● LIVE</span><span class="card-section" id="cs_'+vid+'">'+(d.location?'📍 '+d.location.replace(/,\s*[A-Z]{2}$/,'')+' · ':'')+(isWelcome?'<span class="welcome-badge" id="wb_'+vid+'">'+sectionText+'</span>':(sectionLabels[d.section]||d.section||'—'))+'</span><span id="cpg_'+vid+'" style="display:none;"></span><button class="delete-btn" data-vid="'+vid+'">&times;</button><div class="cdot" id="cdot_'+vid+'"></div></div><div class="screen-wrap" id="sw_'+vid+'" style="width:'+cardW+'px;height:'+dh+'px;"><iframe id="if_'+vid+'" src="'+getPageUrl(pageSlug)+'" class="screen-iframe" style="width:'+fit.paintW+'px;height:'+fit.paintH+'px;transform:scale('+fit.scale+');transform-origin:top left;"></iframe><div class="cursor-dot" id="cu_'+vid+'" style="left:'+Math.round(d.x*cardW)+'px;top:'+Math.round(d.y*dh)+'px;"></div></div><div class="card-footer"><span>'+d.vw+'×'+d.vh+'</span><span id="csc_'+vid+'">—</span><span id="ct_'+vid+'">0s</span><button class="msg-btn" data-vid="'+vid+'">💬</button></div>';
   setTimeout(function(){el.classList.remove('new');},1500);
   var iframeEl=el.querySelector('#if_'+vid);
   if(iframeEl){iframeEl.addEventListener('load',function(){viframeReady[vid]=true;viframeScene[vid]='';if(viframePage[vid]==='welcome'){showWelcomeInIframe(vid);var sec=vdata[vid]?vdata[vid].section:'welcome-home';mirrorWelcomeScene(vid,sec);}});}
@@ -1482,13 +1509,26 @@ function updateCard(vid,d){
     var wantModal=(d.section==='consult-modal')||d.modalScroll;
     if(wantModal&&!modalOpen&&typeof iframe.contentWindow.openModal==='function'){iframe.contentWindow.openModal();modalOpen=true;}
     else if(!wantModal&&modalOpen&&typeof iframe.contentWindow.closeModal==='function'){iframe.contentWindow.closeModal();modalOpen=false;}
+    // Pricing modal mirrored from per-ping STATE too — click replay alone can
+    // miss the open or (worse) the close and leave the mirror stuck on it.
+    var invEl=doc&&doc.getElementById('investmentModal');
+    var invOpen=invEl&&invEl.classList.contains('active');
+    if(d.invOpen&&!invOpen&&typeof iframe.contentWindow.openInvestment==='function'){iframe.contentWindow.openInvestment();}
+    else if(!d.invOpen&&invOpen&&typeof iframe.contentWindow.closeInvestment==='function'){iframe.contentWindow.closeInvestment();}
+    // Mobile menu open/close mirrored from state — closing paths (link click,
+    // tap outside, Escape) don't all replay as clicks.
+    var navEl=doc&&doc.getElementById('nav');
+    if(navEl)navEl.classList.toggle('is-open',!!d.navOpen);
     // Mirror FAQ accordion open/close from persistent openFaqs indices.
     mirrorFaqState(doc, d.openFaqs);
+    mirrorCfPhobia(doc, d.cfPhobia, d.cfPhobiaOpen, d.cfPhobiaIdx, d.cfPhobiaScroll);
     // Mirror visitor's on-site chat window (open, drag position, messages).
     mirrorChatState(doc, d);
     if(d.modalScroll||modalOpen||d.section==='consult-modal'){
       scrollEl=doc&&doc.querySelector('#consultModal .modal-box');
     }
+    // Pricing modal open → visitor scrolls inside it; mirror that box.
+    if(!scrollEl&&d.invOpen){scrollEl=doc&&doc.querySelector('#investmentModal .modal-box');}
     if(!scrollEl&&newSlug.indexOf('welcome')===0){scrollEl=doc&&doc.getElementById('welcome-stage');}
     if(!scrollEl)scrollEl=doc&&doc.documentElement;
     if(scrollEl){var sh=scrollEl.scrollHeight-scrollEl.clientHeight;if(sh>10){var target=d.scrollPct!=null?Math.round(d.scrollPct*sh):0;scrollEl.scrollTop=target;}}
@@ -1535,7 +1575,35 @@ function doClickRipple(vid,ev,dh){
   var sw=document.getElementById('sw_'+vid);
   if(sw){var rip=document.createElement('div');rip.className='click-ripple';rip.style.left=Math.round(ev.x*liveCardFit((vdata[vid]&&vdata[vid].vw)||390,(vdata[vid]&&vdata[vid].vh)||844).cardW)+'px';rip.style.top=Math.round(ev.y*dh)+'px';if(ev.modal){rip.style.border='3px solid #fff';rip.style.boxShadow='0 0 20px rgba(201,168,76,0.9)';var fl=document.createElement('div');fl.className='modal-alert';sw.appendChild(fl);setTimeout(function(){if(fl.parentNode)fl.parentNode.removeChild(fl);},1000);}sw.appendChild(rip);setTimeout(function(){if(rip.parentNode)rip.parentNode.removeChild(rip);},800);}
   var iframe=document.getElementById('if_'+vid);if(!iframe||!iframe.contentDocument||!iframe.contentWindow)return;
-  try{var doc=iframe.contentDocument,win=iframe.contentWindow;if(ev.modal&&typeof win.openModal==='function'){win.openModal();return;}var el=null;if(ev.selector){try{el=doc.querySelector(ev.selector);}catch(e){}}if(!el)el=doc.elementFromPoint(ev.x*(doc.documentElement.clientWidth||390),ev.y*(win.innerHeight||800));if(el){var oc=el.getAttribute('onclick')||'';if(oc.indexOf('openModal')!==-1&&typeof win.openModal==='function')win.openModal();else if(isFaqClickTarget(el)){/* FAQ open state is mirrored from openFaqs — don't toggle twice */}else{el.click();el.dispatchEvent(new MouseEvent('click',{bubbles:true,cancelable:true,view:win}));}}}catch(e){}
+  try{var doc=iframe.contentDocument,win=iframe.contentWindow;if(ev.modal&&typeof win.openModal==='function'){win.openModal();return;}
+  var el=null;
+  // Old trackers sent bare-tag selectors ('a','div'); querySelector('a') is the
+  // nav brand link, which navigated the mirror to /my_fear on ANY plain link
+  // click. Only trust selectors specific enough to identify the real target.
+  if(ev.selector&&/[#.>:]/.test(ev.selector)){try{el=doc.querySelector(ev.selector);}catch(e){}}
+  if(!el)el=doc.elementFromPoint(ev.x*(doc.documentElement.clientWidth||390),ev.y*(win.innerHeight||800));
+  if(!el)return;
+  var oc=(el.getAttribute&&el.getAttribute('onclick'))||'';
+  if(oc.indexOf('openModal')!==-1&&typeof win.openModal==='function'){win.openModal();return;}
+  if(oc.indexOf('openInvestment')!==-1&&typeof win.openInvestment==='function'){win.openInvestment();return;}
+  if(isFaqClickTarget(el))return; /* FAQ open state is mirrored from openFaqs — don't toggle twice */
+  if(el.id==='cf_phobia'||(el.closest&&el.closest('#cf_phobia')))return; /* phobia select mirrored from cfPhobia* */
+  // NEVER navigate the mirror by clicking a link. Real navigation is mirrored
+  // by following d.page from the tracker; a replayed link click can only
+  // diverge the mirror from what the visitor actually sees.
+  var t=el;
+  while(t&&t.getAttribute){
+    if(t.tagName==='A'){
+      var href=t.getAttribute('href')||'';
+      var toc=t.getAttribute('onclick')||'';
+      if(toc.indexOf('openInvestment')!==-1&&typeof win.openInvestment==='function'){win.openInvestment();return;}
+      if(toc.indexOf('openModal')!==-1&&typeof win.openModal==='function'){win.openModal();return;}
+      if(href&&href.charAt(0)!=='#'&&href.indexOf('javascript:')!==0)return;
+      break;
+    }
+    t=t.parentElement;
+  }
+  el.click();}catch(e){}
 }
 function isFaqClickTarget(el){
   var t=el;
@@ -1565,6 +1633,70 @@ function mirrorFaqState(doc, openFaqs){
   for(var j=0;j<faqs.length;j++){
     var shouldOpen=!!want[j];
     if(shouldOpen!==!!faqs[j].open)faqs[j].open=shouldOpen;
+  }
+}
+// Mirror consult "What is your phobia or fear?" listbox — selected row highlight
+// + list scrollTop. Visitor opens an in-page list (not the OS picker) so these
+// are real DOM state we can replay.
+function mirrorCfPhobia(doc, slug, open, idx, scroll){
+  if(!doc)return;
+  var sel=doc.getElementById('cf_phobia');
+  if(!sel)return;
+  var wantIdx=parseInt(idx,10);
+  if(!isFinite(wantIdx)||wantIdx<0||wantIdx>=sel.options.length){
+    var want=slug==null?'':String(slug);
+    wantIdx=-1;
+    for(var i=0;i<sel.options.length;i++){
+      var o=sel.options[i];
+      var s=(o.getAttribute('data-slug')||o.value||'');
+      if(s===want){wantIdx=i;break;}
+    }
+    if(wantIdx<0&&want){
+      for(var j=0;j<sel.options.length;j++){
+        if(sel.options[j].value===want){wantIdx=j;break;}
+      }
+    }
+    if(wantIdx<0&&!want)wantIdx=0;
+  }
+  if(wantIdx>=0&&sel.selectedIndex!==wantIdx)sel.selectedIndex=wantIdx;
+  if(open){
+    var n=Math.min(sel.options.length,10);
+    if(sel.size!==n)sel.size=n;
+    sel.classList.add('pf-phobia-open');
+    sel.style.zIndex='30';
+    sel.style.position='relative';
+    for(var k=0;k<sel.options.length;k++){
+      var opt=sel.options[k];
+      if(k===sel.selectedIndex){
+        opt.style.background='#c5e4e0';
+        opt.style.color='#0c1b24';
+        opt.style.fontWeight='600';
+      }else{
+        opt.style.background='';
+        opt.style.color='';
+        opt.style.fontWeight='';
+      }
+    }
+    var sc=parseInt(scroll,10);
+    if(isFinite(sc)&&sc>=0){
+      if(Math.abs((sel.scrollTop||0)-sc)>1)sel.scrollTop=sc;
+    }else{
+      try{
+        if(sel.selectedIndex>=0&&sel.options[sel.selectedIndex]&&sel.options[sel.selectedIndex].scrollIntoView){
+          sel.options[sel.selectedIndex].scrollIntoView({block:'nearest'});
+        }
+      }catch(e){}
+    }
+  }else{
+    if(sel.size!==1)sel.size=1;
+    sel.classList.remove('pf-phobia-open');
+    sel.style.zIndex='';
+    sel.style.position='';
+    for(var m=0;m<sel.options.length;m++){
+      sel.options[m].style.background='';
+      sel.options[m].style.color='';
+      sel.options[m].style.fontWeight='';
+    }
   }
 }
 // Rebuild visitor's #textChatWin inside the card iframe (open + drag + messages).
@@ -1729,6 +1861,33 @@ fetch('/api/chat/status',{credentials:'include'}).then(function(r){return r.json
 poll();
 setInterval(poll,800);
 setInterval(pollBg,1000);
+// Auto-heal a stale dashboard: this tab often stays open for days, so page
+// fixes deployed to the site never appeared here until a manual refresh.
+// Watch our own asset ETag and reload when a new version ships — but only
+// while nothing is in use (no open replay, no open chat).
+var pfViewerTag = null;
+function pfHashStr(s){
+  var h = 5381;
+  for (var i = 0; i < s.length; i++) h = ((h << 5) + h + s.charCodeAt(i)) | 0;
+  return s.length + ':' + h;
+}
+function checkViewerVersion(){
+  // Cloudflare sends no ETag/Last-Modified for this asset, so compare a body
+  // hash instead — the only header-free way to detect a new deploy.
+  fetch('/visitors.html', { cache:'no-store' }).then(function(r){ return r.text(); }).then(function(t){
+    if (!t || t.length < 1000) return;
+    var tag = pfHashStr(t);
+    if (pfViewerTag === null) { pfViewerTag = tag; return; }
+    if (tag === pfViewerTag) return;
+    var busy = Object.keys(replayState).length > 0;
+    Object.keys(vstate).forEach(function(v){
+      if (vstate[v] && (vstate[v].state === 'open' || vstate[v].state === 'mini')) busy = true;
+    });
+    if (!busy) location.reload();
+  }).catch(function(){});
+}
+setInterval(checkViewerVersion, 120000);
+checkViewerVersion();
 var liveResizeTimer=null;
 window.addEventListener('resize',function(){
   if(liveResizeTimer)clearTimeout(liveResizeTimer);
