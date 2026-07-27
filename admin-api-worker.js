@@ -183,6 +183,9 @@ async function handleDelete(request, env) {
 
   await env.phobiafree_db.prepare('DELETE FROM session_snapshots WHERE vid = ?').bind(vid).run();
   await env.phobiafree_db.prepare('DELETE FROM visitor_log WHERE vid = ?').bind(vid).run();
+  try {
+    await env.phobiafree_db.prepare('DELETE FROM page_hits WHERE vid = ?').bind(vid).run();
+  } catch (_) { /* optional table */ }
 
   return json({ ok: true });
 }
