@@ -220,10 +220,38 @@ async function handleAction(request, env) {
     }
     case 'delete_consultation': {
       const id = parseInt(body.id, 10);
+      if (!id) return json({ error: 'Missing id' }, 400);
       const row = await env.phobiafree_db
         .prepare('SELECT google_event_id FROM consultations WHERE id = ?')
         .bind(id).first();
-      if (row?.google_event_id) await gcalDeleteEvent(env, row.google_event_id);
+      if (!row) return json({ error: 'Consultation not found' }, 404);
+      if (row.google_event_id) {
+        try { await gcalDeleteEvent(env, row.google_event_id); } catch {}
+      }
+      // payment_links.consultation_id has a D1 FK → consultations(id).
+      // Detach paid links (keep financial history); remove unpaid dependents.
+      const sessions = await env.phobiafree_db
+        .prepare('SELECT id, gcal_event_id FROM therapy_sessions WHERE consultation_id = ?')
+        .bind(id).all();
+      for (const s of (sessions.results || [])) {
+        if (s.gcal_event_id) {
+          try { await gcalDeleteEvent(env, s.gcal_event_id); } catch {}
+        }
+      }
+      await env.phobiafree_db
+        .prepare('UPDATE payment_links SET consultation_id = NULL WHERE consultation_id = ? AND IFNULL(paid, 0) = 1')
+        .bind(id).run();
+      await env.phobiafree_db
+        .prepare('DELETE FROM payment_links WHERE consultation_id = ?')
+        .bind(id).run();
+      await env.phobiafree_db
+        .prepare('DELETE FROM therapy_sessions WHERE consultation_id = ?')
+        .bind(id).run();
+      try {
+        await env.phobiafree_db
+          .prepare('DELETE FROM clients WHERE consultation_id = ?')
+          .bind(id).run();
+      } catch {}
       await env.phobiafree_db.prepare('DELETE FROM consultations WHERE id = ?').bind(id).run();
       return json({ success: true });
     }

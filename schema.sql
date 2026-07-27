@@ -118,7 +118,7 @@ CREATE TABLE IF NOT EXISTS payment_links (
     paid_at TEXT,
     link_type TEXT DEFAULT 'standard',
     price_reason TEXT,
-    FOREIGN KEY (consultation_id) REFERENCES consultations(id)
+    FOREIGN KEY (consultation_id) REFERENCES consultations(id) ON DELETE CASCADE
 );
 
 -- ── Contact / misc ───────────────────────────────────────────────────────

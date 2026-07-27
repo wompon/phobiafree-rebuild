@@ -3971,7 +3971,7 @@ function updateStatus(id, status) {
 }
 
 function deleteConsult(id) {
-  if (!confirm('Delete this consultation?')) return;
+  if (!confirm('Delete this consultation?\n\nRelated unpaid payment links and therapy sessions will also be removed. Paid payment records are kept.')) return;
   ajax({ ajax_action: 'delete_consultation', id: id }).then(function(res) {
     if (res.error) { toast(res.error); return; }
     CONSULTATIONS = CONSULTATIONS.filter(function(c) { return c.id != id; });
