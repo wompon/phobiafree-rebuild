@@ -296,12 +296,19 @@ tr:hover td{background:rgba(26,107,114,0.02);}
 .sidebar-overlay.active{display:block;}
 
 /* VISITOR LOG */
-.vlog-row{display:grid;grid-template-columns:1fr 1fr 1fr 80px 80px auto 72px;gap:0.5rem;padding:0.85rem 1rem;border-bottom:1px solid var(--divider);font-size:0.8rem;align-items:center;}
+.vlog-row{display:grid;grid-template-columns:28px 1fr 1fr 1fr 80px 80px auto 120px;gap:0.5rem;padding:0.85rem 1rem;border-bottom:1px solid var(--divider);font-size:0.8rem;align-items:center;}
 .vlog-row:hover{background:rgba(26,107,114,0.02);}
 .vlog-head{background:var(--cream);font-size:0.68rem;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--mid-gray);padding:0.6rem 1rem;}
 .vlog-pages{display:flex;flex-wrap:wrap;gap:0.25rem;}
 .vlog-page-tag{background:rgba(26,107,114,0.08);color:var(--teal-dark);padding:2px 6px;border-radius:2px;font-size:0.65rem;}
-.vlog-actions{display:flex;justify-content:flex-end;align-items:center;}
+.vlog-actions{display:flex;justify-content:flex-end;align-items:center;gap:0.3rem;flex-wrap:wrap;}
+.vlog-check{display:flex;align-items:center;justify-content:center;}
+.vlog-check input{width:14px;height:14px;cursor:pointer;accent-color:var(--teal);}
+.bulk-bar{display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;padding:0.65rem 1rem;border-bottom:1px solid var(--divider);background:rgba(26,107,114,0.03);font-size:0.75rem;color:var(--mid-gray);}
+.bulk-bar .btn{font-size:0.68rem;padding:2px 8px;}
+.row-archived{opacity:0.72;}
+.archive-toggle{display:inline-flex;align-items:center;gap:0.4rem;font-size:0.75rem;color:var(--mid-gray);cursor:pointer;user-select:none;}
+.archive-toggle input{width:14px;height:14px;accent-color:var(--teal);cursor:pointer;}
 
 /* RESPONSIVE */
 @media(max-width:900px){
@@ -312,8 +319,9 @@ tr:hover td{background:rgba(26,107,114,0.02);}
   .hamburger{display:block;}
   .stats-grid{grid-template-columns:1fr 1fr;}
   .form-row{grid-template-columns:1fr;}
-  .vlog-row{grid-template-columns:1fr 1fr;gap:0.25rem;}
+  .vlog-row{grid-template-columns:28px 1fr 1fr;gap:0.25rem;}
   .vlog-row .vlog-hide{display:none;}
+  .vlog-actions{justify-content:flex-start;}
 }
 @media(max-width:600px){
   .stats-grid{grid-template-columns:1fr 1fr;}
@@ -503,6 +511,10 @@ var BOOKED_SLOTS = [];
 var SESSIONS = [];
 var VISITOR_LOGS = [];
 var PAGE_HITS = [];
+var SHOW_ARCHIVED_VISITORS = false;
+var SHOW_ARCHIVED_CONSULTS = false;
+var SELECTED_VISITOR_VIDS = {};
+var SELECTED_PAGE_HIT_IDS = {};
 var EVOLVE_GENES = [];
 var EVOLVE_IDEAS = [];
 var ADMIN_CHAT = { messages: [], agentId: '', runId: '' };
@@ -738,15 +750,16 @@ async function loadDashboard() {
 }
 
 function recomputeStats() {
-  STATS.totalClients = CONSULTATIONS.length;
-  STATS.pendingCount = CONSULTATIONS.filter(function(c) {
+  var activeConsults = CONSULTATIONS.filter(function(c) { return !c.archived; });
+  STATS.totalClients = activeConsults.length;
+  STATS.pendingCount = activeConsults.filter(function(c) {
     return (c.status || 'pending') === 'pending';
   }).length;
   var today = new Date().toISOString().slice(0, 10);
-  STATS.todayCount = CONSULTATIONS.filter(function(c) {
+  STATS.todayCount = activeConsults.filter(function(c) {
     return String(c.appointment_dt || '').startsWith(today);
   }).length;
-  BOOKED_SLOTS = CONSULTATIONS.map(function(c) { return c.appointment_dt; });
+  BOOKED_SLOTS = activeConsults.map(function(c) { return c.appointment_dt; });
   STATS.totalRevenue = PAYMENTS.reduce(function(sum, p) {
     return sum + (p.paid ? (p.amount_cents || 0) : 0);
   }, 0);
@@ -776,6 +789,7 @@ function getUpcoming() {
   var now = Date.now();
   var end = now + 7 * 24 * 60 * 60 * 1000;
   return CONSULTATIONS.filter(function(c) {
+    if (c.archived) return false;
     var t = new Date(String(c.appointment_dt).replace(' ', 'T')).getTime();
     return t >= now && t <= end;
   }).sort(function(a, b) {
@@ -797,6 +811,7 @@ function populateConsultDropdown() {
   var sel = document.getElementById('sess_consult');
   var html = '<option value="">-- Select a client --</option>';
   CONSULTATIONS.forEach(function(c) {
+    if (c.archived) return;
     var name = (c.first_name || '') + ' ' + (c.last_name || '');
     var dt = fmtDate(c.appointment_dt, { month: 'short', day: 'numeric' });
     html += '<option value="' + escapeHtml(c.id) + '" data-name="' + escapeHtml(name.trim()) + '" data-email="' + escapeHtml(c.email || '') + '" data-phone="' + escapeHtml(c.phone || '') + '">' + escapeHtml(name.trim()) + ' — ' + escapeHtml(dt) + '</option>';
@@ -839,18 +854,31 @@ function renderDashboard() {
 }
 
 function renderConsultations() {
+  var rows = CONSULTATIONS.filter(function(c) {
+    return SHOW_ARCHIVED_CONSULTS ? true : !c.archived;
+  });
+  var archivedCount = CONSULTATIONS.filter(function(c) { return !!c.archived; }).length;
   var html = '<div class="page-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">';
-  html += '<div><div class="page-title">Consultations</div><div class="page-sub">' + CONSULTATIONS.length + ' records</div></div>';
+  html += '<div><div class="page-title">Consultations</div><div class="page-sub">' + rows.length + ' shown';
+  if (archivedCount) html += ' · ' + archivedCount + ' archived';
+  html += '</div></div>';
+  html += '<div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;">';
+  html += '<label class="archive-toggle"><input type="checkbox" ' + (SHOW_ARCHIVED_CONSULTS ? 'checked' : '') + ' onchange="SHOW_ARCHIVED_CONSULTS=this.checked;renderConsultations()"/> Show archived</label>';
   html += '<input class="search-bar" type="text" placeholder="Search..." oninput="filterTable(\'consult-table\',this.value)"/>';
-  html += '</div><div class="card"><div class="table-wrap"><table id="consult-table"><thead><tr><th>#</th><th>Client</th><th>Phobia</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead><tbody>';
-  CONSULTATIONS.forEach(function(c) {
+  html += '</div></div><div class="card"><div class="table-wrap"><table id="consult-table"><thead><tr><th>#</th><th>Client</th><th>Phobia</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead><tbody>';
+  if (!rows.length) {
+    html += '<tr><td colspan="6" style="text-align:center;color:var(--mid-gray);padding:2rem;">No consultations' + (SHOW_ARCHIVED_CONSULTS ? '' : ' (try Show archived)') + '.</td></tr>';
+  }
+  rows.forEach(function(c) {
     var name = (c.first_name || '') + ' ' + (c.last_name || '');
     var status = c.status || 'pending';
-    html += '<tr>';
+    var isArchived = !!c.archived;
+    html += '<tr' + (isArchived ? ' class="row-archived"' : '') + '>';
     html += '<td style="color:var(--mid-gray)">#' + escapeHtml(c.id) + '</td>';
     html += '<td><div style="font-weight:500">' + escapeHtml(name.trim()) + '</div>';
     html += '<div style="font-size:0.75rem;color:var(--mid-gray)">' + escapeHtml(c.email || '') + '</div>';
     if (c.phone) html += '<div style="font-size:0.75rem;color:var(--mid-gray)">' + escapeHtml(c.phone) + '</div>';
+    if (isArchived) html += '<div style="font-size:0.68rem;color:var(--gold);margin-top:0.15rem;">Archived</div>';
     html += '</td>';
     html += '<td>' + escapeHtml(c.phobia || '—') + '</td>';
     html += '<td><div>' + escapeHtml(fmtDate(c.appointment_dt, { month: 'short', day: 'numeric', year: 'numeric' })) + '</div>';
@@ -860,7 +888,13 @@ function renderConsultations() {
       html += '<option value="' + s + '"' + (status === s ? ' selected' : '') + '>' + s.charAt(0).toUpperCase() + s.slice(1) + '</option>';
     });
     html += '</select></td>';
-    html += '<td><button class="btn btn-ghost" onclick="viewConsult(' + c.id + ')" style="margin-right:4px">View</button>';
+    html += '<td style="white-space:nowrap;">';
+    html += '<button class="btn btn-ghost" onclick="viewConsult(' + c.id + ')" style="margin-right:4px">View</button>';
+    if (isArchived) {
+      html += '<button class="btn btn-ghost" onclick="archiveConsult(' + c.id + ',0)" style="margin-right:4px">Unarchive</button>';
+    } else {
+      html += '<button class="btn btn-ghost" onclick="archiveConsult(' + c.id + ',1)" style="margin-right:4px">Archive</button>';
+    }
     html += '<button class="btn btn-red" onclick="deleteConsult(' + c.id + ')">Delete</button></td>';
     html += '</tr>';
   });
@@ -925,11 +959,12 @@ function renderScheduleTab() {
 }
 
 function renderClients() {
+  var rows = CONSULTATIONS.filter(function(c) { return !c.archived; });
   var html = '<div class="page-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">';
-  html += '<div><div class="page-title">Clients</div><div class="page-sub">' + CONSULTATIONS.length + ' clients</div></div>';
+  html += '<div><div class="page-title">Clients</div><div class="page-sub">' + rows.length + ' clients</div></div>';
   html += '<input class="search-bar" type="text" placeholder="Search clients..." oninput="filterTable(\'client-table\',this.value)"/>';
   html += '</div><div class="card"><div class="table-wrap"><table id="client-table"><thead><tr><th>Client</th><th>Phobia</th><th>Intensity</th><th>Consult Date</th><th>Submitted</th><th>Actions</th></tr></thead><tbody>';
-  CONSULTATIONS.forEach(function(c) {
+  rows.forEach(function(c) {
     var name = (c.first_name || '') + ' ' + (c.last_name || '');
     html += '<tr>';
     html += '<td><div style="font-weight:500">' + escapeHtml(name.trim()) + '</div>';
@@ -941,6 +976,7 @@ function renderClients() {
     html += '<td>' + escapeHtml(fmtDate(c.appointment_dt, { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' })) + '</td>';
     html += '<td style="color:var(--mid-gray);font-size:0.75rem">' + escapeHtml(fmtDate(c.submitted_at, { month: 'short', day: 'numeric', year: 'numeric' })) + '</td>';
     html += '<td><button class="btn btn-ghost" onclick="viewConsult(' + c.id + ')" style="margin-right:4px">View</button>';
+    html += '<button class="btn btn-ghost" onclick="archiveConsult(' + c.id + ',1)" style="margin-right:4px">Archive</button>';
     html += '<button class="btn btn-red" onclick="deleteConsult(' + c.id + ')">Delete</button></td>';
     html += '</tr>';
   });
@@ -989,19 +1025,52 @@ function renderPayments() {
 }
 
 function renderVisitors() {
-  var hits = PAGE_HITS || [];
+  var allHits = PAGE_HITS || [];
+  var allSessions = VISITOR_LOGS || [];
+  var hits = allHits.filter(function(h) {
+    return SHOW_ARCHIVED_VISITORS ? true : !h.archived;
+  });
+  var sessions = allSessions.filter(function(v) {
+    return SHOW_ARCHIVED_VISITORS ? true : !v.archived;
+  });
   var ghost = hits.filter(function(h) { return !h.interacted; }).length;
+  var archivedHits = allHits.filter(function(h) { return !!h.archived; }).length;
+  var archivedSessions = allSessions.filter(function(v) { return !!v.archived; }).length;
+  var selectedHits = selectedPageHitIds().filter(function(id) {
+    return hits.some(function(h) { return h.id == id; });
+  });
+  var selectedVids = selectedVisitorVids().filter(function(vid) {
+    return sessions.some(function(v) { return v.vid === vid; });
+  });
   var html = '<div class="page-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">';
-  html += '<div><div class="page-title">Visitor Log</div><div class="page-sub">' + VISITOR_LOGS.length + ' interactive sessions · ' + hits.length + ' page hits (' + ghost + ' no mouse/scroll)</div></div>';
-  html += '<div style="display:flex;gap:0.5rem;flex-wrap:wrap;">';
+  html += '<div><div class="page-title">Visitor Log</div><div class="page-sub">' + sessions.length + ' interactive sessions · ' + hits.length + ' page hits (' + ghost + ' no mouse/scroll)';
+  if (archivedHits || archivedSessions) {
+    html += ' · ' + (archivedSessions + archivedHits) + ' archived';
+  }
+  html += '</div></div>';
+  html += '<div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;">';
+  html += '<label class="archive-toggle"><input type="checkbox" ' + (SHOW_ARCHIVED_VISITORS ? 'checked' : '') + ' onchange="SHOW_ARCHIVED_VISITORS=this.checked;renderVisitors()"/> Show archived</label>';
   html += '<input class="search-bar" type="text" placeholder="Search visitors..." oninput="filterVisitors(this.value)"/>';
   html += '<button class="btn btn-red" onclick="clearVisitorLog()">Clear Log</button></div></div>';
 
   html += '<div class="card" style="margin-bottom:1rem;"><div class="card-header"><div class="card-title">All page hits (Ads reconciliation)</div>';
   html += '<div style="font-size:0.75rem;color:var(--mid-gray);">Every load — including clicks that never moved the mouse. Match time + location + gclid to Google Ads.</div></div>';
-  html += '<div class="table-wrap"><table><thead><tr><th>When</th><th>Location / IP</th><th>Device</th><th>Page</th><th>Engaged</th><th>Ads</th><th>Actions</th></tr></thead><tbody>';
+  html += '<div class="bulk-bar" id="pageHitBulkBar">';
+  html += '<label class="archive-toggle"><input type="checkbox" ' + (hits.length && selectedHits.length === hits.length ? 'checked' : '') + ' onchange="toggleSelectAllPageHits(this.checked)"/> Select all</label>';
+  if (selectedHits.length) {
+    html += '<span>' + selectedHits.length + ' selected</span>';
+    html += '<button class="btn btn-ghost" type="button" onclick="bulkArchivePageHits(1)">Archive</button>';
+    if (SHOW_ARCHIVED_VISITORS) {
+      html += '<button class="btn btn-ghost" type="button" onclick="bulkArchivePageHits(0)">Unarchive</button>';
+    }
+    html += '<button class="btn btn-red" type="button" onclick="bulkDeletePageHits()">Delete</button>';
+  } else {
+    html += '<span>Select rows to archive or delete</span>';
+  }
+  html += '</div>';
+  html += '<div class="table-wrap"><table><thead><tr><th style="width:28px;"></th><th>When</th><th>Location / IP</th><th>Device</th><th>Page</th><th>Engaged</th><th>Ads</th><th>Actions</th></tr></thead><tbody>';
   if (!hits.length) {
-    html += '<tr><td colspan="7" style="text-align:center;color:var(--mid-gray);padding:1.5rem;">No page hits yet. New landings will appear here.</td></tr>';
+    html += '<tr><td colspan="8" style="text-align:center;color:var(--mid-gray);padding:1.5rem;">No page hits yet' + (SHOW_ARCHIVED_VISITORS ? '' : ' (or all archived)') + '.</td></tr>';
   } else {
     hits.slice(0, 200).forEach(function(h) {
       var engaged = h.interacted ? 'Yes' : 'NO — ghost';
@@ -1010,29 +1079,53 @@ function renderVisitors() {
       if (h.utm_source) adsBits.push(h.utm_source);
       if (h.utm_campaign) adsBits.push(h.utm_campaign);
       if (h.utm_term) adsBits.push(h.utm_term);
-      html += '<tr' + (!h.interacted ? ' style="background:rgba(139,32,32,0.04);"' : '') + '>';
+      var checked = SELECTED_PAGE_HIT_IDS[h.id] ? ' checked' : '';
+      var isArchived = !!h.archived;
+      html += '<tr' + (!h.interacted ? ' style="background:rgba(139,32,32,0.04);"' : '') + (isArchived ? ' class="row-archived"' : '') + '>';
+      html += '<td class="vlog-check"><input type="checkbox"' + checked + ' onchange="togglePageHitSelect(' + parseInt(h.id, 10) + ', this.checked)"/></td>';
       html += '<td style="font-size:0.75rem;white-space:nowrap;">' + escapeHtml(fmtDate(h.created_at, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', second: '2-digit' })) + '</td>';
       html += '<td><div style="font-weight:500;font-size:0.8rem;">' + escapeHtml(h.location || '—') + '</div>';
-      html += '<div style="font-size:0.7rem;color:var(--mid-gray);font-family:monospace;">' + escapeHtml(h.ip || '') + '</div></td>';
+      html += '<div style="font-size:0.7rem;color:var(--mid-gray);font-family:monospace;">' + escapeHtml(h.ip || '') + '</div>';
+      if (isArchived) html += '<div style="font-size:0.65rem;color:var(--gold);">Archived</div>';
+      html += '</td>';
       html += '<td style="font-size:0.8rem;">' + escapeHtml(h.device || '—') + '</td>';
       html += '<td style="font-size:0.8rem;">' + escapeHtml(h.page || h.path || '—') + '</td>';
       html += '<td style="font-size:0.78rem;font-weight:500;color:' + (h.interacted ? 'var(--sage)' : '#8b2020') + ';">' + engaged + '</td>';
       html += '<td style="font-size:0.72rem;color:var(--mid-gray);">' + escapeHtml(adsBits.length ? adsBits.join(' · ') : (h.referrer ? String(h.referrer).slice(0, 40) : '—')) + '</td>';
-      html += '<td><button class="btn btn-red" style="font-size:0.68rem;padding:2px 8px;" type="button" onclick="deletePageHit(' + parseInt(h.id, 10) + ')">Delete</button></td>';
+      html += '<td style="white-space:nowrap;">';
+      if (isArchived) {
+        html += '<button class="btn btn-ghost" style="font-size:0.68rem;padding:2px 8px;margin-right:4px;" type="button" onclick="archivePageHit(' + parseInt(h.id, 10) + ',0)">Unarchive</button>';
+      } else {
+        html += '<button class="btn btn-ghost" style="font-size:0.68rem;padding:2px 8px;margin-right:4px;" type="button" onclick="archivePageHit(' + parseInt(h.id, 10) + ',1)">Archive</button>';
+      }
+      html += '<button class="btn btn-red" style="font-size:0.68rem;padding:2px 8px;" type="button" onclick="deletePageHit(' + parseInt(h.id, 10) + ')">Delete</button></td>';
       html += '</tr>';
     });
   }
   html += '</tbody></table></div></div>';
 
   html += '<div class="card"><div class="card-header"><div class="card-title">Interactive sessions</div></div>';
+  html += '<div class="bulk-bar" id="visitorBulkBar">';
+  html += '<label class="archive-toggle"><input type="checkbox" ' + (sessions.length && selectedVids.length === sessions.length ? 'checked' : '') + ' onchange="toggleSelectAllVisitors(this.checked)"/> Select all</label>';
+  if (selectedVids.length) {
+    html += '<span>' + selectedVids.length + ' selected</span>';
+    html += '<button class="btn btn-ghost" type="button" onclick="bulkArchiveVisitors(1)">Archive</button>';
+    if (SHOW_ARCHIVED_VISITORS) {
+      html += '<button class="btn btn-ghost" type="button" onclick="bulkArchiveVisitors(0)">Unarchive</button>';
+    }
+    html += '<button class="btn btn-red" type="button" onclick="bulkDeleteVisitors()">Delete</button>';
+  } else {
+    html += '<span>Select rows to archive or delete</span>';
+  }
+  html += '</div>';
   html += '<div class="vlog-row vlog-head">';
-  html += '<div>Location / IP</div><div>Device</div><div>Pages Viewed</div>';
+  html += '<div></div><div>Location / IP</div><div>Device</div><div>Pages Viewed</div>';
   html += '<div class="vlog-hide">First Seen</div><div class="vlog-hide">Last Seen</div><div>Time on Site</div><div>Actions</div></div>';
   html += '<div id="visitorLogBody">';
-  if (!VISITOR_LOGS.length) {
-    html += '<div style="padding:2rem;text-align:center;color:var(--mid-gray);font-size:0.85rem;">No interactive visitor data yet.</div>';
+  if (!sessions.length) {
+    html += '<div style="padding:2rem;text-align:center;color:var(--mid-gray);font-size:0.85rem;">No interactive visitor data yet' + (SHOW_ARCHIVED_VISITORS ? '' : ' (or all archived)') + '.</div>';
   } else {
-    VISITOR_LOGS.forEach(function(v) {
+    sessions.forEach(function(v) {
       var pages = [];
       try { pages = JSON.parse(v.pages || '[]') || []; } catch (e) { pages = []; }
       var mins = Math.floor((v.total_seconds || 0) / 60);
@@ -1040,9 +1133,18 @@ function renderVisitors() {
       var timeStr = mins > 0 ? mins + 'm ' + secs + 's' : secs + 's';
       var search = ((v.location || '') + (v.ip || '') + (v.device || '') + (v.vid || '')).toLowerCase();
       var safeVid = String(v.vid || '').replace(/[^a-z0-9_]/gi, '');
-      html += '<div class="vlog-row" data-search="' + escapeHtml(search) + '">';
+      var isArchived = !!v.archived;
+      var checked = safeVid && SELECTED_VISITOR_VIDS[safeVid] ? ' checked' : '';
+      html += '<div class="vlog-row' + (isArchived ? ' row-archived' : '') + '" data-search="' + escapeHtml(search) + '">';
+      html += '<div class="vlog-check">';
+      if (safeVid) {
+        html += '<input type="checkbox"' + checked + ' onchange="toggleVisitorSelect(\'' + safeVid + '\', this.checked)"/>';
+      }
+      html += '</div>';
       html += '<div><div style="font-weight:500;font-size:0.82rem;">' + escapeHtml(v.location || '—') + '</div>';
-      html += '<div style="font-size:0.72rem;color:var(--mid-gray);font-family:monospace;">' + escapeHtml(v.ip || '') + '</div></div>';
+      html += '<div style="font-size:0.72rem;color:var(--mid-gray);font-family:monospace;">' + escapeHtml(v.ip || '') + '</div>';
+      if (isArchived) html += '<div style="font-size:0.65rem;color:var(--gold);">Archived</div>';
+      html += '</div>';
       html += '<div style="font-size:0.8rem;">' + escapeHtml(v.device || '—') + '</div>';
       html += '<div class="vlog-pages">';
       if (!pages.length) {
@@ -1058,6 +1160,11 @@ function renderVisitors() {
       html += '<div style="font-weight:500;color:var(--teal-dark);font-size:0.82rem;">' + escapeHtml(timeStr) + '</div>';
       html += '<div class="vlog-actions">';
       if (safeVid) {
+        if (isArchived) {
+          html += '<button class="btn btn-ghost" style="font-size:0.68rem;padding:2px 8px;" type="button" onclick="archiveVisitor(\'' + safeVid + '\',0)">Unarchive</button>';
+        } else {
+          html += '<button class="btn btn-ghost" style="font-size:0.68rem;padding:2px 8px;" type="button" onclick="archiveVisitor(\'' + safeVid + '\',1)">Archive</button>';
+        }
         html += '<button class="btn btn-red" style="font-size:0.68rem;padding:2px 8px;" type="button" onclick="deleteVisitor(\'' + safeVid + '\')">Delete</button>';
       }
       html += '</div></div>';
@@ -3985,15 +4092,77 @@ function deleteConsult(id) {
   });
 }
 
+function archiveConsult(id, archived) {
+  archived = archived ? 1 : 0;
+  ajax({ ajax_action: 'archive_consultation', id: id, archived: archived }).then(function(res) {
+    if (res.error) { toast(res.error); return; }
+    CONSULTATIONS.forEach(function(c) { if (c.id == id) c.archived = archived; });
+    toast(archived ? 'Archived' : 'Unarchived');
+    refreshViews();
+  });
+}
+
 function clearVisitorLog() {
   if (!confirm('Clear all visitor log data?')) return;
   ajax({ ajax_action: 'clear_visitor_log' }).then(function(res) {
     if (res.error) { toast(res.error); return; }
     VISITOR_LOGS = [];
     PAGE_HITS = [];
+    SELECTED_VISITOR_VIDS = {};
+    SELECTED_PAGE_HIT_IDS = {};
     toast('Log cleared');
     refreshViews();
   });
+}
+
+function selectedVisitorVids() {
+  return Object.keys(SELECTED_VISITOR_VIDS).filter(function(k) { return SELECTED_VISITOR_VIDS[k]; });
+}
+
+function selectedPageHitIds() {
+  return Object.keys(SELECTED_PAGE_HIT_IDS).filter(function(k) { return SELECTED_PAGE_HIT_IDS[k]; }).map(function(k) {
+    return parseInt(k, 10);
+  }).filter(function(id) { return !!id; });
+}
+
+function toggleVisitorSelect(vid, checked) {
+  if (!vid) return;
+  if (checked) SELECTED_VISITOR_VIDS[vid] = true;
+  else delete SELECTED_VISITOR_VIDS[vid];
+  renderVisitors();
+}
+
+function togglePageHitSelect(id, checked) {
+  id = parseInt(id, 10);
+  if (!id) return;
+  if (checked) SELECTED_PAGE_HIT_IDS[id] = true;
+  else delete SELECTED_PAGE_HIT_IDS[id];
+  renderVisitors();
+}
+
+function toggleSelectAllVisitors(checked) {
+  var sessions = (VISITOR_LOGS || []).filter(function(v) {
+    return SHOW_ARCHIVED_VISITORS ? true : !v.archived;
+  });
+  sessions.forEach(function(v) {
+    var vid = String(v.vid || '').replace(/[^a-z0-9_]/gi, '');
+    if (!vid) return;
+    if (checked) SELECTED_VISITOR_VIDS[vid] = true;
+    else delete SELECTED_VISITOR_VIDS[vid];
+  });
+  renderVisitors();
+}
+
+function toggleSelectAllPageHits(checked) {
+  var hits = (PAGE_HITS || []).filter(function(h) {
+    return SHOW_ARCHIVED_VISITORS ? true : !h.archived;
+  }).slice(0, 200);
+  hits.forEach(function(h) {
+    if (!h.id) return;
+    if (checked) SELECTED_PAGE_HIT_IDS[h.id] = true;
+    else delete SELECTED_PAGE_HIT_IDS[h.id];
+  });
+  renderVisitors();
 }
 
 function deleteVisitor(vid) {
@@ -4002,6 +4171,7 @@ function deleteVisitor(vid) {
     if (res.error) { toast(res.error); return; }
     VISITOR_LOGS = VISITOR_LOGS.filter(function(v) { return v.vid !== vid; });
     PAGE_HITS = (PAGE_HITS || []).filter(function(h) { return h.vid !== vid; });
+    delete SELECTED_VISITOR_VIDS[vid];
     toast('Deleted');
     refreshViews();
   });
@@ -4013,7 +4183,90 @@ function deletePageHit(id) {
   ajax({ ajax_action: 'delete_page_hit', id: id }).then(function(res) {
     if (res.error) { toast(res.error); return; }
     PAGE_HITS = (PAGE_HITS || []).filter(function(h) { return h.id != id; });
+    delete SELECTED_PAGE_HIT_IDS[id];
     toast('Deleted');
+    refreshViews();
+  });
+}
+
+function archiveVisitor(vid, archived) {
+  if (!vid) return;
+  archived = archived ? 1 : 0;
+  ajax({ ajax_action: 'archive_visitors', vids: [vid], archived: archived }).then(function(res) {
+    if (res.error) { toast(res.error); return; }
+    VISITOR_LOGS.forEach(function(v) { if (v.vid === vid) v.archived = archived; });
+    delete SELECTED_VISITOR_VIDS[vid];
+    toast(archived ? 'Archived' : 'Unarchived');
+    refreshViews();
+  });
+}
+
+function archivePageHit(id, archived) {
+  id = parseInt(id, 10);
+  if (!id) return;
+  archived = archived ? 1 : 0;
+  ajax({ ajax_action: 'archive_page_hits', ids: [id], archived: archived }).then(function(res) {
+    if (res.error) { toast(res.error); return; }
+    PAGE_HITS.forEach(function(h) { if (h.id == id) h.archived = archived; });
+    delete SELECTED_PAGE_HIT_IDS[id];
+    toast(archived ? 'Archived' : 'Unarchived');
+    refreshViews();
+  });
+}
+
+function bulkDeleteVisitors() {
+  var vids = selectedVisitorVids();
+  if (!vids.length) return;
+  if (!confirm('Delete ' + vids.length + ' visitor session(s)?')) return;
+  ajax({ ajax_action: 'delete_visitors', vids: vids }).then(function(res) {
+    if (res.error) { toast(res.error); return; }
+    var set = {};
+    vids.forEach(function(v) { set[v] = true; delete SELECTED_VISITOR_VIDS[v]; });
+    VISITOR_LOGS = VISITOR_LOGS.filter(function(v) { return !set[v.vid]; });
+    PAGE_HITS = (PAGE_HITS || []).filter(function(h) { return !set[h.vid]; });
+    toast('Deleted ' + vids.length);
+    refreshViews();
+  });
+}
+
+function bulkArchiveVisitors(archived) {
+  var vids = selectedVisitorVids();
+  if (!vids.length) return;
+  archived = archived ? 1 : 0;
+  ajax({ ajax_action: 'archive_visitors', vids: vids, archived: archived }).then(function(res) {
+    if (res.error) { toast(res.error); return; }
+    var set = {};
+    vids.forEach(function(v) { set[v] = true; delete SELECTED_VISITOR_VIDS[v]; });
+    VISITOR_LOGS.forEach(function(v) { if (set[v.vid]) v.archived = archived; });
+    toast((archived ? 'Archived ' : 'Unarchived ') + vids.length);
+    refreshViews();
+  });
+}
+
+function bulkDeletePageHits() {
+  var ids = selectedPageHitIds();
+  if (!ids.length) return;
+  if (!confirm('Delete ' + ids.length + ' page hit(s)?')) return;
+  ajax({ ajax_action: 'delete_page_hits', ids: ids }).then(function(res) {
+    if (res.error) { toast(res.error); return; }
+    var set = {};
+    ids.forEach(function(id) { set[id] = true; delete SELECTED_PAGE_HIT_IDS[id]; });
+    PAGE_HITS = (PAGE_HITS || []).filter(function(h) { return !set[h.id]; });
+    toast('Deleted ' + ids.length);
+    refreshViews();
+  });
+}
+
+function bulkArchivePageHits(archived) {
+  var ids = selectedPageHitIds();
+  if (!ids.length) return;
+  archived = archived ? 1 : 0;
+  ajax({ ajax_action: 'archive_page_hits', ids: ids, archived: archived }).then(function(res) {
+    if (res.error) { toast(res.error); return; }
+    var set = {};
+    ids.forEach(function(id) { set[id] = true; delete SELECTED_PAGE_HIT_IDS[id]; });
+    PAGE_HITS.forEach(function(h) { if (set[h.id]) h.archived = archived; });
+    toast((archived ? 'Archived ' : 'Unarchived ') + ids.length);
     refreshViews();
   });
 }

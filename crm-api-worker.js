@@ -46,6 +46,8 @@ export default {
 async function handleDashboard(request, env) {
   if (!(await requireAuth(request, env))) return json({ error: 'unauthorized' }, 401);
 
+  await ensureArchiveColumns(env);
+
   const { results: consultations } = await env.phobiafree_db
     .prepare('SELECT * FROM consultations ORDER BY appointment_dt DESC')
     .all();
@@ -126,6 +128,7 @@ async function handleDashboard(request, env) {
     if (p.paid) totalRevenue += p.amount_cents;
   }
   for (const c of consultations) {
+    if (c.archived) continue;
     if ((c.status || 'pending') === 'pending') pendingCount++;
     if ((c.appointment_dt || '').startsWith(today)) todayCount++;
     const t = new Date((c.appointment_dt || '').replace(' ', 'T')).getTime();
@@ -134,6 +137,7 @@ async function handleDashboard(request, env) {
 
   const hoursWindows = await getHoursWindows(env);
   const sessionPriceCents = await getSessionPriceCents(env);
+  const activeConsultations = (consultations || []).filter((c) => !c.archived);
 
   return json({
     consultations,
@@ -151,7 +155,7 @@ async function handleDashboard(request, env) {
     stats: {
       todayCount,
       weekCount,
-      totalClients: consultations.length,
+      totalClients: activeConsultations.length,
       totalRevenue,
       pendingCount,
     },
@@ -187,6 +191,8 @@ async function handleAction(request, env) {
 
   const body = await request.json().catch(() => ({}));
   const action = (body.ajax_action || body.action || '').toString();
+
+  await ensureArchiveColumns(env);
 
   const arkResult = await handleArkAction(body, env);
   if (arkResult) {
@@ -366,6 +372,70 @@ async function handleAction(request, env) {
       }
       return json({ success: true });
     }
+    case 'delete_visitors': {
+      const vids = normalizeVidList(body.vids || body.vid);
+      if (!vids.length) return json({ error: 'Missing vids' }, 400);
+      for (const vid of vids) {
+        await env.phobiafree_db.prepare('DELETE FROM session_snapshots WHERE vid = ?').bind(vid).run();
+        await env.phobiafree_db.prepare('DELETE FROM visitor_log WHERE vid = ?').bind(vid).run();
+        await env.phobiafree_db.prepare('DELETE FROM live_visitors WHERE vid = ?').bind(vid).run();
+        try {
+          await env.phobiafree_db.prepare('DELETE FROM page_hits WHERE vid = ?').bind(vid).run();
+        } catch (_) { /* optional */ }
+      }
+      return json({ success: true, deleted: vids.length });
+    }
+    case 'delete_page_hits': {
+      const ids = normalizeIdList(body.ids || body.id);
+      if (!ids.length) return json({ error: 'Missing ids' }, 400);
+      for (const id of ids) {
+        try {
+          await env.phobiafree_db.prepare('DELETE FROM page_hits WHERE id = ?').bind(id).run();
+        } catch (e) {
+          return json({ error: String(e) }, 500);
+        }
+      }
+      return json({ success: true, deleted: ids.length });
+    }
+    case 'archive_visitors': {
+      const vids = normalizeVidList(body.vids || body.vid);
+      if (!vids.length) return json({ error: 'Missing vids' }, 400);
+      const archived = body.archived === 0 || body.archived === false || body.archived === '0' ? 0 : 1;
+      for (const vid of vids) {
+        await env.phobiafree_db
+          .prepare('UPDATE visitor_log SET archived = ? WHERE vid = ?')
+          .bind(archived, vid).run();
+      }
+      return json({ success: true, archived, count: vids.length });
+    }
+    case 'archive_page_hits': {
+      const ids = normalizeIdList(body.ids || body.id);
+      if (!ids.length) return json({ error: 'Missing ids' }, 400);
+      const archived = body.archived === 0 || body.archived === false || body.archived === '0' ? 0 : 1;
+      for (const id of ids) {
+        try {
+          await env.phobiafree_db
+            .prepare('UPDATE page_hits SET archived = ? WHERE id = ?')
+            .bind(archived, id).run();
+        } catch (e) {
+          return json({ error: String(e) }, 500);
+        }
+      }
+      return json({ success: true, archived, count: ids.length });
+    }
+    case 'archive_consultation': {
+      const id = parseInt(body.id, 10);
+      if (!id) return json({ error: 'Missing id' }, 400);
+      const archived = body.archived === 0 || body.archived === false || body.archived === '0' ? 0 : 1;
+      const row = await env.phobiafree_db
+        .prepare('SELECT id FROM consultations WHERE id = ?')
+        .bind(id).first();
+      if (!row) return json({ error: 'Consultation not found' }, 404);
+      await env.phobiafree_db
+        .prepare('UPDATE consultations SET archived = ? WHERE id = ?')
+        .bind(archived, id).run();
+      return json({ success: true, archived });
+    }
     case 'get_hours': {
       const windows = await getHoursWindows(env);
       return json({ success: true, hours_windows: windows, hours_label: formatHoursLabel(windows) });
@@ -522,6 +592,42 @@ async function handleAction(request, env) {
     }
     default:
       return json({ error: 'Unknown action' }, 400);
+  }
+}
+
+function normalizeVidList(raw) {
+  const list = Array.isArray(raw) ? raw : (raw != null && raw !== '' ? [raw] : []);
+  const out = [];
+  const seen = {};
+  for (const item of list) {
+    const vid = String(item || '').replace(/[^a-z0-9_]/gi, '');
+    if (!vid || seen[vid]) continue;
+    seen[vid] = true;
+    out.push(vid);
+  }
+  return out;
+}
+
+function normalizeIdList(raw) {
+  const list = Array.isArray(raw) ? raw : (raw != null && raw !== '' ? [raw] : []);
+  const out = [];
+  const seen = {};
+  for (const item of list) {
+    const id = parseInt(item, 10);
+    if (!id || seen[id]) continue;
+    seen[id] = true;
+    out.push(id);
+  }
+  return out;
+}
+
+async function ensureArchiveColumns(env) {
+  for (const sql of [
+    'ALTER TABLE visitor_log ADD COLUMN archived INTEGER DEFAULT 0',
+    'ALTER TABLE page_hits ADD COLUMN archived INTEGER DEFAULT 0',
+    'ALTER TABLE consultations ADD COLUMN archived INTEGER DEFAULT 0',
+  ]) {
+    try { await env.phobiafree_db.prepare(sql).run(); } catch (_) { /* exists */ }
   }
 }
 

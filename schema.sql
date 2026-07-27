@@ -14,7 +14,8 @@ CREATE TABLE IF NOT EXISTS visitor_log (
     first_seen TEXT,
     last_seen TEXT,
     total_seconds INTEGER DEFAULT 0,
-    pages TEXT
+    pages TEXT,
+    archived INTEGER DEFAULT 0
 );
 
 CREATE TABLE IF NOT EXISTS session_snapshots (
@@ -65,6 +66,7 @@ CREATE TABLE IF NOT EXISTS consultations (
     sms_consent INTEGER DEFAULT 0,
     consent_timestamp TEXT,
     status TEXT DEFAULT 'pending',
+    archived INTEGER DEFAULT 0,
     submitted_at TEXT DEFAULT CURRENT_TIMESTAMP
 );
 

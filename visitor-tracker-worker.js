@@ -114,12 +114,19 @@ async function ensureSchema(env) {
         utm_content TEXT,
         referrer TEXT,
         interacted INTEGER DEFAULT 0,
+        archived INTEGER DEFAULT 0,
         created_at TEXT DEFAULT CURRENT_TIMESTAMP
       )
     `).run();
     await env.phobiafree_db
       .prepare('CREATE INDEX IF NOT EXISTS idx_page_hits_created ON page_hits(created_at)')
       .run();
+    try {
+      await env.phobiafree_db.prepare('ALTER TABLE page_hits ADD COLUMN archived INTEGER DEFAULT 0').run();
+    } catch (_) { /* exists */ }
+    try {
+      await env.phobiafree_db.prepare('ALTER TABLE visitor_log ADD COLUMN archived INTEGER DEFAULT 0').run();
+    } catch (_) { /* exists */ }
     schemaReady = true;
   } catch (e) {
     // If this fails, the individual queries below will surface the real error.
