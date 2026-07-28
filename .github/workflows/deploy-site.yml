@@ -1,4 +1,4 @@
-# Deploy PhobiaFree site Worker when main updates (including merged cloud-agent PRs).
+# Deploys phobiafree-site (admin + public assets + API workers).
 # Requires GitHub repo secrets:
 #   CLOUDFLARE_API_TOKEN
 #   CLOUDFLARE_ACCOUNT_ID
@@ -12,12 +12,12 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '22'
-      - name: Deploy Worker
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Deploy with Wrangler
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}

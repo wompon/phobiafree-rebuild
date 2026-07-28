@@ -27,6 +27,28 @@ CREATE TABLE IF NOT EXISTS session_snapshots (
 CREATE INDEX IF NOT EXISTS idx_snapshots_vid ON session_snapshots (vid);
 CREATE INDEX IF NOT EXISTS idx_snapshots_created ON session_snapshots (created_at);
 
+-- Page hits (incl. ghost / no-mouse loads) for ads reconciliation
+CREATE TABLE IF NOT EXISTS page_hits (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    vid TEXT,
+    ip TEXT,
+    location TEXT,
+    device TEXT,
+    page TEXT,
+    path TEXT,
+    gclid TEXT,
+    utm_source TEXT,
+    utm_medium TEXT,
+    utm_campaign TEXT,
+    utm_term TEXT,
+    utm_content TEXT,
+    referrer TEXT,
+    interacted INTEGER DEFAULT 0,
+    archived INTEGER DEFAULT 0,
+    created_at TEXT DEFAULT CURRENT_TIMESTAMP
+);
+CREATE INDEX IF NOT EXISTS idx_page_hits_created ON page_hits (created_at);
+
 -- chat_messages: created historically by install.php but NOT used by the live
 -- chat (chat_handler.php stores chats as flat JSON files instead). Kept here
 -- in case you want to migrate live chat onto D1 properly; otherwise drop it.
