@@ -1,0 +1,22 @@
+# Deploys phobiafree-site (admin + public assets + API workers).
+# Requires repo secret CLOUDFLARE_API_TOKEN with Workers edit permission.
+name: Deploy site
+
+on:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Deploy with Wrangler
+        uses: cloudflare/wrangler-action@v3
+        with:
+          apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          command: deploy -c wrangler-site.jsonc
