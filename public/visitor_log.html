@@ -225,10 +225,6 @@ body{font-family:'DM Sans',sans-serif;background:#f0f2f5;color:var(--charcoal);m
 .table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch;}
 table{width:100%;border-collapse:collapse;font-size:0.82rem;min-width:500px;}
 th{padding:0.75rem 1rem;text-align:left;font-size:0.68rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--mid-gray);background:var(--cream);border-bottom:1px solid var(--divider);white-space:nowrap;}
-th.sortable{cursor:pointer;user-select:none;}
-th.sortable:hover{color:var(--teal-dark);}
-th.sortable.active{color:var(--teal-dark);}
-th.sortable .sort-ind{font-size:0.65rem;opacity:0.85;margin-left:0.2rem;}
 td{padding:0.85rem 1rem;border-bottom:1px solid var(--divider);vertical-align:top;}
 tr:last-child td{border-bottom:none;}
 tr:hover td{background:rgba(26,107,114,0.02);}
@@ -300,12 +296,19 @@ tr:hover td{background:rgba(26,107,114,0.02);}
 .sidebar-overlay.active{display:block;}
 
 /* VISITOR LOG */
-.vlog-row{display:grid;grid-template-columns:1fr 1fr 1fr 80px 80px auto 72px;gap:0.5rem;padding:0.85rem 1rem;border-bottom:1px solid var(--divider);font-size:0.8rem;align-items:center;}
+.vlog-row{display:grid;grid-template-columns:28px 1fr 1fr 1fr 80px 80px auto 120px;gap:0.5rem;padding:0.85rem 1rem;border-bottom:1px solid var(--divider);font-size:0.8rem;align-items:center;}
 .vlog-row:hover{background:rgba(26,107,114,0.02);}
 .vlog-head{background:var(--cream);font-size:0.68rem;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--mid-gray);padding:0.6rem 1rem;}
 .vlog-pages{display:flex;flex-wrap:wrap;gap:0.25rem;}
 .vlog-page-tag{background:rgba(26,107,114,0.08);color:var(--teal-dark);padding:2px 6px;border-radius:2px;font-size:0.65rem;}
-.vlog-actions{display:flex;justify-content:flex-end;align-items:center;}
+.vlog-actions{display:flex;justify-content:flex-end;align-items:center;gap:0.3rem;flex-wrap:wrap;}
+.vlog-check{display:flex;align-items:center;justify-content:center;}
+.vlog-check input{width:14px;height:14px;cursor:pointer;accent-color:var(--teal);}
+.bulk-bar{display:flex;align-items:center;gap:0.5rem;flex-wrap:wrap;padding:0.65rem 1rem;border-bottom:1px solid var(--divider);background:rgba(26,107,114,0.03);font-size:0.75rem;color:var(--mid-gray);}
+.bulk-bar .btn{font-size:0.68rem;padding:2px 8px;}
+.row-archived{opacity:0.72;}
+.archive-toggle{display:inline-flex;align-items:center;gap:0.4rem;font-size:0.75rem;color:var(--mid-gray);cursor:pointer;user-select:none;}
+.archive-toggle input{width:14px;height:14px;accent-color:var(--teal);cursor:pointer;}
 
 /* RESPONSIVE */
 @media(max-width:900px){
@@ -316,8 +319,9 @@ tr:hover td{background:rgba(26,107,114,0.02);}
   .hamburger{display:block;}
   .stats-grid{grid-template-columns:1fr 1fr;}
   .form-row{grid-template-columns:1fr;}
-  .vlog-row{grid-template-columns:1fr 1fr;gap:0.25rem;}
+  .vlog-row{grid-template-columns:28px 1fr 1fr;gap:0.25rem;}
   .vlog-row .vlog-hide{display:none;}
+  .vlog-actions{justify-content:flex-start;}
 }
 @media(max-width:600px){
   .stats-grid{grid-template-columns:1fr 1fr;}
@@ -507,6 +511,10 @@ var BOOKED_SLOTS = [];
 var SESSIONS = [];
 var VISITOR_LOGS = [];
 var PAGE_HITS = [];
+var SHOW_ARCHIVED_VISITORS = false;
+var SHOW_ARCHIVED_CONSULTS = false;
+var SELECTED_VISITOR_VIDS = {};
+var SELECTED_PAGE_HIT_IDS = {};
 var EVOLVE_GENES = [];
 var EVOLVE_IDEAS = [];
 var ADMIN_CHAT = { messages: [], agentId: '', runId: '' };
@@ -516,7 +524,7 @@ var ADMIN_CHAT_BUSY = false;
 var EVOLVE_THOUGHT_DRAFT = '';
 var EVOLVE_THOUGHT_DOMAIN = 'general';
 var EVOLVE_POLL_TIMER = null;
-var ARK = { adsPanels: [], adsPanelCatalog: [], adsImports: [], adsRows: [], semrushImports: [], semrushKeywords: [], semrushFilters: {}, cursorCloudReady: false, githubAutopilotReady: false, adminChat: null };
+var ARK = { adsPanels: [], adsPanelCatalog: [], adsImports: [], adsRows: [], semrushImports: [], semrushKeywords: [], semrushFilters: {}, semrush: {}, cursorCloudReady: false, githubAutopilotReady: false, adminChat: null };
 var STATS = { todayCount: 0, weekCount: 0, totalClients: 0, totalRevenue: 0, pendingCount: 0 };
 
 function escapeHtml(str) {
@@ -683,16 +691,7 @@ function ajax(data) {
     credentials: 'include',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(data)
-  }).then(async function(r) {
-    var d = {};
-    try { d = await r.json(); } catch (e) { d = {}; }
-    if (r.status === 401) {
-      showLogin();
-      return { error: 'Session expired — sign in again' };
-    }
-    if (!r.ok && !d.error) d.error = 'Request failed (' + r.status + ')';
-    return d;
-  });
+  }).then(function(r) { return r.json(); });
 }
 
 async function loadDashboard() {
@@ -751,15 +750,16 @@ async function loadDashboard() {
 }
 
 function recomputeStats() {
-  STATS.totalClients = CONSULTATIONS.length;
-  STATS.pendingCount = CONSULTATIONS.filter(function(c) {
+  var activeConsults = CONSULTATIONS.filter(function(c) { return !c.archived; });
+  STATS.totalClients = activeConsults.length;
+  STATS.pendingCount = activeConsults.filter(function(c) {
     return (c.status || 'pending') === 'pending';
   }).length;
   var today = new Date().toISOString().slice(0, 10);
-  STATS.todayCount = CONSULTATIONS.filter(function(c) {
+  STATS.todayCount = activeConsults.filter(function(c) {
     return String(c.appointment_dt || '').startsWith(today);
   }).length;
-  BOOKED_SLOTS = CONSULTATIONS.map(function(c) { return c.appointment_dt; });
+  BOOKED_SLOTS = activeConsults.map(function(c) { return c.appointment_dt; });
   STATS.totalRevenue = PAYMENTS.reduce(function(sum, p) {
     return sum + (p.paid ? (p.amount_cents || 0) : 0);
   }, 0);
@@ -789,6 +789,7 @@ function getUpcoming() {
   var now = Date.now();
   var end = now + 7 * 24 * 60 * 60 * 1000;
   return CONSULTATIONS.filter(function(c) {
+    if (c.archived) return false;
     var t = new Date(String(c.appointment_dt).replace(' ', 'T')).getTime();
     return t >= now && t <= end;
   }).sort(function(a, b) {
@@ -810,6 +811,7 @@ function populateConsultDropdown() {
   var sel = document.getElementById('sess_consult');
   var html = '<option value="">-- Select a client --</option>';
   CONSULTATIONS.forEach(function(c) {
+    if (c.archived) return;
     var name = (c.first_name || '') + ' ' + (c.last_name || '');
     var dt = fmtDate(c.appointment_dt, { month: 'short', day: 'numeric' });
     html += '<option value="' + escapeHtml(c.id) + '" data-name="' + escapeHtml(name.trim()) + '" data-email="' + escapeHtml(c.email || '') + '" data-phone="' + escapeHtml(c.phone || '') + '">' + escapeHtml(name.trim()) + ' — ' + escapeHtml(dt) + '</option>';
@@ -852,18 +854,31 @@ function renderDashboard() {
 }
 
 function renderConsultations() {
+  var rows = CONSULTATIONS.filter(function(c) {
+    return SHOW_ARCHIVED_CONSULTS ? true : !c.archived;
+  });
+  var archivedCount = CONSULTATIONS.filter(function(c) { return !!c.archived; }).length;
   var html = '<div class="page-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">';
-  html += '<div><div class="page-title">Consultations</div><div class="page-sub">' + CONSULTATIONS.length + ' records</div></div>';
+  html += '<div><div class="page-title">Consultations</div><div class="page-sub">' + rows.length + ' shown';
+  if (archivedCount) html += ' · ' + archivedCount + ' archived';
+  html += '</div></div>';
+  html += '<div style="display:flex;gap:0.75rem;align-items:center;flex-wrap:wrap;">';
+  html += '<label class="archive-toggle"><input type="checkbox" ' + (SHOW_ARCHIVED_CONSULTS ? 'checked' : '') + ' onchange="SHOW_ARCHIVED_CONSULTS=this.checked;renderConsultations()"/> Show archived</label>';
   html += '<input class="search-bar" type="text" placeholder="Search..." oninput="filterTable(\'consult-table\',this.value)"/>';
-  html += '</div><div class="card"><div class="table-wrap"><table id="consult-table"><thead><tr><th>#</th><th>Client</th><th>Phobia</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead><tbody>';
-  CONSULTATIONS.forEach(function(c) {
+  html += '</div></div><div class="card"><div class="table-wrap"><table id="consult-table"><thead><tr><th>#</th><th>Client</th><th>Phobia</th><th>Date</th><th>Status</th><th>Actions</th></tr></thead><tbody>';
+  if (!rows.length) {
+    html += '<tr><td colspan="6" style="text-align:center;color:var(--mid-gray);padding:2rem;">No consultations' + (SHOW_ARCHIVED_CONSULTS ? '' : ' (try Show archived)') + '.</td></tr>';
+  }
+  rows.forEach(function(c) {
     var name = (c.first_name || '') + ' ' + (c.last_name || '');
     var status = c.status || 'pending';
-    html += '<tr>';
+    var isArchived = !!c.archived;
+    html += '<tr' + (isArchived ? ' class="row-archived"' : '') + '>';
     html += '<td style="color:var(--mid-gray)">#' + escapeHtml(c.id) + '</td>';
     html += '<td><div style="font-weight:500">' + escapeHtml(name.trim()) + '</div>';
     html += '<div style="font-size:0.75rem;color:var(--mid-gray)">' + escapeHtml(c.email || '') + '</div>';
     if (c.phone) html += '<div style="font-size:0.75rem;color:var(--mid-gray)">' + escapeHtml(c.phone) + '</div>';
+    if (isArchived) html += '<div style="font-size:0.68rem;color:var(--gold);margin-top:0.15rem;">Archived</div>';
     html += '</td>';
     html += '<td>' + escapeHtml(c.phobia || '—') + '</td>';
     html += '<td><div>' + escapeHtml(fmtDate(c.appointment_dt, { month: 'short', day: 'numeric', year: 'numeric' })) + '</div>';
@@ -873,7 +888,13 @@ function renderConsultations() {
       html += '<option value="' + s + '"' + (status === s ? ' selected' : '') + '>' + s.charAt(0).toUpperCase() + s.slice(1) + '</option>';
     });
     html += '</select></td>';
-    html += '<td><button class="btn btn-ghost" onclick="viewConsult(' + c.id + ')" style="margin-right:4px">View</button>';
+    html += '<td style="white-space:nowrap;">';
+    html += '<button class="btn btn-ghost" onclick="viewConsult(' + c.id + ')" style="margin-right:4px">View</button>';
+    if (isArchived) {
+      html += '<button class="btn btn-ghost" onclick="archiveConsult(' + c.id + ',0)" style="margin-right:4px">Unarchive</button>';
+    } else {
+      html += '<button class="btn btn-ghost" onclick="archiveConsult(' + c.id + ',1)" style="margin-right:4px">Archive</button>';
+    }
     html += '<button class="btn btn-red" onclick="deleteConsult(' + c.id + ')">Delete</button></td>';
     html += '</tr>';
   });
@@ -938,11 +959,12 @@ function renderScheduleTab() {
 }
 
 function renderClients() {
+  var rows = CONSULTATIONS.filter(function(c) { return !c.archived; });
   var html = '<div class="page-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">';
-  html += '<div><div class="page-title">Clients</div><div class="page-sub">' + CONSULTATIONS.length + ' clients</div></div>';
+  html += '<div><div class="page-title">Clients</div><div class="page-sub">' + rows.length + ' clients</div></div>';
   html += '<input class="search-bar" type="text" placeholder="Search clients..." oninput="filterTable(\'client-table\',this.value)"/>';
   html += '</div><div class="card"><div class="table-wrap"><table id="client-table"><thead><tr><th>Client</th><th>Phobia</th><th>Intensity</th><th>Consult Date</th><th>Submitted</th><th>Actions</th></tr></thead><tbody>';
-  CONSULTATIONS.forEach(function(c) {
+  rows.forEach(function(c) {
     var name = (c.first_name || '') + ' ' + (c.last_name || '');
     html += '<tr>';
     html += '<td><div style="font-weight:500">' + escapeHtml(name.trim()) + '</div>';
@@ -954,6 +976,7 @@ function renderClients() {
     html += '<td>' + escapeHtml(fmtDate(c.appointment_dt, { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' })) + '</td>';
     html += '<td style="color:var(--mid-gray);font-size:0.75rem">' + escapeHtml(fmtDate(c.submitted_at, { month: 'short', day: 'numeric', year: 'numeric' })) + '</td>';
     html += '<td><button class="btn btn-ghost" onclick="viewConsult(' + c.id + ')" style="margin-right:4px">View</button>';
+    html += '<button class="btn btn-ghost" onclick="archiveConsult(' + c.id + ',1)" style="margin-right:4px">Archive</button>';
     html += '<button class="btn btn-red" onclick="deleteConsult(' + c.id + ')">Delete</button></td>';
     html += '</tr>';
   });
@@ -1002,19 +1025,52 @@ function renderPayments() {
 }
 
 function renderVisitors() {
-  var hits = PAGE_HITS || [];
+  var allHits = PAGE_HITS || [];
+  var allSessions = VISITOR_LOGS || [];
+  var hits = allHits.filter(function(h) {
+    return SHOW_ARCHIVED_VISITORS ? true : !h.archived;
+  });
+  var sessions = allSessions.filter(function(v) {
+    return SHOW_ARCHIVED_VISITORS ? true : !v.archived;
+  });
   var ghost = hits.filter(function(h) { return !h.interacted; }).length;
+  var archivedHits = allHits.filter(function(h) { return !!h.archived; }).length;
+  var archivedSessions = allSessions.filter(function(v) { return !!v.archived; }).length;
+  var selectedHits = selectedPageHitIds().filter(function(id) {
+    return hits.some(function(h) { return h.id == id; });
+  });
+  var selectedVids = selectedVisitorVids().filter(function(vid) {
+    return sessions.some(function(v) { return v.vid === vid; });
+  });
   var html = '<div class="page-header" style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;">';
-  html += '<div><div class="page-title">Visitor Log</div><div class="page-sub">' + VISITOR_LOGS.length + ' interactive sessions · ' + hits.length + ' page hits (' + ghost + ' no mouse/scroll)</div></div>';
-  html += '<div style="display:flex;gap:0.5rem;flex-wrap:wrap;">';
+  html += '<div><div class="page-title">Visitor Log</div><div class="page-sub">' + sessions.length + ' interactive sessions · ' + hits.length + ' page hits (' + ghost + ' no mouse/scroll)';
+  if (archivedHits || archivedSessions) {
+    html += ' · ' + (archivedSessions + archivedHits) + ' archived';
+  }
+  html += '</div></div>';
+  html += '<div style="display:flex;gap:0.5rem;flex-wrap:wrap;align-items:center;">';
+  html += '<label class="archive-toggle"><input type="checkbox" ' + (SHOW_ARCHIVED_VISITORS ? 'checked' : '') + ' onchange="SHOW_ARCHIVED_VISITORS=this.checked;renderVisitors()"/> Show archived</label>';
   html += '<input class="search-bar" type="text" placeholder="Search visitors..." oninput="filterVisitors(this.value)"/>';
   html += '<button class="btn btn-red" onclick="clearVisitorLog()">Clear Log</button></div></div>';
 
   html += '<div class="card" style="margin-bottom:1rem;"><div class="card-header"><div class="card-title">All page hits (Ads reconciliation)</div>';
   html += '<div style="font-size:0.75rem;color:var(--mid-gray);">Every load — including clicks that never moved the mouse. Match time + location + gclid to Google Ads.</div></div>';
-  html += '<div class="table-wrap"><table><thead><tr><th>When</th><th>Location / IP</th><th>Device</th><th>Page</th><th>Engaged</th><th>Ads</th><th>Actions</th></tr></thead><tbody>';
+  html += '<div class="bulk-bar" id="pageHitBulkBar">';
+  html += '<label class="archive-toggle"><input type="checkbox" ' + (hits.length && selectedHits.length === hits.length ? 'checked' : '') + ' onchange="toggleSelectAllPageHits(this.checked)"/> Select all</label>';
+  if (selectedHits.length) {
+    html += '<span>' + selectedHits.length + ' selected</span>';
+    html += '<button class="btn btn-ghost" type="button" onclick="bulkArchivePageHits(1)">Archive</button>';
+    if (SHOW_ARCHIVED_VISITORS) {
+      html += '<button class="btn btn-ghost" type="button" onclick="bulkArchivePageHits(0)">Unarchive</button>';
+    }
+    html += '<button class="btn btn-red" type="button" onclick="bulkDeletePageHits()">Delete</button>';
+  } else {
+    html += '<span>Select rows to archive or delete</span>';
+  }
+  html += '</div>';
+  html += '<div class="table-wrap"><table><thead><tr><th style="width:28px;"></th><th>When</th><th>Location / IP</th><th>Device</th><th>Page</th><th>Engaged</th><th>Ads</th><th>Actions</th></tr></thead><tbody>';
   if (!hits.length) {
-    html += '<tr><td colspan="7" style="text-align:center;color:var(--mid-gray);padding:1.5rem;">No page hits yet. New landings will appear here.</td></tr>';
+    html += '<tr><td colspan="8" style="text-align:center;color:var(--mid-gray);padding:1.5rem;">No page hits yet' + (SHOW_ARCHIVED_VISITORS ? '' : ' (or all archived)') + '.</td></tr>';
   } else {
     hits.slice(0, 200).forEach(function(h) {
       var engaged = h.interacted ? 'Yes' : 'NO — ghost';
@@ -1023,29 +1079,53 @@ function renderVisitors() {
       if (h.utm_source) adsBits.push(h.utm_source);
       if (h.utm_campaign) adsBits.push(h.utm_campaign);
       if (h.utm_term) adsBits.push(h.utm_term);
-      html += '<tr' + (!h.interacted ? ' style="background:rgba(139,32,32,0.04);"' : '') + '>';
+      var checked = SELECTED_PAGE_HIT_IDS[h.id] ? ' checked' : '';
+      var isArchived = !!h.archived;
+      html += '<tr' + (!h.interacted ? ' style="background:rgba(139,32,32,0.04);"' : '') + (isArchived ? ' class="row-archived"' : '') + '>';
+      html += '<td class="vlog-check"><input type="checkbox"' + checked + ' onchange="togglePageHitSelect(' + parseInt(h.id, 10) + ', this.checked)"/></td>';
       html += '<td style="font-size:0.75rem;white-space:nowrap;">' + escapeHtml(fmtDate(h.created_at, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', second: '2-digit' })) + '</td>';
       html += '<td><div style="font-weight:500;font-size:0.8rem;">' + escapeHtml(h.location || '—') + '</div>';
-      html += '<div style="font-size:0.7rem;color:var(--mid-gray);font-family:monospace;">' + escapeHtml(h.ip || '') + '</div></td>';
+      html += '<div style="font-size:0.7rem;color:var(--mid-gray);font-family:monospace;">' + escapeHtml(h.ip || '') + '</div>';
+      if (isArchived) html += '<div style="font-size:0.65rem;color:var(--gold);">Archived</div>';
+      html += '</td>';
       html += '<td style="font-size:0.8rem;">' + escapeHtml(h.device || '—') + '</td>';
       html += '<td style="font-size:0.8rem;">' + escapeHtml(h.page || h.path || '—') + '</td>';
       html += '<td style="font-size:0.78rem;font-weight:500;color:' + (h.interacted ? 'var(--sage)' : '#8b2020') + ';">' + engaged + '</td>';
       html += '<td style="font-size:0.72rem;color:var(--mid-gray);">' + escapeHtml(adsBits.length ? adsBits.join(' · ') : (h.referrer ? String(h.referrer).slice(0, 40) : '—')) + '</td>';
-      html += '<td><button class="btn btn-red" style="font-size:0.68rem;padding:2px 8px;" type="button" onclick="deletePageHit(' + parseInt(h.id, 10) + ')">Delete</button></td>';
+      html += '<td style="white-space:nowrap;">';
+      if (isArchived) {
+        html += '<button class="btn btn-ghost" style="font-size:0.68rem;padding:2px 8px;margin-right:4px;" type="button" onclick="archivePageHit(' + parseInt(h.id, 10) + ',0)">Unarchive</button>';
+      } else {
+        html += '<button class="btn btn-ghost" style="font-size:0.68rem;padding:2px 8px;margin-right:4px;" type="button" onclick="archivePageHit(' + parseInt(h.id, 10) + ',1)">Archive</button>';
+      }
+      html += '<button class="btn btn-red" style="font-size:0.68rem;padding:2px 8px;" type="button" onclick="deletePageHit(' + parseInt(h.id, 10) + ')">Delete</button></td>';
       html += '</tr>';
     });
   }
   html += '</tbody></table></div></div>';
 
   html += '<div class="card"><div class="card-header"><div class="card-title">Interactive sessions</div></div>';
+  html += '<div class="bulk-bar" id="visitorBulkBar">';
+  html += '<label class="archive-toggle"><input type="checkbox" ' + (sessions.length && selectedVids.length === sessions.length ? 'checked' : '') + ' onchange="toggleSelectAllVisitors(this.checked)"/> Select all</label>';
+  if (selectedVids.length) {
+    html += '<span>' + selectedVids.length + ' selected</span>';
+    html += '<button class="btn btn-ghost" type="button" onclick="bulkArchiveVisitors(1)">Archive</button>';
+    if (SHOW_ARCHIVED_VISITORS) {
+      html += '<button class="btn btn-ghost" type="button" onclick="bulkArchiveVisitors(0)">Unarchive</button>';
+    }
+    html += '<button class="btn btn-red" type="button" onclick="bulkDeleteVisitors()">Delete</button>';
+  } else {
+    html += '<span>Select rows to archive or delete</span>';
+  }
+  html += '</div>';
   html += '<div class="vlog-row vlog-head">';
-  html += '<div>Location / IP</div><div>Device</div><div>Pages Viewed</div>';
+  html += '<div></div><div>Location / IP</div><div>Device</div><div>Pages Viewed</div>';
   html += '<div class="vlog-hide">First Seen</div><div class="vlog-hide">Last Seen</div><div>Time on Site</div><div>Actions</div></div>';
   html += '<div id="visitorLogBody">';
-  if (!VISITOR_LOGS.length) {
-    html += '<div style="padding:2rem;text-align:center;color:var(--mid-gray);font-size:0.85rem;">No interactive visitor data yet.</div>';
+  if (!sessions.length) {
+    html += '<div style="padding:2rem;text-align:center;color:var(--mid-gray);font-size:0.85rem;">No interactive visitor data yet' + (SHOW_ARCHIVED_VISITORS ? '' : ' (or all archived)') + '.</div>';
   } else {
-    VISITOR_LOGS.forEach(function(v) {
+    sessions.forEach(function(v) {
       var pages = [];
       try { pages = JSON.parse(v.pages || '[]') || []; } catch (e) { pages = []; }
       var mins = Math.floor((v.total_seconds || 0) / 60);
@@ -1053,9 +1133,18 @@ function renderVisitors() {
       var timeStr = mins > 0 ? mins + 'm ' + secs + 's' : secs + 's';
       var search = ((v.location || '') + (v.ip || '') + (v.device || '') + (v.vid || '')).toLowerCase();
       var safeVid = String(v.vid || '').replace(/[^a-z0-9_]/gi, '');
-      html += '<div class="vlog-row" data-search="' + escapeHtml(search) + '">';
+      var isArchived = !!v.archived;
+      var checked = safeVid && SELECTED_VISITOR_VIDS[safeVid] ? ' checked' : '';
+      html += '<div class="vlog-row' + (isArchived ? ' row-archived' : '') + '" data-search="' + escapeHtml(search) + '">';
+      html += '<div class="vlog-check">';
+      if (safeVid) {
+        html += '<input type="checkbox"' + checked + ' onchange="toggleVisitorSelect(\'' + safeVid + '\', this.checked)"/>';
+      }
+      html += '</div>';
       html += '<div><div style="font-weight:500;font-size:0.82rem;">' + escapeHtml(v.location || '—') + '</div>';
-      html += '<div style="font-size:0.72rem;color:var(--mid-gray);font-family:monospace;">' + escapeHtml(v.ip || '') + '</div></div>';
+      html += '<div style="font-size:0.72rem;color:var(--mid-gray);font-family:monospace;">' + escapeHtml(v.ip || '') + '</div>';
+      if (isArchived) html += '<div style="font-size:0.65rem;color:var(--gold);">Archived</div>';
+      html += '</div>';
       html += '<div style="font-size:0.8rem;">' + escapeHtml(v.device || '—') + '</div>';
       html += '<div class="vlog-pages">';
       if (!pages.length) {
@@ -1071,6 +1160,11 @@ function renderVisitors() {
       html += '<div style="font-weight:500;color:var(--teal-dark);font-size:0.82rem;">' + escapeHtml(timeStr) + '</div>';
       html += '<div class="vlog-actions">';
       if (safeVid) {
+        if (isArchived) {
+          html += '<button class="btn btn-ghost" style="font-size:0.68rem;padding:2px 8px;" type="button" onclick="archiveVisitor(\'' + safeVid + '\',0)">Unarchive</button>';
+        } else {
+          html += '<button class="btn btn-ghost" style="font-size:0.68rem;padding:2px 8px;" type="button" onclick="archiveVisitor(\'' + safeVid + '\',1)">Archive</button>';
+        }
         html += '<button class="btn btn-red" style="font-size:0.68rem;padding:2px 8px;" type="button" onclick="deleteVisitor(\'' + safeVid + '\')">Delete</button>';
       }
       html += '</div></div>';
@@ -1251,34 +1345,7 @@ function renderEvolve() {
   var autoReady = !!(ARK && ARK.githubAutopilotReady);
 
   var html = '<div class="page-header"><div class="page-title">Thoughts</div>';
-  html += '<div style="font-size:0.85rem;color:var(--mid-gray);margin-top:0.35rem;">Chat for questions. Run for background builds' + (cloudReady ? '' : ' (needs CURSOR_API_KEY)') + (autoReady ? '' : '') + '.</div></div>';
-
-  // —— Chat (questions) ——
-  html += '<div class="card" style="margin-bottom:1rem;">';
-  html += '<div class="card-header" style="display:flex;justify-content:space-between;align-items:center;">';
-  html += '<div class="card-title">Chat</div>';
-  html += '<button type="button" class="btn btn-ghost" style="font-size:0.72rem;" onclick="clearAdminChat()">Clear</button>';
-  html += '</div>';
-  html += '<div style="padding:0 1rem 1rem;">';
-  html += '<div id="evolveChatMsgs" style="height:220px;overflow:auto;border:1px solid rgba(0,0,0,0.08);border-radius:10px;padding:0.85rem;background:#f7f8f7;margin-bottom:0.65rem;">';
-  if (!msgs.length) {
-    html += '<div style="color:var(--mid-gray);font-size:0.85rem;text-align:center;padding:2rem 0.5rem;">Ask a question anytime.</div>';
-  } else {
-    msgs.forEach(function(m) {
-      var mine = m.role === 'you';
-      html += '<div style="display:flex;justify-content:' + (mine ? 'flex-end' : 'flex-start') + ';margin-bottom:0.55rem;">';
-      html += '<div style="max-width:90%;padding:0.55rem 0.8rem;border-radius:12px;font-size:0.88rem;line-height:1.4;white-space:pre-wrap;';
-      html += mine ? 'background:var(--teal-dark);color:#fff;' : 'background:#fff;border:1px solid rgba(0,0,0,0.08);';
-      if (m.kind === 'status') html += 'font-style:italic;opacity:0.85;';
-      if (m.kind === 'error') html += 'color:#8b2020;';
-      html += '">' + escapeHtml(m.text || '') + '</div></div>';
-    });
-  }
-  html += '</div>';
-  html += '<div style="display:flex;gap:0.5rem;align-items:flex-end;">';
-  html += '<textarea id="adminChatInput" rows="2" placeholder="Ask a question…" style="flex:1;resize:vertical;"></textarea>';
-  html += '<button type="button" class="btn btn-teal" id="adminChatSendBtn" onclick="sendAdminChat()"' + (cloudReady ? '' : ' disabled') + '>Send</button>';
-  html += '</div></div></div>';
+  html += '<div style="font-size:0.85rem;color:var(--mid-gray);margin-top:0.35rem;">Run builds above. Chat stays at the bottom' + (cloudReady ? '' : ' (needs CURSOR_API_KEY)') + (autoReady ? '' : '') + '.</div></div>';
 
   // —— Run a thought (background) ——
   html += '<div class="card" style="margin-bottom:1rem;">';
@@ -1326,6 +1393,37 @@ function renderEvolve() {
     html += '</div></div>';
   });
   html += '</div>';
+
+  // —— Chat (questions) — pinned at the bottom of this page ——
+  html += '<div class="card" style="margin-bottom:0.25rem;position:sticky;bottom:0.5rem;z-index:5;box-shadow:0 -4px 24px rgba(0,0,0,0.06);">';
+  html += '<div class="card-header" style="display:flex;justify-content:space-between;align-items:center;">';
+  html += '<div class="card-title">Chat</div>';
+  html += '<button type="button" class="btn btn-ghost" style="font-size:0.72rem;" onclick="clearAdminChat()">Clear</button>';
+  html += '</div>';
+  html += '<div style="padding:0 1rem 1rem;">';
+  html += '<div id="evolveChatMsgs" style="height:220px;overflow:auto;border:1px solid rgba(0,0,0,0.08);border-radius:10px;padding:0.85rem;background:#f7f8f7;margin-bottom:0.65rem;">';
+  if (!msgs.length) {
+    html += '<div style="color:var(--mid-gray);font-size:0.85rem;text-align:center;padding:2rem 0.5rem;">Ask a question anytime — chat lives here at the bottom.</div>';
+  } else {
+    msgs.forEach(function(m) {
+      var mine = m.role === 'you';
+      html += '<div style="display:flex;justify-content:' + (mine ? 'flex-end' : 'flex-start') + ';margin-bottom:0.55rem;">';
+      html += '<div style="max-width:90%;padding:0.55rem 0.8rem;border-radius:12px;font-size:0.88rem;line-height:1.4;white-space:pre-wrap;';
+      html += mine ? 'background:var(--teal-dark);color:#fff;' : 'background:#fff;border:1px solid rgba(0,0,0,0.08);';
+      if (m.kind === 'status') html += 'font-style:italic;opacity:0.85;';
+      if (m.kind === 'error') html += 'color:#8b2020;';
+      html += '">' + escapeHtml(m.text || '') + '</div></div>';
+    });
+  }
+  html += '</div>';
+  html += '<div style="display:flex;gap:0.5rem;align-items:flex-end;">';
+  html += '<textarea id="adminChatInput" rows="2" placeholder="Ask a question…" style="flex:1;resize:vertical;"></textarea>';
+  html += '<button type="button" class="btn btn-teal" id="adminChatSendBtn" onclick="sendAdminChat()"' + (cloudReady ? '' : ' disabled') + '>Send</button>';
+  html += '</div>';
+  if (!cloudReady) {
+    html += '<div style="margin-top:0.45rem;font-size:0.75rem;color:#8b2020;">Chat needs the CURSOR_API_KEY Worker secret.</div>';
+  }
+  html += '</div></div>';
 
   var tab = document.getElementById('tab-evolve');
   tab.innerHTML = html;
@@ -1474,66 +1572,6 @@ function ensureAdminChatPoll() {
   }, 4000);
 }
 
-var ADS_UI = {
-  focus: localStorage.getItem('adsFocusPanel') || '',
-  campaign: localStorage.getItem('adsCampaignFilter') || ''
-};
-
-/* Which synced report feeds each panel (first match wins). */
-var ADS_PANEL_SOURCES = {
-  search_terms: ['search_terms'],
-  campaigns: ['campaigns'],
-  keywords: ['keywords'],
-  auction: ['auction', 'competitors'],
-  geo: ['geo'],
-  competitors: ['competitors', 'auction'],
-  competitor_stats: ['auction', 'competitors'],
-  overview: ['campaigns', 'search_terms', 'keywords', 'other'],
-  ad_groups: ['ad_groups', 'campaigns', 'search_terms'],
-  negatives: ['keywords', 'search_terms'],
-  devices: ['devices', 'campaigns'],
-  landing_pages: ['competitors', 'search_terms'],
-  quality_score: ['keywords'],
-  budget: ['campaigns'],
-  conversions: ['campaigns', 'search_terms']
-};
-
-function adsCampaignOf(r) {
-  var d = (r && r.data) || {};
-  return String(d.Campaign || d['Campaign name'] || '').trim();
-}
-
-function adsFilterByCampaign(list) {
-  if (!ADS_UI.campaign) return list;
-  return list.filter(function(r) {
-    var c = adsCampaignOf(r);
-    return !c || c === ADS_UI.campaign;
-  });
-}
-
-function adsPanelData(key, byType) {
-  var prefs = ADS_PANEL_SOURCES[key] || [key];
-  for (var i = 0; i < prefs.length; i++) {
-    var t = prefs[i];
-    if (byType[t] && byType[t].length) {
-      return { list: adsFilterByCampaign(byType[t]), type: t };
-    }
-  }
-  return { list: [], type: '' };
-}
-
-function setAdsCampaign(v) {
-  ADS_UI.campaign = v || '';
-  try { localStorage.setItem('adsCampaignFilter', ADS_UI.campaign); } catch (e) {}
-  renderAds();
-}
-
-function focusAdsPanel(key) {
-  ADS_UI.focus = key;
-  try { localStorage.setItem('adsFocusPanel', key); } catch (e) {}
-  renderAds();
-}
-
 function renderAds() {
   var ark = ARK || {};
   var selected = ark.adsPanels || [];
@@ -1548,96 +1586,10 @@ function renderAds() {
     byType[t].push(r);
   });
 
-  var campaigns = [];
-  rows.forEach(function(r) {
-    var c = adsCampaignOf(r);
-    if (c && campaigns.indexOf(c) < 0) campaigns.push(c);
-  });
-  campaigns.sort();
-  if (ADS_UI.campaign && campaigns.indexOf(ADS_UI.campaign) < 0) ADS_UI.campaign = '';
-
   var html = '<div class="page-header"><div class="page-title">Google Ads</div>';
-  html += '<div style="font-size:0.85rem;color:var(--mid-gray);margin-top:0.35rem;">' +
-    (gads.ready
-      ? 'Connected · Last sync: ' + escapeHtml(gads.lastSync || 'never') + ' (auto-syncs every 6h)'
-      : 'Not connected — open Setup below.') +
-    '</div></div>';
+  html += '<div style="font-size:0.85rem;color:var(--mid-gray);margin-top:0.35rem;">Live pull from your account — connect once, then Sync. Stay out of the Ads UI jungle.</div></div>';
 
-  html += '<div class="card" style="margin-bottom:1rem;"><div style="padding:0.85rem 1.25rem;display:flex;flex-wrap:wrap;gap:0.85rem;align-items:end;">';
-  html += '<div class="form-group" style="margin:0;"><label>Campaign</label><select id="adsCampaignSel" onchange="setAdsCampaign(this.value)" style="min-width:240px;"><option value="">All campaigns</option>';
-  campaigns.forEach(function(c) {
-    html += '<option value="' + escapeHtml(c) + '"' + (c === ADS_UI.campaign ? ' selected' : '') + '>' + escapeHtml(c) + '</option>';
-  });
-  html += '</select></div>';
-
-  html += '<div class="form-group" style="margin:0;"><label>Add a panel</label><select id="adsPanelPick" style="min-width:220px;"><option value="">— choose —</option>';
-  var groups = {};
-  catalog.forEach(function(p) {
-    if (!groups[p.group]) groups[p.group] = [];
-    groups[p.group].push(p);
-  });
-  Object.keys(groups).forEach(function(g) {
-    html += '<optgroup label="' + escapeHtml(g) + '">';
-    groups[g].forEach(function(p) {
-      var already = selected.indexOf(p.key) >= 0;
-      html += '<option value="' + escapeHtml(p.key) + '"' + (already ? ' disabled' : '') + '>' + escapeHtml(p.label) + (already ? ' (on board)' : '') + '</option>';
-    });
-    html += '</optgroup>';
-  });
-  html += '</select></div>';
-  html += '<button type="button" class="btn btn-teal" onclick="addAdsPanel()">Add</button>';
-
-  html += '<button type="button" class="btn btn-teal" onclick="syncGoogleAds()">Sync from Google now</button>';
-  if (gads.lastError) html += '<div style="color:#a33b2b;font-size:0.78rem;align-self:center;">' + escapeHtml(gads.lastError) + '</div>';
-  html += '</div></div>';
-
-  html += renderAdsSetup(gads, catalog, selected, imports, rows);
-
-  if (!selected.length) {
-    html += '<div class="card"><div style="padding:1.5rem;color:var(--mid-gray);">Connect + Sync above to fill panels.</div></div>';
-  } else {
-    var focusKey = ADS_UI.focus;
-    if (selected.indexOf(focusKey) < 0) focusKey = selected[0];
-
-    html += '<div style="display:flex;gap:1rem;align-items:flex-start;">';
-
-    html += '<div style="width:185px;flex:0 0 185px;display:flex;flex-direction:column;gap:0.55rem;">';
-    selected.forEach(function(key) {
-      var meta = catalog.find(function(p) { return p.key === key; }) || { key: key, label: key };
-      var active = key === focusKey;
-      var countTxt = '';
-      if (key !== 'hotlinks' && key !== 'notes' && key !== 'page_hits') {
-        countTxt = adsPanelData(key, byType).list.length + ' rows';
-      }
-      html += '<div class="card" onclick="focusAdsPanel(\'' + escapeHtml(key) + '\')" style="cursor:pointer;padding:0.6rem 0.75rem;' +
-        (active ? 'border-left:3px solid var(--teal);background:#eef5f6;' : 'opacity:0.8;') + '">';
-      html += '<div style="font-weight:600;font-size:0.8rem;color:var(--teal-dark);">' + escapeHtml(meta.label) + '</div>';
-      if (countTxt) html += '<div style="font-size:0.7rem;color:var(--mid-gray);margin-top:2px;">' + countTxt + '</div>';
-      html += '</div>';
-    });
-    html += '</div>';
-
-    var focusMeta = catalog.find(function(p) { return p.key === focusKey; }) || { key: focusKey, label: focusKey };
-    html += '<div class="card" style="flex:1;min-width:0;">';
-    html += '<div class="card-header" style="display:flex;justify-content:space-between;align-items:center;gap:0.5rem;">';
-    html += '<div class="card-title">' + escapeHtml(focusMeta.label) + (ADS_UI.campaign ? ' — ' + escapeHtml(ADS_UI.campaign) : '') + '</div>';
-    html += '<button class="btn btn-ghost" style="font-size:0.72rem;padding:2px 8px;" onclick="removeAdsPanel(\'' + escapeHtml(focusKey) + '\')">Remove</button>';
-    html += '</div><div style="padding:1rem 1.25rem;">';
-    html += renderAdsPanelBody(focusKey, byType, rows, gads);
-    html += '</div></div>';
-
-    html += '</div>';
-  }
-
-  document.getElementById('tab-ads').innerHTML = html;
-}
-
-function renderAdsSetup(gads, catalog, selected, imports, rows) {
-  var html = '<details class="card" style="margin-bottom:1rem;"' + (gads.ready ? '' : ' open') + '>';
-  html += '<summary class="card-header" style="cursor:pointer;"><div class="card-title">Setup — connection, panels &amp; CSV backup</div></summary>';
-  html += '<div style="padding:0 0.25rem;">';
-
-  html += '<div style="margin:0.75rem;border-top:3px solid var(--teal);border-radius:3px;box-shadow:0 0 0 1px var(--divider);"><div class="card-header"><div class="card-title">Live connection</div>';
+  html += '<div class="card" style="margin-bottom:1rem;border-top:3px solid var(--teal);"><div class="card-header"><div class="card-title">Live connection</div>';
   html += '<span style="font-size:0.78rem;color:' + (gads.ready ? 'var(--sage)' : 'var(--mid-gray)') + ';">' + (gads.ready ? 'Ready to sync' : 'Not connected') + '</span></div>';
   html += '<div style="padding:1rem 1.5rem;">';
   html += '<p style="font-size:0.82rem;color:var(--mid-gray);line-height:1.55;margin-bottom:1rem;">Moon shot: finish OAuth once. Then Sync fills the board forever.</p>';
@@ -1718,8 +1670,23 @@ function renderAdsSetup(gads, catalog, selected, imports, rows) {
   }
   html += '</div></details>';
 
-  html += '</div></details>';
-  return html;
+  if (!selected.length) {
+    html += '<div class="card"><div style="padding:1.5rem;color:var(--mid-gray);">Connect + Sync above to fill panels.</div></div>';
+  } else {
+    html += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:1rem;">';
+    selected.forEach(function(key) {
+      var meta = catalog.find(function(p) { return p.key === key; }) || { key: key, label: key };
+      html += '<div class="card"><div class="card-header" style="display:flex;justify-content:space-between;align-items:center;gap:0.5rem;">';
+      html += '<div class="card-title">' + escapeHtml(meta.label) + '</div>';
+      html += '<button class="btn btn-ghost" style="font-size:0.72rem;padding:2px 8px;" onclick="removeAdsPanel(\'' + escapeHtml(key) + '\')">Remove</button>';
+      html += '</div><div style="padding:1rem 1.25rem;">';
+      html += renderAdsPanelBody(key, byType, rows, gads);
+      html += '</div></div>';
+    });
+    html += '</div>';
+  }
+
+  document.getElementById('tab-ads').innerHTML = html;
 }
 
 function renderAdsPanelBody(key, byType, rows, gads) {
@@ -1750,12 +1717,34 @@ function renderAdsPanelBody(key, byType, rows, gads) {
     return h + '</div>';
   }
 
-  var panelData = adsPanelData(key, byType);
-  var list = panelData.list;
-  var usedType = panelData.type;
+  var preferred = {
+    search_terms: ['search_terms'],
+    campaigns: ['campaigns'],
+    keywords: ['keywords'],
+    auction: ['auction', 'competitors'],
+    geo: ['geo'],
+    competitors: ['competitors', 'auction'],
+    competitor_stats: ['auction', 'competitors'],
+    overview: ['campaigns', 'search_terms', 'keywords', 'other'],
+    ad_groups: ['ad_groups', 'campaigns', 'search_terms'],
+    negatives: ['keywords', 'search_terms'],
+    devices: ['devices', 'campaigns'],
+    landing_pages: ['competitors', 'search_terms'],
+    quality_score: ['keywords'],
+    budget: ['campaigns'],
+    conversions: ['campaigns', 'search_terms']
+  };
 
-  if (!list.length && usedType && ADS_UI.campaign) {
-    return '<div style="font-size:0.82rem;color:var(--mid-gray);">No rows for campaign "' + escapeHtml(ADS_UI.campaign) + '" in this panel.</div>';
+  var list = [];
+  var usedType = '';
+  var prefs = preferred[key] || [key];
+  for (var pi = 0; pi < prefs.length; pi++) {
+    var t = prefs[pi];
+    if (byType[t] && byType[t].length) {
+      list = byType[t];
+      usedType = t;
+      break;
+    }
   }
 
   if (!list.length) {
@@ -1827,22 +1816,23 @@ function adsNum(d, names) {
 }
 
 function renderAdsRowsTable(list, usedType) {
-  var keys = Object.keys(list[0].data || {}).slice(0, 9);
+  var sample = list.slice(0, 12);
+  var keys = Object.keys(sample[0].data || {}).slice(0, 7);
   if (!keys.length) {
     return '<div style="font-size:0.82rem;color:var(--mid-gray);">Rows loaded but columns missing — re-import CSV.</div>';
   }
   var h = '';
   if (usedType && usedType !== 'all') {
-    h += '<div style="font-size:0.72rem;color:var(--mid-gray);margin-bottom:0.35rem;">Source: ' + escapeHtml(usedType) + ' · showing all ' + list.length + ' rows</div>';
+    h += '<div style="font-size:0.72rem;color:var(--mid-gray);margin-bottom:0.35rem;">Source: ' + escapeHtml(usedType) + ' · ' + list.length + ' rows</div>';
   } else if (usedType === 'all') {
     h += '<div style="font-size:0.72rem;color:var(--mid-gray);margin-bottom:0.35rem;">Showing all imported rows (' + list.length + ') — import a matching report for a tighter fit.</div>';
   }
-  h += '<div style="overflow:auto;max-height:65vh;"><table style="width:100%;font-size:0.78rem;border-collapse:collapse;"><thead><tr>';
-  keys.forEach(function(k) { h += '<th style="text-align:left;padding:5px;border-bottom:1px solid #ddd;position:sticky;top:0;background:#fff;">' + escapeHtml(k) + '</th>'; });
+  h += '<div style="overflow:auto;max-height:260px;"><table style="width:100%;font-size:0.75rem;border-collapse:collapse;"><thead><tr>';
+  keys.forEach(function(k) { h += '<th style="text-align:left;padding:4px;border-bottom:1px solid #ddd;">' + escapeHtml(k) + '</th>'; });
   h += '</tr></thead><tbody>';
-  list.forEach(function(r) {
+  sample.forEach(function(r) {
     h += '<tr>';
-    keys.forEach(function(k) { h += '<td style="padding:5px;border-bottom:1px solid #f0f0f0;">' + escapeHtml(String((r.data || {})[k] || '')) + '</td>'; });
+    keys.forEach(function(k) { h += '<td style="padding:4px;border-bottom:1px solid #f0f0f0;">' + escapeHtml(String((r.data || {})[k] || '')) + '</td>'; });
     h += '</tr>';
   });
   h += '</tbody></table></div>';
@@ -2003,6 +1993,8 @@ function renderSemrush() {
   var filters = ark.semrushFilters || {};
   var keywords = ark.semrushKeywords || [];
   var imports = ark.semrushImports || [];
+  var sem = ark.semrush || {};
+  var syncSets = sem.syncSets || ['overview', 'organic', 'paid', 'competitors'];
   var exclude = String(filters.excludeWords || '').toLowerCase().split(/[,]+/).map(function(s) { return s.trim(); }).filter(Boolean);
   var intentNeedle = String(filters.intentIncludes || '').toLowerCase().trim();
   var minVol = Number(filters.minVolume);
@@ -2021,22 +2013,90 @@ function renderSemrush() {
     if (intentNeedle && String(k.intent || '').toLowerCase().indexOf(intentNeedle) < 0) return false;
     return true;
   });
-  filtered = sortSemKeywords(filtered);
   var keepers = keywords.filter(function(k) { return Number(k.keep) === 1; });
   var negatives = keywords.filter(function(k) { return Number(k.negative) === 1; });
+  var overview = sem.overview || null;
+  var competitors = sem.competitors || [];
 
   var html = '<div class="page-header"><div class="page-title">SEMrush</div>';
-  html += '<div style="font-size:0.85rem;color:var(--mid-gray);margin-top:0.35rem;">Upload keyword CSV -> filter by volume / KD / CPC / junk words -> mark Keepers & Negatives. API units later.</div></div>';
+  html += '<div style="font-size:0.85rem;color:var(--mid-gray);margin-top:0.35rem;">Live API sync fills keywords (CSV still works as fallback). Filter → mark Keepers & Negatives → Run a thought for recommendations.</div></div>';
 
-  html += '<div class="card" style="margin-bottom:1rem;"><div class="card-header"><div class="card-title">Import + filters</div></div>';
+  html += '<div class="card" style="margin-bottom:1rem;border-top:3px solid var(--teal);"><div class="card-header"><div class="card-title">API sync</div>';
+  html += '<span style="font-size:0.78rem;color:' + (sem.ready ? 'var(--sage)' : 'var(--mid-gray)') + ';">' + (sem.ready ? 'Ready to sync' : 'Not connected') + '</span></div>';
   html += '<div style="padding:1rem 1.5rem;">';
-  html += '<div class="form-row" style="gap:0.75rem;flex-wrap:wrap;align-items:end;margin-bottom:1rem;">';
-  html += '<div class="form-group" style="flex:1;min-width:220px;"><label>SEMrush CSV</label><input type="file" id="semCsvFile" accept=".csv,text/csv"/></div>';
-  html += '<button type="button" class="btn btn-teal" onclick="importSemrushCsv()">Import</button>';
-  html += '<button type="button" class="btn btn-ghost" onclick="exportSemKeepers()">Export keepers</button>';
-  html += '<button type="button" class="btn btn-ghost" onclick="exportSemNegatives()">Export negative list</button>';
-  if (imports.length) html += '<button type="button" class="btn btn-red" onclick="clearSemrushData()">Clear keywords</button>';
+  html += '<p style="font-size:0.82rem;color:var(--mid-gray);line-height:1.55;margin-bottom:1rem;">Paste your Semrush <b>v3 API key</b> (Profile → API Keys). Units are consumed per row — keep the limit modest. Optional: set Worker secret <code>SEMRUSH_API_KEY</code> instead of pasting here.</p>';
+  html += '<div class="form-row" style="gap:0.75rem;flex-wrap:wrap;align-items:end;margin-bottom:0.85rem;">';
+  html += '<div class="form-group" style="flex:1;min-width:220px;"><label>API key ' + (sem.hasApiKey ? '<span style="color:var(--sage);">(saved' + (sem.apiKeyHint ? ' ' + escapeHtml(sem.apiKeyHint) : '') + ')</span>' : '') + '</label>';
+  html += '<input type="password" id="semApiKey" value="" placeholder="' + (sem.hasApiKey ? 'leave empty to keep saved key' : 'paste Semrush API key') + '" autocomplete="off" spellcheck="false" style="font-family:ui-monospace,Consolas,monospace;font-size:0.78rem;width:100%;"/></div>';
+  html += '<div class="form-group"><label>Domain</label><input type="text" id="semDomain" value="' + escapeHtml(sem.domain || 'phobiafree.life') + '" style="min-width:160px;"/></div>';
+  html += '<div class="form-group"><label>Database</label><input type="text" id="semDatabase" value="' + escapeHtml(sem.database || 'us') + '" style="width:80px;"/></div>';
+  html += '<div class="form-group"><label>Row limit</label><input type="number" id="semDisplayLimit" value="' + escapeHtml(String(sem.displayLimit || 200)) + '" min="10" max="2000" style="width:90px;"/></div>';
   html += '</div>';
+  html += '<div style="margin-bottom:0.85rem;font-size:0.82rem;">';
+  html += '<div style="font-weight:600;margin-bottom:0.4rem;">Sync datasets</div>';
+  [
+    ['overview', 'Domain overview'],
+    ['organic', 'Organic keywords'],
+    ['paid', 'Paid keywords'],
+    ['competitors', 'Organic competitors']
+  ].forEach(function(pair) {
+    var on = syncSets.indexOf(pair[0]) >= 0;
+    html += '<label style="display:inline-flex;align-items:center;gap:0.35rem;margin-right:1rem;margin-bottom:0.35rem;cursor:pointer;">';
+    html += '<input type="checkbox" class="semSyncSet" value="' + pair[0] + '"' + (on ? ' checked' : '') + '/> ' + pair[1] + '</label>';
+  });
+  html += '</div>';
+  html += '<label style="display:inline-flex;align-items:center;gap:0.4rem;font-size:0.82rem;margin-bottom:0.85rem;cursor:pointer;">';
+  html += '<input type="checkbox" id="semDailySync"' + (sem.dailySync ? ' checked' : '') + '/> Daily scheduled sync (site cron, ~once/day when enabled)</label>';
+  html += '<div style="display:flex;flex-wrap:wrap;gap:0.55rem;align-items:center;">';
+  html += '<button type="button" class="btn btn-teal" onclick="saveSemrushSettings()">Save connection</button>';
+  html += '<button type="button" class="btn btn-teal" onclick="syncSemrushNow()">Sync now</button>';
+  if (imports.length || overview || competitors.length) html += '<button type="button" class="btn btn-red" onclick="clearSemrushData()">Clear keywords</button>';
+  html += '</div>';
+  html += '<div style="margin-top:0.75rem;font-size:0.78rem;color:var(--mid-gray);">';
+  html += 'Last sync: ' + (sem.lastSync ? escapeHtml(sem.lastSync) : 'never');
+  if (sem.fromWorkerSecret) html += ' · key also set via Worker secret';
+  if (sem.missing && sem.missing.length) {
+    html += '<div style="margin-top:0.45rem;color:#a33b2b;">Still needed: ' + escapeHtml(sem.missing.join(' · ')) + '</div>';
+  }
+  if (sem.lastError) html += '<div style="color:#a33b2b;margin-top:0.35rem;">' + escapeHtml(sem.lastError) + '</div>';
+  if (sem.lastResult && sem.lastResult.reports) {
+    html += '<div style="margin-top:0.35rem;">Last pull: ' + escapeHtml((sem.lastResult.reports || []).map(function(x) {
+      return x.type + ':' + (x.rows || 0) + (x.error ? '!' : '');
+    }).join(', ')) + '</div>';
+  }
+  html += '</div></div></div>';
+
+  if (overview) {
+    html += '<div class="card" style="margin-bottom:1rem;"><div class="card-header"><div class="card-title">Domain overview</div></div>';
+    html += '<div style="padding:1rem 1.5rem;font-size:0.85rem;display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:0.75rem;">';
+    [
+      ['Rank', overview.rank],
+      ['Organic KW', overview.organicKeywords],
+      ['Organic traffic', overview.organicTraffic],
+      ['Organic cost', overview.organicCost],
+      ['Paid KW', overview.adwordsKeywords],
+      ['Paid traffic', overview.adwordsTraffic]
+    ].forEach(function(pair) {
+      html += '<div><div style="color:var(--mid-gray);font-size:0.72rem;">' + pair[0] + '</div><div style="font-weight:600;">' + (pair[1] != null ? escapeHtml(String(pair[1])) : '—') + '</div></div>';
+    });
+    html += '</div></div>';
+  }
+
+  if (competitors.length) {
+    html += '<div class="card" style="margin-bottom:1rem;"><div class="card-header"><div class="card-title">Competitors (' + competitors.length + ')</div></div>';
+    html += '<div class="table-wrap" style="max-height:220px;overflow:auto;"><table><thead><tr><th>Domain</th><th>Relevance</th><th>Common KW</th><th>Organic KW</th><th>Traffic</th></tr></thead><tbody>';
+    competitors.slice(0, 40).forEach(function(c) {
+      html += '<tr><td>' + escapeHtml(c.domain || '') + '</td>';
+      html += '<td>' + (c.relevance != null ? escapeHtml(String(c.relevance)) : '—') + '</td>';
+      html += '<td>' + (c.commonKeywords != null ? escapeHtml(String(c.commonKeywords)) : '—') + '</td>';
+      html += '<td>' + (c.organicKeywords != null ? escapeHtml(String(c.organicKeywords)) : '—') + '</td>';
+      html += '<td>' + (c.organicTraffic != null ? escapeHtml(String(c.organicTraffic)) : '—') + '</td></tr>';
+    });
+    html += '</tbody></table></div></div>';
+  }
+
+  html += '<div class="card" style="margin-bottom:1rem;"><div class="card-header"><div class="card-title">Filters</div></div>';
+  html += '<div style="padding:1rem 1.5rem;">';
   html += '<div class="form-row" style="gap:0.75rem;flex-wrap:wrap;align-items:end;">';
   html += '<div class="form-group"><label>Min volume</label><input type="number" id="semMinVol" value="' + escapeHtml(String(minVol)) + '" style="width:100px;"/></div>';
   html += '<div class="form-group"><label>Max KD</label><input type="number" id="semMaxKd" value="' + escapeHtml(String(maxKd)) + '" style="width:100px;"/></div>';
@@ -2045,11 +2105,21 @@ function renderSemrush() {
   html += '<div class="form-group" style="flex:1;min-width:220px;"><label>Exclude words</label><input type="text" id="semExclude" value="' + escapeHtml(filters.excludeWords || '') + '"/></div>';
   html += '<button type="button" class="btn btn-teal" onclick="saveSemrushFilters()">Save filters</button>';
   html += '</div>';
-  if (imports.length) {
-    html += '<div style="margin-top:0.75rem;font-size:0.8rem;color:var(--mid-gray);">' + keywords.length + ' keywords loaded · ' + filtered.length + ' pass filters · last: ' +
-      escapeHtml(imports[0].filename || '') + '</div>';
+  if (imports.length || keywords.length) {
+    html += '<div style="margin-top:0.75rem;font-size:0.8rem;color:var(--mid-gray);">' + keywords.length + ' keywords loaded · ' + filtered.length + ' pass filters';
+    if (imports[0]) html += ' · last: ' + escapeHtml(imports[0].filename || '');
+    html += '</div>';
   }
   html += '</div></div>';
+
+  html += '<details class="card" style="margin-bottom:1rem;"><summary class="card-header" style="cursor:pointer;"><div class="card-title">CSV fallback (optional)</div></summary>';
+  html += '<div style="padding:1rem 1.5rem;">';
+  html += '<div class="form-row" style="gap:0.75rem;flex-wrap:wrap;align-items:end;">';
+  html += '<div class="form-group" style="flex:1;min-width:220px;"><label>SEMrush CSV</label><input type="file" id="semCsvFile" accept=".csv,text/csv"/></div>';
+  html += '<button type="button" class="btn btn-ghost" onclick="importSemrushCsv()">Import CSV</button>';
+  html += '</div>';
+  html += '<p style="margin-top:0.65rem;font-size:0.78rem;color:var(--mid-gray);">CSV appends. API Sync replaces keyword rows (Keep/Neg marks are preserved by keyword).</p>';
+  html += '</div></details>';
 
   html += '<div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1rem;margin-bottom:1rem;">';
   html += '<div class="card"><div class="card-header"><div class="card-title">Keepers (' + keepers.length + ')</div></div><div style="padding:0.85rem 1rem;max-height:220px;overflow:auto;font-size:0.82rem;">';
@@ -2063,10 +2133,9 @@ function renderSemrush() {
 
   html += '<div class="card"><div class="card-header"><div class="card-title">Filtered keywords</div></div>';
   html += '<div class="table-wrap" style="max-height:480px;overflow:auto;"><table><thead><tr>';
-  html += semSortTh('Keyword', 'keyword') + semSortTh('Vol', 'volume') + semSortTh('KD', 'kd') + semSortTh('CPC', 'cpc') + semSortTh('Intent', 'intent');
-  html += '<th></th></tr></thead><tbody>';
+  html += '<th>Keyword</th><th>Vol</th><th>KD</th><th>CPC</th><th>Intent</th><th></th></tr></thead><tbody>';
   if (!filtered.length) {
-    html += '<tr><td colspan="6" style="color:var(--mid-gray);padding:1rem;">Import a SEMrush keyword CSV to begin.</td></tr>';
+    html += '<tr><td colspan="6" style="color:var(--mid-gray);padding:1rem;">Sync from API (or import a CSV) to begin.</td></tr>';
   } else {
     filtered.slice(0, 300).forEach(function(k) {
       html += '<tr>';
@@ -2088,49 +2157,41 @@ function renderSemrush() {
   el.innerHTML = html;
 }
 
-var SEM_SORT = { key: 'volume', dir: 'desc' };
-
-function semSortTh(label, key) {
-  var active = SEM_SORT.key === key;
-  var ind = active ? (SEM_SORT.dir === 'asc' ? '↑' : '↓') : '';
-  return '<th class="sortable' + (active ? ' active' : '') + '" onclick="setSemSort(\'' + key + '\')">' +
-    label + (ind ? '<span class="sort-ind">' + ind + '</span>' : '') + '</th>';
+function collectSemrushSyncSets() {
+  var boxes = document.querySelectorAll('.semSyncSet');
+  var sets = [];
+  boxes.forEach(function(b) { if (b.checked) sets.push(b.value); });
+  return sets;
 }
 
-function setSemSort(key) {
-  if (SEM_SORT.key === key) {
-    SEM_SORT.dir = SEM_SORT.dir === 'asc' ? 'desc' : 'asc';
-  } else {
-    SEM_SORT.key = key;
-    SEM_SORT.dir = (key === 'keyword' || key === 'intent') ? 'asc' : 'desc';
-  }
-  renderSemrush();
+async function saveSemrushSettings(opts) {
+  opts = opts || {};
+  var payload = {
+    action: 'save_semrush_settings',
+    domain: ((document.getElementById('semDomain') || {}).value || ''),
+    database: ((document.getElementById('semDatabase') || {}).value || ''),
+    display_limit: Number((document.getElementById('semDisplayLimit') || {}).value),
+    sync_sets: collectSemrushSyncSets(),
+    daily_sync: !!(document.getElementById('semDailySync') || {}).checked
+  };
+  var key = ((document.getElementById('semApiKey') || {}).value || '').trim();
+  if (key) payload.api_key = key;
+  var r = await ajax(payload);
+  if (r.error) { toast(r.error, 6000); return null; }
+  if (!opts.quiet) toast('SEMrush settings saved');
+  await loadDashboard();
+  return r;
 }
 
-function sortSemKeywords(rows) {
-  var key = SEM_SORT.key || 'volume';
-  var dir = SEM_SORT.dir === 'asc' ? 1 : -1;
-  var numeric = key === 'volume' || key === 'kd' || key === 'cpc';
-  return rows.slice().sort(function(a, b) {
-    var av = a[key], bv = b[key];
-    if (numeric) {
-      var an = av == null || av === '' ? null : Number(av);
-      var bn = bv == null || bv === '' ? null : Number(bv);
-      var aMiss = an == null || !Number.isFinite(an);
-      var bMiss = bn == null || !Number.isFinite(bn);
-      if (aMiss && bMiss) return 0;
-      if (aMiss) return 1;
-      if (bMiss) return -1;
-      if (an === bn) return 0;
-      return an < bn ? -dir : dir;
-    }
-    var as = String(av || '').toLowerCase();
-    var bs = String(bv || '').toLowerCase();
-    if (!as && !bs) return 0;
-    if (!as) return 1;
-    if (!bs) return -1;
-    return as < bs ? -dir : (as > bs ? dir : 0);
-  });
+async function syncSemrushNow() {
+  var saved = await saveSemrushSettings({ quiet: true });
+  if (!saved) return;
+  toast('Syncing from Semrush API...');
+  var r = await ajax({ action: 'sync_semrush', sets: collectSemrushSyncSets() });
+  if (r.error) { toast(r.error, 7000); await loadDashboard(); return; }
+  var parts = (r.reports || []).map(function(x) { return x.type + ':' + (x.rows || 0); });
+  toast('Synced ' + (parts.join(', ') || 'ok'));
+  await loadDashboard();
 }
 
 async function importSemrushCsv() {
@@ -2140,7 +2201,7 @@ async function importSemrushCsv() {
   var text = await file.text();
   var r = await ajax({ action: 'import_semrush_csv', filename: file.name, csv: text });
   if (r.error) { toast(r.error); return; }
-  toast('Loaded ' + (r.row_count || 0) + ' keywords (replaced previous)' + (r.parse_mode === 'headerless' ? ' · headerless CSV' : ''));
+  toast('Imported ' + (r.row_count || 0) + ' rows');
   await loadDashboard();
 }
 
@@ -2156,90 +2217,6 @@ async function saveSemrushFilters() {
   if (r.error) { toast(r.error); return; }
   toast('Filters saved');
   await loadDashboard();
-}
-
-function downloadTextFile(filename, text) {
-  var blob = new Blob([text], { type: 'text/plain;charset=utf-8' });
-  var url = URL.createObjectURL(blob);
-  var a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  document.body.appendChild(a);
-  a.click();
-  a.remove();
-  setTimeout(function() { URL.revokeObjectURL(url); }, 5000);
-}
-
-// City-specific terms get exact match; everything else phrase match.
-var SEM_CITY_RE = /(nyc|new york|scarsdale|chappaqua|winnetka|westfield|rhinebeck|ho-ho-kus|saddle river|naperville|evanston|armonk|agoura hills|beverly hills|san diego|porter ranch|del mar)/i;
-
-function exportSemKeepers() {
-  var rows = (ARK.semrushKeywords || []).filter(function(k) { return Number(k.keep) === 1; });
-  if (!rows.length) { toast('No keepers marked — use Keep on rows first'); return; }
-  var seen = {};
-  var lines = [];
-  rows.slice().sort(function(a, b) { return (Number(b.volume) || 0) - (Number(a.volume) || 0); }).forEach(function(k) {
-    var kw = String(k.keyword || '').trim().toLowerCase();
-    if (!kw || seen[kw]) return;
-    seen[kw] = 1;
-    lines.push(SEM_CITY_RE.test(kw) ? '[' + kw + ']' : '"' + kw + '"');
-  });
-  downloadTextFile('google-ads-keepers.txt', lines.join('\n'));
-  toast('Exported ' + lines.length + ' keywords — paste into Google Ads (phrase in quotes, exact in brackets)');
-}
-
-var SEM_NEGATIVE_LIST = [
-  // Freebie / DIY
-  'free', 'tips', 'tricks', 'reddit', 'quora', 'forum', 'blog', 'pdf', 'book', 'books',
-  'app', 'apps', 'download', 'youtube', 'video', 'videos', 'course', 'class', 'online course',
-  'self help', 'diy', 'at home', 'podcast', 'podcasts', 'audiobook', 'audio', 'mp3',
-  'spotify', 'cd', 'workbook', 'worksheet', 'worksheets', 'ebook', 'kindle', 'amazon',
-  'guide', 'article', 'articles', 'story', 'stories', 'support group', 'exercises',
-  'techniques', 'breathing',
-  // Hypnotherapist-peer traffic
-  'script', 'scripts', 'training', 'certification', 'become a hypnotherapist',
-  // Medication
-  'medication', 'medications', 'meds', 'pill', 'pills', 'drug', 'drugs', 'xanax', 'valium',
-  'diazepam', 'ativan', 'benzo', 'prescription', 'dramamine', 'melatonin', 'alcohol',
-  'drink', 'drinking', 'propranolol', 'beta blocker', 'beta blockers', 'klonopin',
-  'lorazepam', 'ambien', 'ssri', 'antidepressant', 'antidepressants', 'cbd', 'gummies',
-  'weed', 'marijuana', 'supplement', 'supplements', 'vitamins',
-  // Research / definition
-  'what is', 'definition', 'meaning', 'wikipedia', 'wiki', 'statistics', 'stats', 'facts',
-  'symptoms', 'symptom', 'causes', 'cause', 'why do', 'is it normal', 'quiz', 'test',
-  'dsm', 'research', 'study', 'studies', 'psychology', 'how common', 'percentage',
-  // Wrong audience
-  'jobs', 'career', 'salary', 'hiring', 'pilot', 'flight attendant', 'cabin crew',
-  'kids', 'kid', 'child', 'children', 'teen', 'teenager', 'toddler', 'baby',
-  'dog', 'cat', 'pet', 'insurance', 'medicare', 'medicaid', 'spanish', 'espanol',
-  // Wrong topic / entertainment
-  'turbulence video', 'plane crash', 'crash video', 'dream', 'dreams', 'meme', 'funny',
-  'quotes', 'quote', 'song', 'songs', 'lyrics', 'movie', 'movies', 'film', 'insects',
-  'bugs', 'heights', 'tiktok', 'instagram', 'netflix', 'documentary', 'gif', 'cartoon',
-  'joke', 'jokes', 'game', 'games',
-  // Tech-solution seekers
-  'vr', 'virtual reality', 'simulator', 'flight simulator', 'ai',
-  // Competitor programs + airline brands
-  'soar', 'tom bunn', 'dial', 'fearless flyer',
-  'delta', 'united', 'american airlines', 'southwest', 'jetblue', 'british airways',
-  'ryanair', 'easyjet', 'alaska airlines', 'spirit airlines', 'frontier', 'emirates',
-  'qantas', 'lufthansa', 'klm', 'air france', 'air canada', 'turkish airlines',
-  // Local-intent leftovers
-  'near me', 'cheap'
-];
-
-function exportSemNegatives() {
-  var extra = (ARK.semrushKeywords || []).filter(function(k) { return Number(k.negative) === 1; })
-    .map(function(k) { return String(k.keyword || '').trim().toLowerCase(); }).filter(Boolean);
-  var seen = {};
-  var lines = [];
-  SEM_NEGATIVE_LIST.concat(extra).forEach(function(w) {
-    if (!w || seen[w]) return;
-    seen[w] = 1;
-    lines.push(w);
-  });
-  downloadTextFile('google-ads-negatives.txt', lines.join('\n'));
-  toast('Exported ' + lines.length + ' negatives — add as campaign-level negative keyword list');
 }
 
 async function markSemKeyword(id, kind) {
@@ -4115,15 +4092,77 @@ function deleteConsult(id) {
   });
 }
 
+function archiveConsult(id, archived) {
+  archived = archived ? 1 : 0;
+  ajax({ ajax_action: 'archive_consultation', id: id, archived: archived }).then(function(res) {
+    if (res.error) { toast(res.error); return; }
+    CONSULTATIONS.forEach(function(c) { if (c.id == id) c.archived = archived; });
+    toast(archived ? 'Archived' : 'Unarchived');
+    refreshViews();
+  });
+}
+
 function clearVisitorLog() {
   if (!confirm('Clear all visitor log data?')) return;
   ajax({ ajax_action: 'clear_visitor_log' }).then(function(res) {
     if (res.error) { toast(res.error); return; }
     VISITOR_LOGS = [];
     PAGE_HITS = [];
+    SELECTED_VISITOR_VIDS = {};
+    SELECTED_PAGE_HIT_IDS = {};
     toast('Log cleared');
     refreshViews();
   });
+}
+
+function selectedVisitorVids() {
+  return Object.keys(SELECTED_VISITOR_VIDS).filter(function(k) { return SELECTED_VISITOR_VIDS[k]; });
+}
+
+function selectedPageHitIds() {
+  return Object.keys(SELECTED_PAGE_HIT_IDS).filter(function(k) { return SELECTED_PAGE_HIT_IDS[k]; }).map(function(k) {
+    return parseInt(k, 10);
+  }).filter(function(id) { return !!id; });
+}
+
+function toggleVisitorSelect(vid, checked) {
+  if (!vid) return;
+  if (checked) SELECTED_VISITOR_VIDS[vid] = true;
+  else delete SELECTED_VISITOR_VIDS[vid];
+  renderVisitors();
+}
+
+function togglePageHitSelect(id, checked) {
+  id = parseInt(id, 10);
+  if (!id) return;
+  if (checked) SELECTED_PAGE_HIT_IDS[id] = true;
+  else delete SELECTED_PAGE_HIT_IDS[id];
+  renderVisitors();
+}
+
+function toggleSelectAllVisitors(checked) {
+  var sessions = (VISITOR_LOGS || []).filter(function(v) {
+    return SHOW_ARCHIVED_VISITORS ? true : !v.archived;
+  });
+  sessions.forEach(function(v) {
+    var vid = String(v.vid || '').replace(/[^a-z0-9_]/gi, '');
+    if (!vid) return;
+    if (checked) SELECTED_VISITOR_VIDS[vid] = true;
+    else delete SELECTED_VISITOR_VIDS[vid];
+  });
+  renderVisitors();
+}
+
+function toggleSelectAllPageHits(checked) {
+  var hits = (PAGE_HITS || []).filter(function(h) {
+    return SHOW_ARCHIVED_VISITORS ? true : !h.archived;
+  }).slice(0, 200);
+  hits.forEach(function(h) {
+    if (!h.id) return;
+    if (checked) SELECTED_PAGE_HIT_IDS[h.id] = true;
+    else delete SELECTED_PAGE_HIT_IDS[h.id];
+  });
+  renderVisitors();
 }
 
 function deleteVisitor(vid) {
@@ -4132,6 +4171,7 @@ function deleteVisitor(vid) {
     if (res.error) { toast(res.error); return; }
     VISITOR_LOGS = VISITOR_LOGS.filter(function(v) { return v.vid !== vid; });
     PAGE_HITS = (PAGE_HITS || []).filter(function(h) { return h.vid !== vid; });
+    delete SELECTED_VISITOR_VIDS[vid];
     toast('Deleted');
     refreshViews();
   });
@@ -4143,7 +4183,90 @@ function deletePageHit(id) {
   ajax({ ajax_action: 'delete_page_hit', id: id }).then(function(res) {
     if (res.error) { toast(res.error); return; }
     PAGE_HITS = (PAGE_HITS || []).filter(function(h) { return h.id != id; });
+    delete SELECTED_PAGE_HIT_IDS[id];
     toast('Deleted');
+    refreshViews();
+  });
+}
+
+function archiveVisitor(vid, archived) {
+  if (!vid) return;
+  archived = archived ? 1 : 0;
+  ajax({ ajax_action: 'archive_visitors', vids: [vid], archived: archived }).then(function(res) {
+    if (res.error) { toast(res.error); return; }
+    VISITOR_LOGS.forEach(function(v) { if (v.vid === vid) v.archived = archived; });
+    delete SELECTED_VISITOR_VIDS[vid];
+    toast(archived ? 'Archived' : 'Unarchived');
+    refreshViews();
+  });
+}
+
+function archivePageHit(id, archived) {
+  id = parseInt(id, 10);
+  if (!id) return;
+  archived = archived ? 1 : 0;
+  ajax({ ajax_action: 'archive_page_hits', ids: [id], archived: archived }).then(function(res) {
+    if (res.error) { toast(res.error); return; }
+    PAGE_HITS.forEach(function(h) { if (h.id == id) h.archived = archived; });
+    delete SELECTED_PAGE_HIT_IDS[id];
+    toast(archived ? 'Archived' : 'Unarchived');
+    refreshViews();
+  });
+}
+
+function bulkDeleteVisitors() {
+  var vids = selectedVisitorVids();
+  if (!vids.length) return;
+  if (!confirm('Delete ' + vids.length + ' visitor session(s)?')) return;
+  ajax({ ajax_action: 'delete_visitors', vids: vids }).then(function(res) {
+    if (res.error) { toast(res.error); return; }
+    var set = {};
+    vids.forEach(function(v) { set[v] = true; delete SELECTED_VISITOR_VIDS[v]; });
+    VISITOR_LOGS = VISITOR_LOGS.filter(function(v) { return !set[v.vid]; });
+    PAGE_HITS = (PAGE_HITS || []).filter(function(h) { return !set[h.vid]; });
+    toast('Deleted ' + vids.length);
+    refreshViews();
+  });
+}
+
+function bulkArchiveVisitors(archived) {
+  var vids = selectedVisitorVids();
+  if (!vids.length) return;
+  archived = archived ? 1 : 0;
+  ajax({ ajax_action: 'archive_visitors', vids: vids, archived: archived }).then(function(res) {
+    if (res.error) { toast(res.error); return; }
+    var set = {};
+    vids.forEach(function(v) { set[v] = true; delete SELECTED_VISITOR_VIDS[v]; });
+    VISITOR_LOGS.forEach(function(v) { if (set[v.vid]) v.archived = archived; });
+    toast((archived ? 'Archived ' : 'Unarchived ') + vids.length);
+    refreshViews();
+  });
+}
+
+function bulkDeletePageHits() {
+  var ids = selectedPageHitIds();
+  if (!ids.length) return;
+  if (!confirm('Delete ' + ids.length + ' page hit(s)?')) return;
+  ajax({ ajax_action: 'delete_page_hits', ids: ids }).then(function(res) {
+    if (res.error) { toast(res.error); return; }
+    var set = {};
+    ids.forEach(function(id) { set[id] = true; delete SELECTED_PAGE_HIT_IDS[id]; });
+    PAGE_HITS = (PAGE_HITS || []).filter(function(h) { return !set[h.id]; });
+    toast('Deleted ' + ids.length);
+    refreshViews();
+  });
+}
+
+function bulkArchivePageHits(archived) {
+  var ids = selectedPageHitIds();
+  if (!ids.length) return;
+  archived = archived ? 1 : 0;
+  ajax({ ajax_action: 'archive_page_hits', ids: ids, archived: archived }).then(function(res) {
+    if (res.error) { toast(res.error); return; }
+    var set = {};
+    ids.forEach(function(id) { set[id] = true; delete SELECTED_PAGE_HIT_IDS[id]; });
+    PAGE_HITS.forEach(function(h) { if (set[h.id]) h.archived = archived; });
+    toast((archived ? 'Archived ' : 'Unarchived ') + ids.length);
     refreshViews();
   });
 }
@@ -4236,20 +4359,10 @@ function viewConsult(id) {
     ['Life impact', c.q_impact || '—'], ['Cost to life', c.q_cost || '—'],
     ['Without fear', c.q_outcome || '—'], ['Previous therapies', c.q_previous || '—']
   ];
-  if (c.gclid || c.utm_source) {
-    fields.push(['ADS_SEP', '']);
-    fields.push(['Source', (c.utm_source || '—') + (c.utm_medium ? ' / ' + c.utm_medium : '')]);
-    fields.push(['Campaign', c.utm_campaign || '—']);
-    fields.push(['Keyword', c.utm_term || '—']);
-    fields.push(['Landing page', c.landing_page || '—']);
-    if (c.gclid) fields.push(['Google click', 'yes (gclid captured)']);
-  }
   var html = '';
   fields.forEach(function(f) {
     if (f[0] === 'SEP') {
       html += '<div style="font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);margin:1rem 0 0.5rem;">Pre-Consultation Answers</div>';
-    } else if (f[0] === 'ADS_SEP') {
-      html += '<div style="font-size:0.68rem;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold);margin:1rem 0 0.5rem;">How They Found You (Ads)</div>';
     } else {
       html += '<div class="detail-row"><div class="detail-label">' + escapeHtml(f[0]) + '</div><div class="detail-value">' + escapeHtml(f[1] || '—') + '</div></div>';
     }
