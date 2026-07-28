@@ -1,7 +1,5 @@
 # Deploys phobiafree-site (admin + public assets + API workers).
-# Requires GitHub repo secrets:
-#   CLOUDFLARE_API_TOKEN
-#   CLOUDFLARE_ACCOUNT_ID
+# Requires repo secret CLOUDFLARE_API_TOKEN with Workers Scripts Edit (+ Account read).
 name: Deploy site
 
 on:
@@ -17,9 +15,17 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
       - name: Deploy with Wrangler
         uses: cloudflare/wrangler-action@v3
         with:
           apiToken: ${{ secrets.CLOUDFLARE_API_TOKEN }}
-          accountId: ${{ secrets.CLOUDFLARE_ACCOUNT_ID }}
+          accountId: e9d550c280274a374dedf6bb5f9a9829
+          wranglerVersion: '4.114.0'
           command: deploy -c wrangler-site.jsonc
+        env:
+          CLOUDFLARE_ACCOUNT_ID: e9d550c280274a374dedf6bb5f9a9829
