@@ -1,6 +1,7 @@
 {
   "$schema": "./node_modules/wrangler/config-schema.json",
   "name": "phobiafree-site",
+  "account_id": "e9d550c280274a374dedf6bb5f9a9829",
   "main": "site-worker.js",
   "compatibility_date": "2026-07-01",
   "workers_dev": true,
