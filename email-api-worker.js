@@ -2,15 +2,18 @@
  * Admin email inbox proxy → inhouse-email-worker.
  * Auth: admin session cookie. Upstream: Bearer EMAIL_INBOX_API_KEY.
  *
- * Thought #22: rebuild conversation list/detail so same-subject emails to
- * different recipients are not collapsed into one thread.
+ * Thought #22/#24: rebuild conversation list/detail so same-subject emails to
+ * different recipients are not collapsed into one thread. Never return the
+ * upstream conversation list as-is — that payload can already be subject-merged.
  */
 import { setRequestOrigin, json, requireAuth } from './lib/admin-auth.js';
 import {
   buildConversationsFromMessages,
+  extractMessagesFromUpstream,
   isLocalThreadId,
   messagesForThreadId,
   publicConversations,
+  syntheticMessagesFromConversations,
 } from './lib/email-threads.js';
 
 const DEFAULT_INBOX_URL = 'https://inhouse-email-worker.soyuzlaunch.workers.dev';
@@ -117,25 +120,36 @@ async function handleInboxList(env, url) {
     return json(upstream.data, upstream.status);
   }
 
-  let messages = Array.isArray(upstream.data.messages) ? upstream.data.messages.slice() : [];
-  // Some upstream builds nest messages under conversations — flatten those.
+  // Thought #24: always rebuild. Never return upstream.conversations as-is —
+  // that list can merge same-subject Sent mail across different recipients.
+  let messages = extractMessagesFromUpstream(upstream.data);
+
+  // Flat=1 sometimes returns only conversation summaries. Retry without flat
+  // so we can pull nested per-message payloads, then expand messageIds.
   if (!messages.length && Array.isArray(upstream.data.conversations)) {
-    for (const c of upstream.data.conversations) {
-      if (Array.isArray(c.messages)) messages.push(...c.messages);
+    const qsNested = new URLSearchParams(qs);
+    qsNested.delete('flat');
+    const nested = await upstreamJson(env, '/inbox?' + qsNested.toString(), 'GET');
+    if (nested.ok) {
+      messages = extractMessagesFromUpstream(nested.data);
     }
   }
-  if (!messages.length) {
-    // Do not blank the inbox if flat payload is unavailable.
-    if (Array.isArray(upstream.data.conversations)) {
-      return json(upstream.data, upstream.status);
-    }
-    return json({
-      ok: true,
-      conversations: [],
-      messages: [],
-      folder,
-      mailbox: mailbox || undefined,
-    });
+
+  if (!messages.length && Array.isArray(upstream.data.conversations)) {
+    messages = await expandConversationsViaMessageIds(
+      env,
+      upstream.data.conversations,
+      mailbox
+    );
+  }
+
+  if (!messages.length && Array.isArray(upstream.data.conversations)) {
+    // Final rebuild input: synthetic one-message-per-recipient rows.
+    // Still never passthrough upstream merged thread ids.
+    messages = syntheticMessagesFromConversations(
+      upstream.data.conversations,
+      mailbox
+    );
   }
 
   const conversations = publicConversations(
@@ -150,6 +164,46 @@ async function handleInboxList(env, url) {
     folder,
     mailbox: mailbox || undefined,
   });
+}
+
+/**
+ * When summaries expose messageIds but not message bodies, fetch each message
+ * so counterpart+subject splitting can see real To: recipients.
+ */
+async function expandConversationsViaMessageIds(env, conversations, mailbox) {
+  const ids = [];
+  const seen = new Set();
+  for (const c of conversations || []) {
+    const list = Array.isArray(c?.messageIds)
+      ? c.messageIds
+      : Array.isArray(c?.message_ids)
+        ? c.message_ids
+        : [];
+    for (const id of list) {
+      if (id == null || id === '' || seen.has(id)) continue;
+      seen.add(id);
+      ids.push(id);
+    }
+  }
+  if (!ids.length) return [];
+
+  // Bound fan-out so a large Sent folder cannot stall the admin list.
+  const capped = ids.slice(0, 80);
+  const messages = [];
+  for (const id of capped) {
+    try {
+      const r = await upstreamJson(env, '/inbox/' + encodeURIComponent(id), 'GET');
+      if (!r.ok) continue;
+      const msg = r.data?.message || r.data;
+      if (msg && typeof msg === 'object' && (msg.id != null || msg.subject || msg.from)) {
+        if (mailbox && !msg.mailbox) msg.mailbox = mailbox;
+        messages.push(msg);
+      }
+    } catch {
+      // skip individual failures
+    }
+  }
+  return messages;
 }
 
 async function handleThread(env, url, threadId) {
