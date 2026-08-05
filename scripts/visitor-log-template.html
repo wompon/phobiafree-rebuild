@@ -296,11 +296,15 @@ tr:hover td{background:rgba(26,107,114,0.02);}
 .sidebar-overlay.active{display:block;}
 
 /* VISITOR LOG */
-.vlog-row{display:grid;grid-template-columns:28px 1fr 1fr 1fr 80px 80px auto 120px;gap:0.5rem;padding:0.85rem 1rem;border-bottom:1px solid var(--divider);font-size:0.8rem;align-items:center;}
+.vlog-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch;width:100%;}
+.vlog-row{display:grid;grid-template-columns:28px minmax(0,1.1fr) minmax(0,0.9fr) minmax(0,1.3fr) minmax(0,80px) minmax(0,80px) minmax(64px,auto) minmax(0,130px);gap:0.5rem;padding:0.85rem 1rem;border-bottom:1px solid var(--divider);font-size:0.8rem;align-items:center;width:100%;box-sizing:border-box;}
+.vlog-row > *{min-width:0;}
 .vlog-row:hover{background:rgba(26,107,114,0.02);}
 .vlog-head{background:var(--cream);font-size:0.68rem;font-weight:500;letter-spacing:0.08em;text-transform:uppercase;color:var(--mid-gray);padding:0.6rem 1rem;}
-.vlog-pages{display:flex;flex-wrap:wrap;gap:0.25rem;}
-.vlog-page-tag{background:rgba(26,107,114,0.08);color:var(--teal-dark);padding:2px 6px;border-radius:2px;font-size:0.65rem;}
+.vlog-cell-text{overflow:hidden;min-width:0;}
+.vlog-cell-text > div,.vlog-cell-clip{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.vlog-pages{display:flex;flex-wrap:wrap;gap:0.25rem;max-height:2.6em;overflow:hidden;min-width:0;}
+.vlog-page-tag{background:rgba(26,107,114,0.08);color:var(--teal-dark);padding:2px 6px;border-radius:2px;font-size:0.65rem;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
 .vlog-actions{display:flex;justify-content:flex-end;align-items:center;gap:0.3rem;flex-wrap:wrap;}
 .vlog-check{display:flex;align-items:center;justify-content:center;}
 .vlog-check input{width:14px;height:14px;cursor:pointer;accent-color:var(--teal);}
@@ -309,6 +313,8 @@ tr:hover td{background:rgba(26,107,114,0.02);}
 .row-archived{opacity:0.72;}
 .archive-toggle{display:inline-flex;align-items:center;gap:0.4rem;font-size:0.75rem;color:var(--mid-gray);cursor:pointer;user-select:none;}
 .archive-toggle input{width:14px;height:14px;accent-color:var(--teal);cursor:pointer;}
+.table-wrap.vlog-hits table{table-layout:fixed;min-width:640px;}
+.table-wrap.vlog-hits td,.table-wrap.vlog-hits th{overflow:hidden;text-overflow:ellipsis;word-break:break-word;}
 
 /* RESPONSIVE */
 @media(max-width:900px){
@@ -319,7 +325,7 @@ tr:hover td{background:rgba(26,107,114,0.02);}
   .hamburger{display:block;}
   .stats-grid{grid-template-columns:1fr 1fr;}
   .form-row{grid-template-columns:1fr;}
-  .vlog-row{grid-template-columns:28px 1fr 1fr;gap:0.25rem;}
+  .vlog-row{grid-template-columns:28px minmax(0,1fr) minmax(0,1fr);gap:0.25rem;}
   .vlog-row .vlog-hide{display:none;}
   .vlog-actions{justify-content:flex-start;}
 }
@@ -1068,7 +1074,7 @@ function renderVisitors() {
     html += '<span>Select rows to archive or delete</span>';
   }
   html += '</div>';
-  html += '<div class="table-wrap"><table><thead><tr><th style="width:28px;"></th><th>When</th><th>Location / IP</th><th>Device</th><th>Page</th><th>Engaged</th><th>Ads</th><th>Actions</th></tr></thead><tbody>';
+  html += '<div class="table-wrap vlog-hits"><table><thead><tr><th style="width:28px;"></th><th style="width:110px;">When</th><th>Location / IP</th><th>Device</th><th>Page</th><th style="width:90px;">Engaged</th><th>Ads</th><th style="width:140px;">Actions</th></tr></thead><tbody>';
   if (!hits.length) {
     html += '<tr><td colspan="8" style="text-align:center;color:var(--mid-gray);padding:1.5rem;">No page hits yet' + (SHOW_ARCHIVED_VISITORS ? '' : ' (or all archived)') + '.</td></tr>';
   } else {
@@ -1118,6 +1124,7 @@ function renderVisitors() {
     html += '<span>Select rows to archive or delete</span>';
   }
   html += '</div>';
+  html += '<div class="vlog-scroll">';
   html += '<div class="vlog-row vlog-head">';
   html += '<div></div><div>Location / IP</div><div>Device</div><div>Pages Viewed</div>';
   html += '<div class="vlog-hide">First Seen</div><div class="vlog-hide">Last Seen</div><div>Time on Site</div><div>Actions</div></div>';
@@ -1141,12 +1148,12 @@ function renderVisitors() {
         html += '<input type="checkbox"' + checked + ' onchange="toggleVisitorSelect(\'' + safeVid + '\', this.checked)"/>';
       }
       html += '</div>';
-      html += '<div><div style="font-weight:500;font-size:0.82rem;">' + escapeHtml(v.location || '—') + '</div>';
+      html += '<div class="vlog-cell-text"><div style="font-weight:500;font-size:0.82rem;">' + escapeHtml(v.location || '—') + '</div>';
       html += '<div style="font-size:0.72rem;color:var(--mid-gray);font-family:monospace;">' + escapeHtml(v.ip || '') + '</div>';
       if (isArchived) html += '<div style="font-size:0.65rem;color:var(--gold);">Archived</div>';
       html += '</div>';
-      html += '<div style="font-size:0.8rem;">' + escapeHtml(v.device || '—') + '</div>';
-      html += '<div class="vlog-pages">';
+      html += '<div class="vlog-cell-text vlog-cell-clip" style="font-size:0.8rem;" title="' + escapeHtml(v.device || '') + '">' + escapeHtml(v.device || '—') + '</div>';
+      html += '<div class="vlog-pages" title="' + escapeHtml(pages.join(', ')) + '">';
       if (!pages.length) {
         html += '<span style="color:var(--mid-gray);font-size:0.75rem;">—</span>';
       } else {
@@ -1157,7 +1164,7 @@ function renderVisitors() {
       html += '</div>';
       html += '<div class="vlog-hide" style="font-size:0.75rem;color:var(--mid-gray);">' + (v.first_seen ? escapeHtml(fmtDate(v.first_seen, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })) : '—') + '</div>';
       html += '<div class="vlog-hide" style="font-size:0.75rem;color:var(--mid-gray);">' + (v.last_seen ? escapeHtml(fmtDate(v.last_seen, { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })) : '—') + '</div>';
-      html += '<div style="font-weight:500;color:var(--teal-dark);font-size:0.82rem;">' + escapeHtml(timeStr) + '</div>';
+      html += '<div style="font-weight:500;color:var(--teal-dark);font-size:0.82rem;white-space:nowrap;">' + escapeHtml(timeStr) + '</div>';
       html += '<div class="vlog-actions">';
       if (safeVid) {
         if (isArchived) {
@@ -1170,7 +1177,7 @@ function renderVisitors() {
       html += '</div></div>';
     });
   }
-  html += '</div></div>';
+  html += '</div></div></div>';
   document.getElementById('tab-visitors').innerHTML = html;
 }
 
