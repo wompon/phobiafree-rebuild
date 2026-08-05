@@ -153,6 +153,35 @@ async function mutate(client, resource, operations) {
   return client.mutate(resource, operations);
 }
 
+/**
+ * Google's HEALTH_IN_PERSONALIZED_ADS policy is unpredictable — it can flag
+ * different keyword phrasings per topic (seen on "heights" and "the dentist"
+ * so far). Instead of failing the whole campaign, drop just the flagged
+ * keyword(s) and retry so every campaign finishes.
+ */
+async function createKeywordsResilient(client, adGroupResourceName, kws, matchType) {
+  let toCreate = kws.map((text) => ({
+    create: { adGroup: adGroupResourceName, status: 'ENABLED', keyword: { text, matchType } },
+  }));
+  for (let attempt = 0; attempt < 4 && toCreate.length; attempt++) {
+    try {
+      await mutate(client, 'adGroupCriteria', toCreate);
+      return toCreate.map((op) => op.create.keyword.text);
+    } catch (e) {
+      const msg = String(e.message || e);
+      if (!/POLICY_ERROR/.test(msg)) throw e;
+      const violating = new Set();
+      const re = /"violatingText":"([^"]+)"/g;
+      let m;
+      while ((m = re.exec(msg))) violating.add(m[1]);
+      if (!violating.size) throw e;
+      toCreate = toCreate.filter((op) => !violating.has(op.create.keyword.text));
+      console.warn(`  ⚠ policy-flagged, dropped: ${[...violating].join(', ')}`);
+    }
+  }
+  return toCreate.length ? [] : [];
+}
+
 async function buildOne(client, slug) {
   const topic = slugToTopic(slug);
   const campaignName = `${titleCase(topic)} — US`;
@@ -217,9 +246,11 @@ async function buildOne(client, slug) {
         cpcBidMicros: String(g.cpc),
       },
     }]);
-    await mutate(client, 'adGroupCriteria', g.kws.map((text) => ({
-      create: { adGroup: adGroup.resourceName, status: 'ENABLED', keyword: { text, matchType: g.match } },
-    })));
+    const created = await createKeywordsResilient(client, adGroup.resourceName, g.kws, g.match);
+    if (!created.length) {
+      console.warn(`  ⚠ ${name}: all keywords were policy-flagged — ad group left with no keywords, skipping ad`);
+      continue;
+    }
     await mutate(client, 'adGroupAds', [{
       create: {
         adGroup: adGroup.resourceName,
@@ -233,7 +264,7 @@ async function buildOne(client, slug) {
         },
       },
     }]);
-    console.log(`  ${name}: ${g.kws.length} keywords, cap $${(g.cpc / 1e6).toFixed(2)}`);
+    console.log(`  ${name}: ${created.length}/${g.kws.length} keywords, cap $${(g.cpc / 1e6).toFixed(2)}`);
   }
 
   return { slug, campaignId: campaign.resourceName.split('/').pop(), campaignName, status: START_STATUS };
