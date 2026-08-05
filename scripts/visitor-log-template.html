@@ -2658,7 +2658,8 @@ async function refreshEmailUnreadCounts() {
 async function loadEmailInbox() {
   try {
     var qs = '?limit=100&folder=' + encodeURIComponent(EMAIL_FOLDER) +
-      '&to=' + encodeURIComponent(EMAIL_MAILBOX);
+      '&to=' + encodeURIComponent(EMAIL_MAILBOX) +
+      '&mailbox=' + encodeURIComponent(EMAIL_MAILBOX);
     var r = await fetch('/api/email/inbox' + qs, { credentials: 'include' });
     if (r.status === 401) { showLogin(); return; }
     var d = await r.json().catch(function() { return {}; });
@@ -2666,6 +2667,7 @@ async function loadEmailInbox() {
       toast(d.error || 'Failed to load inbox');
       EMAIL_CONVERSATIONS = [];
     } else {
+      // Proxy rebuilds conversations by counterpart+subject (Thought #22).
       EMAIL_CONVERSATIONS = d.conversations || [];
     }
     renderEmail();
@@ -3168,14 +3170,16 @@ function renderEmailList() {
       var active = EMAIL_SELECTED_THREAD === c.threadId ? ' active' : '';
       var unread = c.unread > 0 ? ' unread' : '';
       var checked = EMAIL_SELECTED_THREADS[c.threadId] ? ' checked' : '';
-      var tid = String(c.threadId).replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+      // Prefer encodeURIComponent so local pfsplit: thread ids stay click-safe.
+      var tidAttr = encodeURIComponent(String(c.threadId));
+      var party = c.from || c.to || '';
       var dot = c.unread > 0 ? '<span class="email-dot"></span>' : '';
       var count = c.messageCount > 1 ? ' <span class="email-meta">(' + c.messageCount + ')</span>' : '';
       return '<div class="email-item' + unread + active + '">'
         + '<div class="email-item-check"><input type="checkbox"' + checked +
-          ' onclick="event.stopPropagation();toggleEmailThreadCheck(\'' + tid + '\', this.checked)"/></div>'
-        + '<div class="email-item-main" onclick="openEmailThread(\'' + tid + '\')">'
-        + '<div class="email-from"><span>' + dot + escapeHtml(c.from || '') + count + '</span><span class="email-meta">' + escapeHtml(fmtEmailDate(c.latestAt)) + '</span></div>'
+          ' onclick="event.stopPropagation();toggleEmailThreadCheck(decodeURIComponent(\'' + tidAttr + '\'), this.checked)"/></div>'
+        + '<div class="email-item-main" onclick="openEmailThread(decodeURIComponent(\'' + tidAttr + '\'))">'
+        + '<div class="email-from"><span>' + dot + escapeHtml(party) + count + '</span><span class="email-meta">' + escapeHtml(fmtEmailDate(c.latestAt)) + '</span></div>'
         + '<div class="email-subj">' + escapeHtml(c.subject || '(no subject)') + '</div>'
         + '<div class="email-meta">' + escapeHtml((c.preview || '').slice(0, 80)) + '</div>'
         + '</div></div>';
@@ -3616,9 +3620,21 @@ async function emailBulkAction(action, folder) {
   if (action === 'move' && !folder) return;
   if (action === 'delete' && !confirm('Permanently delete ' + ids.length + ' conversation(s)?')) return;
   try {
+    // Include per-conversation messageIds so bulk does not touch other
+    // recipients that upstream may have stored under the same subject thread.
+    var messageIds = [];
+    ids.forEach(function(tid) {
+      var c = EMAIL_CONVERSATIONS.find(function(x) { return String(x.threadId) === String(tid); });
+      if (c && Array.isArray(c.messageIds)) {
+        c.messageIds.forEach(function(mid) {
+          if (messageIds.indexOf(mid) < 0) messageIds.push(mid);
+        });
+      }
+    });
     var body = {
       action: action,
       threadIds: ids,
+      messageIds: messageIds,
       mailbox: EMAIL_MAILBOX,
       activeFolder: EMAIL_FOLDER,
       folder: action === 'move' ? folder : undefined
@@ -3913,7 +3929,8 @@ function deleteEmailMailbox() {
 async function openEmailThread(threadId) {
   try {
     var r = await fetch('/api/email/inbox/thread/' + encodeURIComponent(threadId) +
-      '?mailbox=' + encodeURIComponent(EMAIL_MAILBOX), { credentials: 'include' });
+      '?mailbox=' + encodeURIComponent(EMAIL_MAILBOX) +
+      '&folder=' + encodeURIComponent(EMAIL_FOLDER), { credentials: 'include' });
     var d = await r.json().catch(function() { return {}; });
     if (!r.ok || d.ok === false) { toast(d.error || 'Failed to open conversation'); return; }
     EMAIL_SELECTED_THREAD = threadId;
