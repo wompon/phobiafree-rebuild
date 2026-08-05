@@ -586,7 +586,7 @@ function loadSessionList() {
 // when the matching visitor recording/session was cleared, so old chats are
 // never "lost" from the dashboard (they were never deleted, just unlistable).
 function loadChatList() {
-  fetch('/api/chats',{credentials:'include'}).then(function(r){return r.json();})
+  fetch('/api/conversations',{credentials:'include'}).then(function(r){return r.json();})
   .then(function(rows){
     if (sessionTabMode !== 'chats') return;
     var body = document.getElementById('sessionListBody');

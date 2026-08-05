@@ -30,7 +30,7 @@ export default {
       if (url.pathname === '/api/sessions' && request.method === 'GET') {
         return await handleGetSessions(request, env);
       }
-      if (url.pathname === '/api/chats' && request.method === 'GET') {
+      if (url.pathname === '/api/conversations' && request.method === 'GET') {
         return await handleGetChats(request, env);
       }
       if (url.pathname === '/api/replay' && request.method === 'GET') {
