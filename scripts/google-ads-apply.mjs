@@ -10,6 +10,7 @@
  *
  * Supported action types (each action is an object in plan.actions):
  *   set_keyword_bid        { resourceName, cpcDollars }
+ *   set_ad_group_bid       { resourceName, cpcDollars }
  *   pause_keyword          { resourceName }
  *   enable_keyword         { resourceName }
  *   add_campaign_negative  { campaignResource, text, matchType }
@@ -39,6 +40,7 @@ console.log(EXECUTE ? 'MODE: EXECUTE — changes WILL be applied.\n' : 'MODE: DR
 function describe(a) {
   switch (a.type) {
     case 'set_keyword_bid': return `Set bid ${usd(a.cpcDollars)} on ${a.keyword || a.resourceName}`;
+    case 'set_ad_group_bid': return `Set ad group max CPC ${usd(a.cpcDollars)} on ${a.adGroup || a.resourceName}`;
     case 'pause_keyword': return `Pause keyword ${a.keyword || a.resourceName}`;
     case 'enable_keyword': return `Enable keyword ${a.keyword || a.resourceName}`;
     case 'add_campaign_negative': return `Add campaign negative [${a.matchType}] "${a.text}"`;
@@ -49,12 +51,18 @@ function describe(a) {
 }
 
 // Group into per-resource mutate batches.
-const batches = { adGroupCriteria: [], campaignCriteria: [], campaignBudgets: [], campaigns: [] };
+const batches = { adGroupCriteria: [], adGroups: [], campaignCriteria: [], campaignBudgets: [], campaigns: [] };
 const skipped = [];
 for (const a of actions) {
   switch (a.type) {
     case 'set_keyword_bid':
       batches.adGroupCriteria.push({
+        update: { resourceName: a.resourceName, cpcBidMicros: String(Math.round(Number(a.cpcDollars) * 1e6)) },
+        updateMask: 'cpc_bid_micros',
+      });
+      break;
+    case 'set_ad_group_bid':
+      batches.adGroups.push({
         update: { resourceName: a.resourceName, cpcBidMicros: String(Math.round(Number(a.cpcDollars) * 1e6)) },
         updateMask: 'cpc_bid_micros',
       });
