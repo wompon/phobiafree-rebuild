@@ -1,8 +1,17 @@
 /**
  * Admin email inbox proxy → inhouse-email-worker.
  * Auth: admin session cookie. Upstream: Bearer EMAIL_INBOX_API_KEY.
+ *
+ * Thought #22: rebuild conversation list/detail so same-subject emails to
+ * different recipients are not collapsed into one thread.
  */
 import { setRequestOrigin, json, requireAuth } from './lib/admin-auth.js';
+import {
+  buildConversationsFromMessages,
+  isLocalThreadId,
+  messagesForThreadId,
+  publicConversations,
+} from './lib/email-threads.js';
 
 const DEFAULT_INBOX_URL = 'https://inhouse-email-worker.soyuzlaunch.workers.dev';
 
@@ -22,12 +31,12 @@ export default {
 
     try {
       if (path === '/api/email/inbox' && request.method === 'GET') {
-        return proxyInbox(env, '/inbox' + url.search, 'GET');
+        return handleInboxList(env, url);
       }
 
       const thread = path.match(/^\/api\/email\/inbox\/thread\/([^/]+)$/);
       if (thread && request.method === 'GET') {
-        return proxyInbox(env, '/inbox/thread/' + thread[1] + url.search, 'GET');
+        return handleThread(env, url, decodeURIComponent(thread[1]));
       }
 
       if (path === '/api/email/folders' && request.method === 'GET') {
@@ -43,8 +52,8 @@ export default {
       }
 
       if (path === '/api/email/inbox/bulk' && request.method === 'POST') {
-        const body = await request.text();
-        return proxyInbox(env, '/inbox/bulk', 'POST', body);
+        const bodyText = await request.text();
+        return handleBulk(env, bodyText);
       }
 
       const one = path.match(/^\/api\/email\/inbox\/(\d+)$/);
@@ -80,10 +89,278 @@ export default {
   },
 };
 
+async function handleInboxList(env, url) {
+  const flat = url.searchParams.get('flat');
+  // Flat mode stays a passthrough for unread/contact scans.
+  if (flat === '1' || flat === 'true') {
+    return proxyInbox(env, '/inbox' + url.search, 'GET');
+  }
+
+  const folder = url.searchParams.get('folder') || 'inbox';
+  const mailbox =
+    url.searchParams.get('to') ||
+    url.searchParams.get('mailbox') ||
+    '';
+  const limit = url.searchParams.get('limit') || '100';
+
+  const qs = new URLSearchParams();
+  qs.set('limit', limit);
+  qs.set('folder', folder);
+  qs.set('flat', '1');
+  if (mailbox) {
+    qs.set('to', mailbox);
+    qs.set('mailbox', mailbox);
+  }
+
+  const upstream = await upstreamJson(env, '/inbox?' + qs.toString(), 'GET');
+  if (!upstream.ok) {
+    return json(upstream.data, upstream.status);
+  }
+
+  let messages = Array.isArray(upstream.data.messages) ? upstream.data.messages.slice() : [];
+  // Some upstream builds nest messages under conversations — flatten those.
+  if (!messages.length && Array.isArray(upstream.data.conversations)) {
+    for (const c of upstream.data.conversations) {
+      if (Array.isArray(c.messages)) messages.push(...c.messages);
+    }
+  }
+  if (!messages.length) {
+    // Do not blank the inbox if flat payload is unavailable.
+    if (Array.isArray(upstream.data.conversations)) {
+      return json(upstream.data, upstream.status);
+    }
+    return json({
+      ok: true,
+      conversations: [],
+      messages: [],
+      folder,
+      mailbox: mailbox || undefined,
+    });
+  }
+
+  const conversations = publicConversations(
+    buildConversationsFromMessages(messages, mailbox)
+  );
+
+  return json({
+    ok: true,
+    conversations,
+    // Keep messages available for older clients; list UI uses conversations.
+    messages,
+    folder,
+    mailbox: mailbox || undefined,
+  });
+}
+
+async function handleThread(env, url, threadId) {
+  const mailbox =
+    url.searchParams.get('mailbox') ||
+    url.searchParams.get('to') ||
+    '';
+
+  if (!isLocalThreadId(threadId)) {
+    // Legacy upstream thread ids — still proxy, but split if mixed parties.
+    const upstream = await upstreamJson(
+      env,
+      '/inbox/thread/' + encodeURIComponent(threadId) + url.search,
+      'GET'
+    );
+    if (!upstream.ok) {
+      return json(upstream.data, upstream.status);
+    }
+    const msgs = upstream.data.messages || [];
+    const split = buildConversationsFromMessages(msgs, mailbox);
+    if (split.length <= 1) {
+      return json(upstream.data, upstream.status);
+    }
+    // Ambiguous legacy id with mixed recipients: return first group only
+    // (admin list now uses local ids, so this is a rare fallback).
+    return json({
+      ok: true,
+      messages: split[0]._messages || msgs,
+      threadId,
+      splitHint: split.length,
+    });
+  }
+
+  const folder = url.searchParams.get('folder') || 'all';
+  const qs = new URLSearchParams();
+  qs.set('limit', '200');
+  qs.set('folder', folder === 'sent' ? 'sent' : folder);
+  qs.set('flat', '1');
+  if (mailbox) {
+    qs.set('to', mailbox);
+    qs.set('mailbox', mailbox);
+  }
+
+  // Prefer the active folder, then fall back to all so replies still resolve.
+  let messages = [];
+  const foldersToTry = folder === 'all' ? ['all'] : [folder, 'all', 'sent', 'inbox'];
+  const seen = new Set();
+  for (const f of foldersToTry) {
+    if (seen.has(f)) continue;
+    seen.add(f);
+    qs.set('folder', f);
+    const upstream = await upstreamJson(env, '/inbox?' + qs.toString(), 'GET');
+    if (!upstream.ok) continue;
+    const flat = upstream.data.messages || [];
+    const matched = messagesForThreadId(flat, threadId, mailbox);
+    if (matched && matched.length) {
+      messages = matched;
+      break;
+    }
+    // Keep scanning; may exist only in sent/inbox.
+  }
+
+  if (!messages.length) {
+    // Last resort: search without folder filter if upstream supports it.
+    qs.set('folder', 'all');
+    const upstream = await upstreamJson(env, '/inbox?' + qs.toString(), 'GET');
+    if (upstream.ok) {
+      messages = messagesForThreadId(upstream.data.messages || [], threadId, mailbox) || [];
+    }
+  }
+
+  return json({
+    ok: true,
+    threadId,
+    messages,
+  });
+}
+
+async function handleBulk(env, bodyText) {
+  let body;
+  try {
+    body = JSON.parse(bodyText || '{}');
+  } catch {
+    return json({ error: 'invalid json' }, 400);
+  }
+
+  const threadIds = Array.isArray(body.threadIds) ? body.threadIds : [];
+  const localIds = threadIds.filter(isLocalThreadId);
+  const upstreamIds = threadIds.filter((id) => !isLocalThreadId(id));
+
+  // Pure upstream bulk — passthrough.
+  if (!localIds.length) {
+    return proxyInbox(env, '/inbox/bulk', 'POST', bodyText);
+  }
+
+  const action = String(body.action || '');
+  const mailbox = body.mailbox || '';
+  const folder = body.folder;
+  const activeFolder = body.activeFolder || 'all';
+
+  const messageIds = new Set();
+  if (Array.isArray(body.messageIds)) {
+    body.messageIds.forEach((id) => {
+      if (id != null && id !== '') messageIds.add(id);
+    });
+  }
+
+  // Resolve local thread ids → message ids via flat inbox when needed.
+  if (localIds.length && messageIds.size === 0) {
+    const qs = new URLSearchParams();
+    qs.set('limit', '200');
+    qs.set('folder', activeFolder || 'all');
+    qs.set('flat', '1');
+    if (mailbox) {
+      qs.set('to', mailbox);
+      qs.set('mailbox', mailbox);
+    }
+    const foldersToTry = [activeFolder, 'all', 'sent', 'inbox'].filter(Boolean);
+    const seenFolders = new Set();
+    for (const f of foldersToTry) {
+      if (seenFolders.has(f)) continue;
+      seenFolders.add(f);
+      qs.set('folder', f);
+      const upstream = await upstreamJson(env, '/inbox?' + qs.toString(), 'GET');
+      if (!upstream.ok) continue;
+      const flat = upstream.data.messages || [];
+      for (const tid of localIds) {
+        const matched = messagesForThreadId(flat, tid, mailbox) || [];
+        matched.forEach((m) => {
+          if (m && m.id != null) messageIds.add(m.id);
+        });
+      }
+    }
+  }
+
+  const errors = [];
+  let affected = 0;
+
+  for (const id of messageIds) {
+    try {
+      const result = await applyMessageAction(env, id, action, folder);
+      if (!result.ok) {
+        errors.push({ id, error: result.error || 'failed' });
+      } else {
+        affected++;
+      }
+    } catch (e) {
+      errors.push({ id, error: String(e) });
+    }
+  }
+
+  // Also forward any legacy upstream thread ids.
+  if (upstreamIds.length) {
+    const forwarded = await upstreamJson(
+      env,
+      '/inbox/bulk',
+      'POST',
+      JSON.stringify({
+        ...body,
+        threadIds: upstreamIds,
+      })
+    );
+    if (!forwarded.ok) {
+      errors.push({
+        threadIds: upstreamIds,
+        error: forwarded.data.error || 'upstream bulk failed',
+      });
+    } else if (typeof forwarded.data.affected === 'number') {
+      affected += forwarded.data.affected;
+    }
+  }
+
+  return json({
+    ok: errors.length === 0,
+    affected,
+    errors: errors.length ? errors : undefined,
+  }, errors.length && !affected ? 502 : 200);
+}
+
+async function applyMessageAction(env, id, action, folder) {
+  if (action === 'delete') {
+    return upstreamJson(env, '/inbox/' + id + '?force=1', 'DELETE');
+  }
+  if (action === 'move') {
+    return upstreamJson(
+      env,
+      '/inbox/' + id + '/move',
+      'POST',
+      JSON.stringify({ folder })
+    );
+  }
+  if (['read', 'unread', 'trash', 'archive', 'restore'].includes(action)) {
+    return upstreamJson(env, '/inbox/' + id + '/' + action, 'POST', '{}');
+  }
+  return { ok: false, status: 400, data: { error: 'unsupported action' }, error: 'unsupported action' };
+}
+
 async function proxyInbox(env, upstreamPath, method, body) {
+  const result = await upstreamJson(env, upstreamPath, method, body);
+  return json(result.data, result.status);
+}
+
+async function upstreamJson(env, upstreamPath, method, body) {
   const key = env.EMAIL_INBOX_API_KEY;
   if (!key) {
-    return json({ error: 'EMAIL_INBOX_API_KEY secret not configured' }, 503);
+    return {
+      ok: false,
+      status: 503,
+      data: { error: 'EMAIL_INBOX_API_KEY secret not configured' },
+      error: 'EMAIL_INBOX_API_KEY secret not configured',
+    };
   }
 
   const base = (env.EMAIL_INBOX_URL || DEFAULT_INBOX_URL).replace(/\/$/, '');
@@ -101,7 +378,17 @@ async function proxyInbox(env, upstreamPath, method, body) {
   try {
     data = JSON.parse(text);
   } catch {
-    return json({ error: 'Upstream error', detail: text.slice(0, 300) }, res.status || 502);
+    return {
+      ok: false,
+      status: res.status || 502,
+      data: { error: 'Upstream error', detail: text.slice(0, 300) },
+      error: 'Upstream error',
+    };
   }
-  return json(data, res.status);
+  return {
+    ok: res.ok && data.ok !== false,
+    status: res.status,
+    data,
+    error: data.error,
+  };
 }
