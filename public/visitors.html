@@ -192,9 +192,15 @@ html{height:100%;}
 <div id="replayGrid" style="display:none;flex:1;flex-direction:row;min-height:0;">
   <button type="button" id="sessionListOpen" class="session-list-open" onclick="toggleSessionList(true)" title="Open sessions" aria-label="Open sessions" style="display:none;">☰</button>
   <div id="sessionList" class="session-list" style="width:260px;flex-shrink:0;background:#161b22;border-right:1px solid #30363d;overflow-y:auto;display:flex;flex-direction:column;">
-    <div class="session-list-hdr">
-      <div style="font-size:0.72rem;color:#6b6b6b;letter-spacing:0.08em;text-transform:uppercase;">Recorded Sessions</div>
-      <button type="button" class="session-list-close" onclick="toggleSessionList(false)" title="Close menu" aria-label="Close sessions">✕</button>
+    <div class="session-list-hdr" style="flex-direction:column;align-items:stretch;gap:0.4rem;">
+      <div style="display:flex;align-items:center;justify-content:space-between;">
+        <div style="font-size:0.72rem;color:#6b6b6b;letter-spacing:0.08em;text-transform:uppercase;">Sessions &amp; Chats</div>
+        <button type="button" class="session-list-close" onclick="toggleSessionList(false)" title="Close menu" aria-label="Close sessions">✕</button>
+      </div>
+      <div style="display:flex;gap:0.3rem;">
+        <button type="button" id="sessTabRecordings" class="session-tab-btn active" onclick="switchSessionTab('recordings')" style="flex:1;padding:0.3rem 0;font-size:0.68rem;background:#1a6b72;color:#fff;border:none;border-radius:3px;cursor:pointer;">Recordings</button>
+        <button type="button" id="sessTabChats" class="session-tab-btn" onclick="switchSessionTab('chats')" style="flex:1;padding:0.3rem 0;font-size:0.68rem;background:#30363d;color:#9ba3ad;border:none;border-radius:3px;cursor:pointer;">All Chats</button>
+      </div>
     </div>
     <div id="sessionListBody"><div style="padding:2rem;text-align:center;color:#444;font-size:0.82rem;">Loading...</div></div>
   </div>
@@ -519,7 +525,7 @@ function setMode(mode) {
   if (mode==='live') {
     Object.keys(replayState).forEach(function(vid){ closeReplayCard(vid); });
   }
-  if (mode==='replay') loadSessionList();
+  if (mode==='replay') { if (sessionTabMode === 'chats') loadChatList(); else loadSessionList(); }
   // Live polling keeps running in either mode — watching a replay must never
   // pause live updates or make it look like recording stopped.
 }
@@ -536,6 +542,17 @@ function toggleSessionList(open) {
   btn.style.display = open ? 'none' : 'block';
 }
 window.toggleSessionList = toggleSessionList;
+
+var sessionTabMode = 'recordings';
+function switchSessionTab(mode) {
+  sessionTabMode = mode;
+  var recBtn = document.getElementById('sessTabRecordings');
+  var chatBtn = document.getElementById('sessTabChats');
+  if (recBtn) { recBtn.style.background = mode==='recordings' ? '#1a6b72' : '#30363d'; recBtn.style.color = mode==='recordings' ? '#fff' : '#9ba3ad'; }
+  if (chatBtn) { chatBtn.style.background = mode==='chats' ? '#1a6b72' : '#30363d'; chatBtn.style.color = mode==='chats' ? '#fff' : '#9ba3ad'; }
+  if (mode === 'chats') loadChatList(); else loadSessionList();
+}
+window.switchSessionTab = switchSessionTab;
 
 function loadSessionList() {
   fetch('/api/sessions',{credentials:'include'}).then(function(r){return r.json();})
@@ -563,6 +580,40 @@ function loadSessionList() {
     });
     body.innerHTML = html;
   }).catch(function(){});
+}
+
+// All conversations ever logged, straight from chat_messages — shows up even
+// when the matching visitor recording/session was cleared, so old chats are
+// never "lost" from the dashboard (they were never deleted, just unlistable).
+function loadChatList() {
+  fetch('/api/chats',{credentials:'include'}).then(function(r){return r.json();})
+  .then(function(rows){
+    if (sessionTabMode !== 'chats') return;
+    var body = document.getElementById('sessionListBody');
+    if (!rows || !rows.length) {
+      body.innerHTML = '<div style="padding:2rem;text-align:center;color:#444;font-size:0.82rem;">No chats yet.</div>';
+      return;
+    }
+    var html = '';
+    rows.forEach(function(c) {
+      var loc = (c.location||'').replace(/,\s*[A-Z]{2},.*$/,'').replace(/,\s*[A-Z]{2}$/,'') || c.vid;
+      var when = c.last_t ? new Date(c.last_t*1000).toLocaleString('en-US',{month:'short',day:'numeric',hour:'numeric',minute:'2-digit'}) : '—';
+      var label = String(loc).replace(/&/g,'&amp;').replace(/"/g,'&quot;');
+      html += '<div class="session-row" data-vid="'+c.vid+'" onclick="openSessionChat(event,\''+c.vid+'\',\''+label.replace(/'/g,"\\'")+'\')">'
+        +'<div style="font-size:1rem;">'+devIcon(c.device||'')+'</div>'
+        +'<div class="session-info">'
+        +'<div class="session-loc">'+loc+'</div>'
+        +'<div class="session-meta">'+when+' · '+c.msg_count+' message'+(c.msg_count===1?'':'s')+'</div>'
+        +'</div>'
+        +'<div style="font-size:1rem;padding:0 0.4rem;">💬</div>'
+        +'</div>';
+    });
+    body.innerHTML = html;
+  }).catch(function(){
+    if (sessionTabMode !== 'chats') return;
+    var body = document.getElementById('sessionListBody');
+    if (body) body.innerHTML = '<div style="padding:2rem;text-align:center;color:#f87171;font-size:0.82rem;">Could not load chats.</div>';
+  });
 }
 
 function placePopupFallback(vid) {

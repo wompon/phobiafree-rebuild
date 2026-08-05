@@ -189,7 +189,7 @@ async function dispatchApi(request, env, ctx) {
   if (path.startsWith('/api/email')) return emailApi.fetch(req, env, ctx);
   if (
     path === '/api/login' || path === '/api/logout' ||
-    path === '/api/sessions' || path === '/api/replay' || path === '/api/delete' ||
+    path === '/api/sessions' || path === '/api/chats' || path === '/api/replay' || path === '/api/delete' ||
     path === '/api/forgot-password' || path === '/api/reset-password' || path === '/api/change-password'
   ) return admin.fetch(req, env, ctx);
   if (path.startsWith('/api/payment')) return payment.fetch(req, env, ctx);
