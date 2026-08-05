@@ -1,5 +1,39 @@
 # Google Ads analyze → apply agent
 
+## Launching new phobia campaigns
+
+`scripts/google-ads-build-phobia-campaign.mjs` clones the Fear of Flying campaign
+structure (Hypnosis/Hypnotherapy, Therapy/Treatment, How-to/Overcome, Near Me ad
+groups) onto any other `/fear-of-*` landing page. Every campaign it creates is
+**PAUSED with a small budget by default — zero spend until you enable it.**
+
+```bash
+# One phobia
+node scripts/google-ads-build-phobia-campaign.mjs --slug fear-of-heights --budget 10
+
+# Several at once
+node scripts/google-ads-build-phobia-campaign.mjs --slug fear-of-heights,fear-of-spiders --budget 10
+
+# The curated starter set (heights, spiders, public speaking, driving, needles)
+node scripts/google-ads-build-phobia-campaign.mjs --all-defaults --budget 10
+
+# Skip the pause and go live immediately (only once you've reviewed it!)
+node scripts/google-ads-build-phobia-campaign.mjs --slug fear-of-heights --budget 15 --enable
+```
+
+Notes learned the hard way while building the first batch:
+
+- Google's `HEALTH_IN_PERSONALIZED_ADS` policy can flag `"<condition> phobia"`
+  phrasing (e.g. "hypnotherapy for heights phobia") as sensitive-health audience
+  targeting. The keyword templates avoid that pattern.
+- Responsive Search Ads require **3–15 headlines** and **2–4 descriptions** —
+  the ad-copy builder validates and caps both before creating the ad.
+- If a build fails partway (policy error, etc.), it can leave a partial
+  campaign (budget + empty ad group) behind — check with `google-ads-verify.mjs`
+  (update `CAMPAIGN_ID`) and remove it via a `campaigns` mutate `{ remove: resourceName }`
+  operation before re-running.
+
+
 Two scripts that together act as an optimization agent for the PhobiaFree Google Ads
 account. Built for the Fear of Flying campaign (`24066888224`) but works for any
 campaign via `--campaign`, so it scales to future phobia campaigns.
