@@ -22,7 +22,7 @@ function arg(name, fallback) {
 }
 const CAMPAIGN_ID = String(arg('campaign', DEFAULT_CAMPAIGN_ID)).replace(/\D/g, '');
 const DAYS = Math.max(1, Number(arg('days', 30)));
-const SPEND_GOAL = Number(arg('goal', 250));
+const SPEND_GOAL = Number(arg('goal', 500)); // total promo tier: $500 spend unlocks next $1000 credit
 const DEADLINE = arg('deadline', '2026-08-11');
 const SPEND_START = arg('spend-start', ''); // default: earliest campaign start date
 
