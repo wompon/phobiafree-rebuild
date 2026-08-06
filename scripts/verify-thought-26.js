@@ -47,3 +47,4 @@ if (missing.length) {
 console.log(
   'OK: Thought #26 therapy session status colors present and template synced.'
 );
+
