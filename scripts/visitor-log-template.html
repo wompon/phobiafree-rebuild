@@ -235,7 +235,8 @@ tr:hover td{background:rgba(26,107,114,0.02);}
 .badge-confirmed{background:#b8f000;color:#2a3d00;}
 .badge-completed{background:#2563eb;color:#fff;}
 .badge-cancelled{background:#dc2626;color:#fff;}
-.badge-scheduled{background:rgba(26,107,114,0.1);color:var(--teal-dark);}
+.badge-scheduled{background:#16a34a;color:#fff;}
+.badge-no-show{background:#111;color:#fff;}
 .badge-paid{background:rgba(122,158,126,0.15);color:#3d6b42;}
 .badge-unpaid{background:rgba(201,168,76,0.12);color:#8a6a1a;}
 
@@ -254,6 +255,8 @@ tr:hover td{background:rgba(26,107,114,0.02);}
 .status-select.status-completed{background:#2563eb;border-color:#1d4ed8;color:#fff;}
 .status-select.status-cancelled{background:#dc2626;border-color:#b91c1c;color:#fff;}
 .status-select.status-pending{background:rgba(201,168,76,0.18);border-color:rgba(201,168,76,0.45);color:#8a6a1a;}
+.status-select.status-scheduled{background:#16a34a;border-color:#15803d;color:#fff;}
+.status-select.status-no-show{background:#111;border-color:#000;color:#fff;}
 
 /* SCHEDULE */
 .schedule-controls{display:flex;gap:1rem;margin-bottom:1.5rem;flex-wrap:wrap;align-items:center;}
@@ -944,7 +947,7 @@ function renderSessions() {
         html += '<span style="color:var(--mid-gray);font-size:0.75rem;">Not set</span>';
       }
       html += '</td>';
-      html += '<td><select class="status-select" onchange="updateSessionStatus(' + s.id + ',this.value)">';
+      html += '<td><select class="status-select status-' + escapeHtml(status) + '" onchange="this.className=\'status-select status-\'+this.value;updateSessionStatus(' + s.id + ',this.value)">';
       ['scheduled', 'completed', 'cancelled', 'no-show'].forEach(function(st) {
         html += '<option value="' + st + '"' + (status === st ? ' selected' : '') + '>' + (st === 'no-show' ? 'No Show' : st.charAt(0).toUpperCase() + st.slice(1)) + '</option>';
       });
