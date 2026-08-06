@@ -30,6 +30,9 @@ export default {
       if (url.pathname === '/api/sessions' && request.method === 'GET') {
         return await handleGetSessions(request, env);
       }
+      if (url.pathname === '/api/conversations' && request.method === 'GET') {
+        return await handleGetChats(request, env);
+      }
       if (url.pathname === '/api/replay' && request.method === 'GET') {
         return await handleGetReplay(request, env, url);
       }
@@ -126,6 +129,38 @@ async function handleGetSessions(request, env) {
       GROUP BY v.vid
       ORDER BY v.last_seen DESC
       LIMIT 200
+    `)
+    .all();
+
+  return json(results);
+}
+
+// Full chat history straight from chat_messages — independent of visitor_log,
+// so clearing visitor recordings (which deletes visitor_log/session_snapshots
+// but never touches chat_messages) can never hide old conversations again.
+async function handleGetChats(request, env) {
+  if (!(await requireAuth(request, env))) {
+    return json({ ok: false, error: 'unauthorized' }, 401);
+  }
+
+  const { results } = await env.phobiafree_db
+    .prepare(`
+      SELECT
+        c.vid,
+        COUNT(*) as msg_count,
+        MIN(c.t) as first_t,
+        MAX(c.t) as last_t,
+        v.location,
+        v.device
+      FROM chat_messages c
+      LEFT JOIN visitor_log v ON v.vid = c.vid
+      WHERE c.vid NOT LIKE 'v\\_test%' ESCAPE '\\'
+        AND c.vid NOT LIKE 'v\\_sms%' ESCAPE '\\'
+        AND c.vid NOT LIKE 'v\\_mirror%' ESCAPE '\\'
+        AND c.vid NOT LIKE 'v\\_3way%' ESCAPE '\\'
+      GROUP BY c.vid
+      ORDER BY last_t DESC
+      LIMIT 500
     `)
     .all();
 
