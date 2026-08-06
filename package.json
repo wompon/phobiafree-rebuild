@@ -5,7 +5,9 @@
   "description": "PhobiaFree.life Cloudflare Worker site + build/deploy scripts",
   "scripts": {
     "deploy": "powershell -NoProfile -ExecutionPolicy Bypass -File ./deploy.ps1",
-    "optimize-images": "node scripts/optimize-hero-images.js"
+    "optimize-images": "node scripts/optimize-hero-images.js",
+    "ads:analyze": "node scripts/google-ads-analyze.mjs",
+    "ads:apply": "node scripts/google-ads-apply.mjs"
   },
   "devDependencies": {
     "sharp": "^0.33.5"
